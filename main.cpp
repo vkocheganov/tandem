@@ -7,14 +7,14 @@ int main()
 {
   cout <<"hello\n";
   vector<ServerState> vs;
-  FirstServerTimes fst = {10, 10};
-  SecondServerTimes sst = {10, 10,5};
+  FirstLightSpec fls = {10, 1, 10, 1};
+  SecondLightSpec sls = {10, 1, 10, 1, 5, 1};
   ServerState startState;
   startState.state1 = Primary;
   startState.time1 = 10;
   startState.state2 = LowPriority;
   startState.time2 = 10;
-  GenerateStates(vs, startState, fst, sst);
+  GenerateStates(vs, startState, fls, sls);
 
   return 0;
 }
