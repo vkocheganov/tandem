@@ -75,7 +75,12 @@ Queue(QueueState _state): state(_state){};
   PrimaryFlowDistribution secondLight;
   void MakeIteration(FirstLightSpec fls, SecondLightSpec sls, ServerState serverState)
   {
-    
+    int timeToService = (serverState.time1 < serverState.time2 ? serverState.time1 : serverState.time2);
+    int firstLightCustomersToServe = timeToService;
+    int secondLightCustomersToServe = timeToService;
+
+    firstLightCustomersToServe *= (serverState.state1 == Primary ? fls.primaryIntensity : 0);
+    secondLightCustomersToServe *= (serverState.state2 == LowPriority ? sls.lowPriorityIntensity : (serverState.state2 == HighPriority ? sls.highPriorityIntensity : sls.prolongationIntensity) );
   }
 };
   
