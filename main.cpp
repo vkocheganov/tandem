@@ -1,11 +1,14 @@
 #include "servers.h"
 #include <iostream>
+#include "io.h"
 
 using namespace std;
 
 int main()
 {
-  cout <<"hello\n";
+  SystemAprioriInfo sai = ReadSpecs("sample_spec");
+  sai.Print();
+  return 0;
   vector<ServerState> vs;
   FirstLightSpec fls = {10, 1, 10, 1};
   SecondLightSpec sls = {10, 1, 10, 1, 5, 1};

@@ -1,6 +1,12 @@
+#ifndef SERVERS_H
+#define SERVERS_H
+
 #include <vector>
 #include <iostream>
 #include <algorithm>
+#include <queue>
+#include <list>
+#include "generating.h"
 using namespace std;
 
 struct PrimaryFlowDistribution
@@ -41,6 +47,47 @@ struct SecondLightSpec
 };
 
 
+struct SystemAprioriInfo
+{
+  PrimaryFlowDistribution firstLight, secondLight;
+  FirstLightSpec fls;
+  SecondLightSpec sls;
+  float midleQueueSuccProb;
+  void Print()
+  {
+    cout <<"--First light info"<<endl;
+    
+    cout <<"  --Primary flow: ";
+    cout <<" lambda = "<<firstLight.lambda <<"; ";
+    cout <<"probabilities = [ ";
+    for (auto& a:firstLight.probabilities)
+      cout << a<<" ";
+    cout <<"]"<<endl;
+
+    cout <<"  --Server: ";
+    cout <<"       primaryTime="<<fls.primaryTime<<", primaryIntensity="<<fls.primaryIntensity<<
+      ", secondaryTime="<<fls.secondaryTime<<", secondaryIntensity="<<fls.secondaryIntensity<<endl;
+
+
+
+    
+    cout <<"--Second light info"<<endl;
+    
+    cout <<"  --Primary flow: ";
+    cout <<" lambda = "<<secondLight.lambda <<"; ";
+    cout <<"probabilities = [ ";
+    for (auto& a:secondLight.probabilities)
+      cout << a<<" ";
+    cout <<"]"<<endl;
+
+    cout <<"  --Server: ";
+    cout <<"       lowPriorityTime="<<sls.lowPriorityTime<<", lowPriorityIntensity="<<sls.lowPriorityIntensity<<", highPriorityTime="<<sls.highPriorityTime<<", highPriorityIntensity="<<sls.highPriorityIntensity<<", prolongationTime="<<sls.prolongationTime<<", prolongationIntensity="<<sls.prolongationIntensity<<endl;
+
+    cout<<"--Midle queue info ";
+    cout<<"  queue success probabity: "<<midleQueueSuccProb<<endl;
+  }
+};
+
 struct ServerState
 {
   //  ServerState(): nextRegular(-1), nextProlongation(-1) {};
@@ -59,6 +106,13 @@ struct ServerState
 };
 const bool operator == (const ServerState &ss1, const ServerState &ss2);
 
+struct Customer
+{
+Customer():arrivalTime(-1), departureTime(-1){};
+  int arrivalTime;
+  int departureTime;
+};
+
 struct QueueState
 {
   int firstLightPrimary;
@@ -67,20 +121,76 @@ struct QueueState
   int midleQueue;
 };
 
+
 struct Queue
 {
 Queue(QueueState _state): state(_state){};
+  queue<Customer> firstLightPrimaryQueue;
+  queue<Customer> secondLightLowPriorityQueue;
+  queue<Customer> secondLightHighPriorityQueue;
+  list<Customer> midleQueue;
+  
   QueueState state;
   PrimaryFlowDistribution firstLight;
   PrimaryFlowDistribution secondLight;
+  float midleQueueSuccProb;
+  void ServiceMidleQueue()
+  {
+    int queueSize = midleQueue.size();
+    float generated;
+    for (auto a = midleQueue.begin(); a != midleQueue.end(); a++)
+      {
+	 generated = float(rand()) / RAND_MAX;
+	 if (generated <= midleQueueSuccProb)
+	   {
+	     secondLightHighPriorityQueue.push(*(midleQueue.erase(a)));
+	   }
+      }
+  }
+
+
   void MakeIteration(FirstLightSpec fls, SecondLightSpec sls, ServerState serverState)
   {
     int timeToService = (serverState.time1 < serverState.time2 ? serverState.time1 : serverState.time2);
     int firstLightCustomersToServe = timeToService;
     int secondLightCustomersToServe = timeToService;
+    int midleQueueToServe;
 
     firstLightCustomersToServe *= (serverState.state1 == Primary ? fls.primaryIntensity : 0);
     secondLightCustomersToServe *= (serverState.state2 == LowPriority ? sls.lowPriorityIntensity : (serverState.state2 == HighPriority ? sls.highPriorityIntensity : sls.prolongationIntensity) );
+    if (serverState.state2 == LowPriority)
+      {
+	for (int i = 0; i < secondLightCustomersToServe; i++)
+	  {
+	    secondLightLowPriorityQueue.pop();
+	    //temp
+	  }
+      }
+    else
+      {
+	for (int i = 0; i < secondLightCustomersToServe; i++)
+	  {
+	    secondLightHighPriorityQueue.pop();
+	    //temp
+	  }
+      }
+    ServiceMidleQueue();
+    if (serverState.state1 == Primary)
+      {
+	for (int i =0; i < firstLightCustomersToServe; i++)
+	  {
+	    firstLightPrimaryQueue.pop();
+	  }
+      }
+
+  }
+  void UpdateQueues(int firstLightToServe, int secondLightToServe, int midleQueueToServe, ServerState serverState)
+  {
+    
+    if (firstLightToServe > 0)
+      {
+	
+      }
   }
 };
   
@@ -97,3 +207,6 @@ struct Server
 };
 
 void GenerateStates(vector<ServerState>& vs, ServerState currentState, FirstLightSpec& fls, SecondLightSpec& sls);
+
+
+#endif
