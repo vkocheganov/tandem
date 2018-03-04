@@ -8,6 +8,25 @@ int main()
 {
   SystemAprioriInfo sai = ReadSpecs("sample_spec");
   sai.Print();
+  ServerState initialServerState;
+  QueueState initialQueueState;
+  ReadStates("sample_states", initialServerState, initialQueueState);
+  initialServerState.Print();
+  initialQueueState.Print();
+
+  cout <<endl<<"Starting!"<<endl;
+  Queue myQueue;
+  myQueue.Init(initialQueueState);
+  myQueue.PrintState();
+
+  Server server;
+  server.Init(initialServerState);
+  server.Print();
+  cout<<endl<<"generating server states:"<<endl;
+  GenerateStates(server.allStates, initialServerState, sai.fls, sai.sls);
+  server.MakeIteration(myQueue.state);
+  server.Print();
+  
   return 0;
   vector<ServerState> vs;
   FirstLightSpec fls = {10, 1, 10, 1};

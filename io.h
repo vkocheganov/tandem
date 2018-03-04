@@ -107,4 +107,50 @@ SystemAprioriInfo ReadSpecs(string filename)
   return sai;
 }
 
+
+void ReadStates(string filename, ServerState& serverState, QueueState& queueState)
+{
+  ifstream file(filename);
+  if (!file.is_open())
+    {
+      cout <<"Error openning file: "<<filename<<endl;
+      exit(1);
+    }
+
+  float temp;
+  string line;
+  string temp_str;
+  
+  getline(file,line);
+  istringstream iss(line);
+  iss>>queueState.firstLightPrimary;
+  iss>>queueState.secondLightSecondary;
+  iss>>queueState.secondLightPrimary;
+  iss>>queueState.midleQueue;
+  
+  getline(file,line);
+  iss.clear();
+  iss.str(line);
+  iss >> temp_str;
+  if (temp_str == "Primary")
+    serverState.state1 = Primary;
+  else
+    serverState.state1 = Secondary;
+
+  iss >> temp;
+  serverState.time1 = temp;
+
+
+  iss >> temp_str;
+  if (temp_str == "LowPriority")
+    serverState.state2 = LowPriority;
+  else if (temp_str == "HighPriority")
+    serverState.state2 = HighPriority;
+  else
+    serverState.state2 = Prolongation;
+
+  iss >> temp;
+  serverState.time2 = temp;
+}
+
 #endif

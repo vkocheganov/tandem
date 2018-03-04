@@ -99,8 +99,8 @@ struct ServerState
   int nextProlongation = -1;
   void Print()
   {
-    cout<< "(";
-    cout <<(state1 == Primary ? "P_" : "S_") << time1<< " | "<< (state2 == LowPriority ? "L_" : (state2 == HighPriority ? "H_" : "P_"))<< time2;
+    cout<< "Server state: (";
+    cout <<(state1 == Primary ? "Pri_" : "S_") << time1<< " | "<< (state2 == LowPriority ? "L_" : (state2 == HighPriority ? "H_" : "Pro_"))<< time2;
     cout<< ")"<<endl;
   }
 };
@@ -108,31 +108,70 @@ const bool operator == (const ServerState &ss1, const ServerState &ss2);
 
 struct Customer
 {
-Customer():arrivalTime(-1), departureTime(-1){};
+  //Customer():arrivalTime(-1), departureTime(-1){};
   int arrivalTime;
   int departureTime;
+  void Print()
+  {
+    cout<<"Customer: arrival="<<arrivalTime<<", departure="<<departureTime<<endl;
+  }
 };
 
 struct QueueState
 {
   int firstLightPrimary;
-  int secondLightPrimary;
   int secondLightSecondary;
+  int secondLightPrimary;
   int midleQueue;
+  void Print()
+  {
+    cout<< "Queue state: (";
+    cout << firstLightPrimary<<", "<<secondLightSecondary<<", "
+	 << secondLightPrimary<<", "<< midleQueue;
+    cout<< ")"<<endl;
+  }
 };
 
 
 struct Queue
 {
-Queue(QueueState _state): state(_state){};
+  //Queue(QueueState _state): state(_state){};
   queue<Customer> firstLightPrimaryQueue;
-  queue<Customer> secondLightLowPriorityQueue;
   queue<Customer> secondLightHighPriorityQueue;
+  queue<Customer> secondLightLowPriorityQueue;
   list<Customer> midleQueue;
-  
+
+  void Init(QueueState initialState)
+  {
+    Customer dummy = {0,0};
+    for (int i = 0; i < initialState.firstLightPrimary; i++)
+      {
+	firstLightPrimaryQueue.push(dummy);
+      }
+    for (int i = 0; i < initialState.secondLightSecondary; i++)
+      {
+	secondLightHighPriorityQueue.push(dummy);
+      }
+    for (int i = 0; i < initialState.secondLightPrimary; i++)
+      {
+	secondLightLowPriorityQueue.push(dummy);
+      }
+    for (int i = 0; i < initialState.midleQueue; i++)
+      {
+	midleQueue.push_back(dummy);
+      }
+  }
+
+  void PrintState()
+  {
+    cout<<"Queue state: ["<<firstLightPrimaryQueue.size()<<", "
+      <<secondLightHighPriorityQueue.size()<<", "
+	<<secondLightLowPriorityQueue.size()<<", "
+	<<midleQueue.size()<<"]"<<endl;
+  }
   QueueState state;
-  PrimaryFlowDistribution firstLight;
-  PrimaryFlowDistribution secondLight;
+  /* PrimaryFlowDistribution firstLight; */
+  /* PrimaryFlowDistribution secondLight; */
   float midleQueueSuccProb;
   void ServiceMidleQueue()
   {
@@ -196,13 +235,22 @@ Queue(QueueState _state): state(_state){};
   
 struct Server
 {
-  Server (ServerState _state): state(_state){};
+  //  Server (ServerState _state): state(_state){};
   ServerState state;
   vector<ServerState> allStates;
   int prolongationThreshold;
   void MakeIteration(const QueueState qs)
   {
     state = ( qs.secondLightPrimary > prolongationThreshold ? allStates[state.nextProlongation] : allStates[state.nextRegular]);
+  }
+  void Init(ServerState serverState)
+  {
+    state = serverState;
+  }
+  void Print()
+  {
+    cout<<"Server state: ";
+    state.Print();
   }
 };
 
