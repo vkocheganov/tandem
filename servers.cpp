@@ -1,12 +1,18 @@
 #include "servers.h"
 
-void GenerateStates(vector<ServerState>& vs, int currentState, FirstLightSpec& fls, SecondLightSpec& sls)
+void GenerateStates(vector<ServerState>& vs, int currentState, SystemAprioriInfo sai)
 {
   int serverToFinish;
   int temp, timeToFinish;
   int eligibleToProlong;
   ServerState newState;
 
+  int firstLightCustomersToServe;
+  int secondLightCustomersToServe;
+
+  // firstLightCustomersToServe *= (serverState.state1 == Primary ? fls.primaryIntensity : 0);
+  // secondLightCustomersToServe *= (serverState.state2 == LowPriority ? sls.lowPriorityIntensity : (serverState.state2 == HighPriority ? sls.highPriorityIntensity : sls.prolongationIntensity) );
+  
   if (vs[currentState].time1 < vs[currentState].time2)
     {
       serverToFinish = 1;
@@ -23,11 +29,22 @@ void GenerateStates(vector<ServerState>& vs, int currentState, FirstLightSpec& f
       timeToFinish = vs[currentState].time1;
     }
 
+  if (vs[currentState].numCustomersFirstLight < 0 || vs[currentState].numCustomersSecondLight < 0)
+    {
+      firstLightCustomersToServe = timeToFinish;
+      secondLightCustomersToServe = timeToFinish;
+      firstLightCustomersToServe *= (vs[currentState].state1 == Primary ? sai.fls.primaryIntensity : 0);
+      secondLightCustomersToServe *= (vs[currentState].state2 == LowPriority ? sai.sls.lowPriorityIntensity : (vs[currentState].state2 == HighPriority ? sai.sls.highPriorityIntensity : sai.sls.prolongationIntensity) );
+      vs[currentState].numCustomersFirstLight = firstLightCustomersToServe;
+      vs[currentState].numCustomersSecondLight = secondLightCustomersToServe;
+    }
+
+  
   eligibleToProlong = (serverToFinish == 0 || serverToFinish == 2) && vs[currentState].state2 > LowPriority;
   if (serverToFinish == 1)
     {
       newState.state1 = (vs[currentState].state1 == Primary ? Secondary : Primary);
-      newState.time1 = (newState.state1 == Primary ? fls.primaryTime : fls.secondaryTime);
+      newState.time1 = (newState.state1 == Primary ? sai.fls.primaryTime : sai.fls.secondaryTime);
       newState.state2 = vs[currentState].state2;
       newState.time2 = vs[currentState].time2 - timeToFinish;
     }
@@ -36,14 +53,14 @@ void GenerateStates(vector<ServerState>& vs, int currentState, FirstLightSpec& f
       newState.state1 = vs[currentState].state1;
       newState.time1 = vs[currentState].time1 - timeToFinish;
       newState.state2 = (vs[currentState].state2  > LowPriority ? LowPriority : HighPriority);
-      newState.time2 = (newState.state2 == LowPriority ? sls.lowPriorityTime : sls.highPriorityTime);
+      newState.time2 = (newState.state2 == LowPriority ? sai.sls.lowPriorityTime : sai.sls.highPriorityTime);
     }
   else
     {
       newState.state1 = (vs[currentState].state1 == Primary ? Secondary : Primary);
-      newState.time1 = (newState.state1 == Primary ? fls.primaryTime : fls.secondaryTime);
+      newState.time1 = (newState.state1 == Primary ? sai.fls.primaryTime : sai.fls.secondaryTime);
       newState.state2 = (vs[currentState].state2  > LowPriority ? LowPriority : HighPriority);
-      newState.time2 = (newState.state2 == LowPriority ? sls.lowPriorityTime : sls.highPriorityTime);
+      newState.time2 = (newState.state2 == LowPriority ? sai.sls.lowPriorityTime : sai.sls.highPriorityTime);
     }
 
   auto tmp = find(vs.begin(), vs.end(), newState);
@@ -55,7 +72,7 @@ void GenerateStates(vector<ServerState>& vs, int currentState, FirstLightSpec& f
       vs[currentState].nextRegular = vs.size() - 1;
       // cout<<"CurrentState :" <<eligibleToProlong;
       // vs[currentState].Print();
-      GenerateStates(vs, vs.size()-1, fls, sls);
+      GenerateStates(vs, vs.size()-1, sai);
     }
   else
     {
@@ -64,7 +81,7 @@ void GenerateStates(vector<ServerState>& vs, int currentState, FirstLightSpec& f
   if (eligibleToProlong)
     {
       newState.state2 = Prolongation;
-      newState.time2 = sls.prolongationTime;
+      newState.time2 = sai.sls.prolongationTime;
       auto tmp = find(vs.begin(), vs.end(), newState);
       if ( tmp == vs.end())
 	{
@@ -74,7 +91,7 @@ void GenerateStates(vector<ServerState>& vs, int currentState, FirstLightSpec& f
       // vs[currentState].Print();
 	  vs.push_back(newState);
 	  vs[currentState].nextProlongation = vs.size() - 1;
-	  GenerateStates(vs, vs.size()-1, fls, sls);
+	  GenerateStates(vs, vs.size()-1, sai);
 	}
       else
 	{

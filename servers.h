@@ -9,6 +9,7 @@
 #include "generating.h"
 using namespace std;
 
+
 struct PrimaryFlowDistribution
 {
   float lambda;
@@ -53,6 +54,7 @@ struct SystemAprioriInfo
   FirstLightSpec fls;
   SecondLightSpec sls;
   float midleQueueSuccProb;
+  int prolongThres;
   void Print()
   {
     cout <<"--First light info"<<endl;
@@ -85,6 +87,9 @@ struct SystemAprioriInfo
 
     cout<<"--Midle queue info ";
     cout<<"  queue success probabity: "<<midleQueueSuccProb<<endl;
+    
+    cout<<"--Prolongation Threshold: ";
+    cout<<prolongThres<<endl;
   }
 };
 
@@ -95,13 +100,17 @@ struct ServerState
   int time1 = 0;
   SecondLightStates state2 = LowPriority;
   int time2 = 0;
+  int numCustomersFirstLight = -1;
+  int numCustomersSecondLight = -1;
+  
   int nextRegular = -1;
   int nextProlongation = -1;
   void Print()
   {
     cout<< "(";
     cout <<(state1 == Primary ? "Pri_" : "S_") << time1<< " | "<< (state2 == LowPriority ? "L_" : (state2 == HighPriority ? "H_" : "Pro_"))<< time2;
-    cout<< ")"<<" ("<<nextRegular<<","<<nextProlongation<<")"<<endl;
+    cout<< ")"<<" ("<<numCustomersFirstLight<<","<<numCustomersSecondLight<<")";
+    cout<<" ("<<nextRegular<<","<<nextProlongation<<")"<<endl;
   }
 };
 const bool operator == (const ServerState &ss1, const ServerState &ss2);
@@ -140,8 +149,9 @@ struct Queue
   queue<Customer> secondLightLowPriorityQueue;
   list<Customer> midleQueue;
 
-  void Init(QueueState initialState)
+  void Init(QueueState initialState, float succProb)
   {
+    midleQueueSuccProb = succProb;
     Customer dummy = {0,0};
     for (int i = 0; i < initialState.firstLightPrimary; i++)
       {
@@ -176,12 +186,20 @@ struct Queue
   {
     int queueSize = midleQueue.size();
     float generated;
-    for (auto a = midleQueue.begin(); a != midleQueue.end(); a++)
+    for (auto a = midleQueue.begin(); a != midleQueue.end();)
       {
 	 generated = float(rand()) / RAND_MAX;
+	 cout<<"generated = "<<generated<<" vs "<<midleQueueSuccProb<<endl;
 	 if (generated <= midleQueueSuccProb)
 	   {
-	     secondLightHighPriorityQueue.push(*(midleQueue.erase(a)));
+	     // 	     secondLightHighPriorityQueue.push(*(midleQueue.erase(a)));
+	     cout <<"erasing ";
+	     a->Print();
+	     a = midleQueue.erase(a);
+	   }
+	 else
+	   {
+	     a++;
 	   }
       }
   }
@@ -196,9 +214,12 @@ struct Queue
 
     firstLightCustomersToServe *= (serverState.state1 == Primary ? fls.primaryIntensity : 0);
     secondLightCustomersToServe *= (serverState.state2 == LowPriority ? sls.lowPriorityIntensity : (serverState.state2 == HighPriority ? sls.highPriorityIntensity : sls.prolongationIntensity) );
+
     if (serverState.state2 == LowPriority)
       {
-	for (int i = 0; i < secondLightCustomersToServe; i++)
+	int temp_count = std::min(secondLightCustomersToServe,(int)secondLightLowPriorityQueue.size() );
+	//	cout<<"Second: LowPriority serving: "<<temp_count<<endl;
+	for (int i = 0; i < temp_count; i++)
 	  {
 	    secondLightLowPriorityQueue.pop();
 	    //temp
@@ -206,7 +227,9 @@ struct Queue
       }
     else
       {
-	for (int i = 0; i < secondLightCustomersToServe; i++)
+	int temp_count = std::min(secondLightCustomersToServe,(int)secondLightHighPriorityQueue.size() );
+	//	cout<<"Second: High Priority serving: "<<temp_count<<endl;
+	for (int i = 0; i < temp_count; i++)
 	  {
 	    secondLightHighPriorityQueue.pop();
 	    //temp
@@ -215,7 +238,9 @@ struct Queue
     ServiceMidleQueue();
     if (serverState.state1 == Primary)
       {
-	for (int i =0; i < firstLightCustomersToServe; i++)
+	//	cout<<"First: Primary serving: "<<firstLightCustomersToServe<<endl;
+	int temp_count = std::min(firstLightCustomersToServe,(int)firstLightPrimaryQueue.size() );
+	for (int i =0; i < temp_count; i++)
 	  {
 	    midleQueue.push_back(firstLightPrimaryQueue.front());
 	    firstLightPrimaryQueue.pop();
@@ -223,13 +248,9 @@ struct Queue
       }
 
   }
-  void UpdateQueues(int firstLightToServe, int secondLightToServe, int midleQueueToServe, ServerState serverState)
+  void UpdateQueues(PrimaryFlowDistribution firstFlow, PrimaryFlowDistribution secondFlow)
   {
     
-    if (firstLightToServe > 0)
-      {
-	
-      }
   }
 };
   
@@ -243,8 +264,9 @@ struct Server
   {
     state = ( qs.secondLightPrimary > prolongationThreshold ? allStates[state.nextProlongation] : allStates[state.nextRegular]);
   }
-  void Init(ServerState serverState)
+  void Init(ServerState serverState, int prolongThres)
   {
+    prolongationThreshold = prolongThres;
     state = serverState;
   }
   void Print()
@@ -253,7 +275,7 @@ struct Server
   }
 };
 
-void GenerateStates(vector<ServerState>& vs, int currentState, FirstLightSpec& fls, SecondLightSpec& sls);
+void GenerateStates(vector<ServerState>& vs, int currentState, SystemAprioriInfo sai);
 
 
 #endif

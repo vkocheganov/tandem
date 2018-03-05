@@ -101,9 +101,13 @@ SystemAprioriInfo ReadSpecs(string filename)
   getline(file,line);
   iss.clear();
   iss.str(line);
-
   iss >> temp; sai.midleQueueSuccProb = temp;
   
+  // Prolongation threshold
+  getline(file,line);
+  iss.clear();
+  iss.str(line);
+  iss >> temp; sai.prolongThres = temp;
   return sai;
 }
 
