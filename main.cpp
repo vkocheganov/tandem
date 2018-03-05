@@ -20,10 +20,27 @@ int main()
   myQueue.PrintState();
 
   Server server;
-  server.Init(initialServerState);
-  server.Print();
   cout<<endl<<"generating server states:"<<endl;
-  GenerateStates(server.allStates, initialServerState, sai.fls, sai.sls);
+  server.allStates.push_back(initialServerState);
+  GenerateStates(server.allStates, 0, sai.fls, sai.sls);
+
+  cout<<"outing"<<endl;
+  int count = 0;
+  for (auto a: server.allStates)
+    {
+      cout <<"["<<count<<"] ";
+      a.Print();
+      count++;
+    }
+  cout<<"server init"<<endl;
+
+  server.Init(server.allStates[0]);
+  server.Print();
+  cout<<"server afte iteration"<<endl;
+  server.MakeIteration(myQueue.state);
+  server.Print();
+  server.MakeIteration(myQueue.state);
+  server.Print();
   server.MakeIteration(myQueue.state);
   server.Print();
   
@@ -36,7 +53,7 @@ int main()
   startState.time1 = 10;
   startState.state2 = LowPriority;
   startState.time2 = 10;
-  GenerateStates(vs, startState, fls, sls);
+  // GenerateStates(vs, startState, fls, sls);
 
   return 0;
 }

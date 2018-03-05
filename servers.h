@@ -99,9 +99,9 @@ struct ServerState
   int nextProlongation = -1;
   void Print()
   {
-    cout<< "Server state: (";
+    cout<< "(";
     cout <<(state1 == Primary ? "Pri_" : "S_") << time1<< " | "<< (state2 == LowPriority ? "L_" : (state2 == HighPriority ? "H_" : "Pro_"))<< time2;
-    cout<< ")"<<endl;
+    cout<< ")"<<" ("<<nextRegular<<","<<nextProlongation<<")"<<endl;
   }
 };
 const bool operator == (const ServerState &ss1, const ServerState &ss2);
@@ -131,7 +131,6 @@ struct QueueState
     cout<< ")"<<endl;
   }
 };
-
 
 struct Queue
 {
@@ -218,6 +217,7 @@ struct Queue
       {
 	for (int i =0; i < firstLightCustomersToServe; i++)
 	  {
+	    midleQueue.push_back(firstLightPrimaryQueue.front());
 	    firstLightPrimaryQueue.pop();
 	  }
       }
@@ -249,12 +249,11 @@ struct Server
   }
   void Print()
   {
-    cout<<"Server state: ";
     state.Print();
   }
 };
 
-void GenerateStates(vector<ServerState>& vs, ServerState currentState, FirstLightSpec& fls, SecondLightSpec& sls);
+void GenerateStates(vector<ServerState>& vs, int currentState, FirstLightSpec& fls, SecondLightSpec& sls);
 
 
 #endif
