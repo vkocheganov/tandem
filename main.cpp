@@ -22,7 +22,8 @@ int main()
 
   vector<Cycle> cycles = FindCycles(system.server.allStates, sai);
 
-  const int ITERS = 1;
+  const int ITERS = 200000;
+  cout <<"started\n";
   for (int i = 0; i < ITERS; i++)
     {
       system.MakeIteration();

@@ -42,7 +42,7 @@ void Queue::ServiceMidleQueue()
       //	 cout<<"generated = "<<generated<<" vs "<<midleQueueSuccProb<<endl;
       if (generated <= midleQueueSuccProb)
 	{
-	  // 	     secondLightHighPriorityQueue.push(*(midleQueue.erase(a)));
+	  secondLightHighPriorityQueue.push(*a);
 	  //	     cout <<"erasing ";
 	  //	     a->Print();
 	  a = midleQueue.erase(a);
@@ -70,7 +70,6 @@ void Queue::MakeIteration(SystemAprioriInfo sai, ServerState serverState, int cu
   if (serverState.state2 == LowPriority)
     {
       int temp_count = std::min(secondLightCustomersToServe,(int)secondLightLowPriorityQueue.size() );
-      //	cout<<"Second: LowPriority serving: "<<temp_count<<endl;
       for (int i = 0; i < temp_count; i++)
   	{
   	  secondLightLowPriorityQueue.pop();
@@ -80,17 +79,14 @@ void Queue::MakeIteration(SystemAprioriInfo sai, ServerState serverState, int cu
   else
     {
       int temp_count = std::min(secondLightCustomersToServe,(int)secondLightHighPriorityQueue.size() );
-      //	cout<<"Second: High Priority serving: "<<temp_count<<endl;
       for (int i = 0; i < temp_count; i++)
   	{
   	  secondLightHighPriorityQueue.pop();
-  	  //temp
   	}
     }
   ServiceMidleQueue();
   if (serverState.state1 == Primary)
     {
-      //	cout<<"First: Primary serving: "<<firstLightCustomersToServe<<endl;
       int temp_count = std::min(firstLightCustomersToServe,(int)firstLightPrimaryQueue.size() );
       for (int i =0; i < temp_count; i++)
   	{
@@ -103,7 +99,6 @@ void Queue::MakeIteration(SystemAprioriInfo sai, ServerState serverState, int cu
 
 int Queue::GenerateCustomersInBatch(PrimaryFlowDistribution flow)
 {
-  return 1;
   float generated = float(rand()) / RAND_MAX;
   int idx = 0;
   float sum = flow.probabilities[idx++];
@@ -123,8 +118,8 @@ void Queue::UpdateQueues(PrimaryFlowDistribution firstFlow, PrimaryFlowDistribut
   int timeToService = (serverState.time1 < serverState.time2 ? serverState.time1 : serverState.time2);
   int firstLightBatches = (firstFlow.lambda * timeToService);
   int secondLightBatches = (secondFlow.lambda * timeToService);
-  //  serverState.Print();
-    Customer dummy(currentTime);
+  
+  Customer dummy(currentTime);
     
   for (int i = 0; i < firstLightBatches; i++)
     {

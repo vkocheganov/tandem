@@ -15,7 +15,6 @@ struct Queue
   queue<Customer> secondLightHighPriorityQueue;
   queue<Customer> secondLightLowPriorityQueue;
   list<Customer> midleQueue;
-  QueueState state;
   float midleQueueSuccProb;
 
   Queue(QueueState initialState, float succProb);

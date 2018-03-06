@@ -23,9 +23,10 @@ Server::Server(ServerState initialState, SystemAprioriInfo sai)
 
 }
 
-int Server::MakeIteration(const QueueState qs)
+int Server::MakeIteration(int lowPriorityQueueSize)
 {
-  state = ( allStates[state].nextProlongation != -1 && qs.secondLightPrimary > prolongationThreshold ? allStates[state].nextProlongation : allStates[state].nextRegular);
+  state = ( allStates[state].nextProlongation != -1 && lowPriorityQueueSize <= prolongationThreshold ? allStates[state].nextProlongation : allStates[state].nextRegular);
+  // allStates[state].Print();
   return allStates[state].timeDuration;
 }
 void Server::Print()

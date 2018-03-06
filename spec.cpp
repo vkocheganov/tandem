@@ -49,7 +49,7 @@ void ServerState::Print()
 }
 
 
-void QueueState::Print()
+const void QueueState::Print()
 {
   cout<< "Queue state: (";
   cout << firstLightPrimary<<", "<<secondLightSecondary<<", "

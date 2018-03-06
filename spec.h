@@ -68,7 +68,7 @@ struct QueueState
   int secondLightSecondary;
   int secondLightPrimary;
   int midleQueue;
-  void Print();
+  const void Print();
 };
 
 struct SystemState

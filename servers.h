@@ -15,7 +15,7 @@ struct Server
   int state;
   vector<ServerState> allStates;
   int prolongationThreshold;
-  int MakeIteration(const QueueState qs);
+  int MakeIteration(int);
   void Print();
 };
 
