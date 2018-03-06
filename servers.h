@@ -50,7 +50,7 @@ struct SecondLightSpec
 
 struct SystemAprioriInfo
 {
-  PrimaryFlowDistribution firstLight, secondLight;
+  PrimaryFlowDistribution firstFlow, secondFlow;
   FirstLightSpec fls;
   SecondLightSpec sls;
   float midleQueueSuccProb;
@@ -60,9 +60,9 @@ struct SystemAprioriInfo
     cout <<"--First light info"<<endl;
     
     cout <<"  --Primary flow: ";
-    cout <<" lambda = "<<firstLight.lambda <<"; ";
+    cout <<" lambda = "<<firstFlow.lambda <<"; ";
     cout <<"probabilities = [ ";
-    for (auto& a:firstLight.probabilities)
+    for (auto& a:firstFlow.probabilities)
       cout << a<<" ";
     cout <<"]"<<endl;
 
@@ -76,9 +76,9 @@ struct SystemAprioriInfo
     cout <<"--Second light info"<<endl;
     
     cout <<"  --Primary flow: ";
-    cout <<" lambda = "<<secondLight.lambda <<"; ";
+    cout <<" lambda = "<<secondFlow.lambda <<"; ";
     cout <<"probabilities = [ ";
-    for (auto& a:secondLight.probabilities)
+    for (auto& a:secondFlow.probabilities)
       cout << a<<" ";
     cout <<"]"<<endl;
 
@@ -102,6 +102,7 @@ struct ServerState
   int time2 = 0;
   int numCustomersFirstLight = -1;
   int numCustomersSecondLight = -1;
+  int timeDuration = 0;
   
   int nextRegular = -1;
   int nextProlongation = -1;
@@ -110,7 +111,8 @@ struct ServerState
     cout<< "(";
     cout <<(state1 == Primary ? "Pri_" : "S_") << time1<< " | "<< (state2 == LowPriority ? "L_" : (state2 == HighPriority ? "H_" : "Pro_"))<< time2;
     cout<< ")"<<" ("<<numCustomersFirstLight<<","<<numCustomersSecondLight<<")";
-    cout<<" ("<<nextRegular<<","<<nextProlongation<<")"<<endl;
+    cout<<" ("<<nextRegular<<","<<nextProlongation<<")";
+    cout <<" ["<<timeDuration<<"]"<<endl;
   }
 };
 const bool operator == (const ServerState &ss1, const ServerState &ss2);
@@ -189,12 +191,12 @@ struct Queue
     for (auto a = midleQueue.begin(); a != midleQueue.end();)
       {
 	 generated = float(rand()) / RAND_MAX;
-	 cout<<"generated = "<<generated<<" vs "<<midleQueueSuccProb<<endl;
+	 //	 cout<<"generated = "<<generated<<" vs "<<midleQueueSuccProb<<endl;
 	 if (generated <= midleQueueSuccProb)
 	   {
 	     // 	     secondLightHighPriorityQueue.push(*(midleQueue.erase(a)));
-	     cout <<"erasing ";
-	     a->Print();
+	     //	     cout <<"erasing ";
+	     //	     a->Print();
 	     a = midleQueue.erase(a);
 	   }
 	 else
@@ -205,15 +207,17 @@ struct Queue
   }
 
 
-  void MakeIteration(FirstLightSpec fls, SecondLightSpec sls, ServerState serverState)
+  void MakeIteration(SystemAprioriInfo sai, ServerState serverState)
   {
+    UpdateQueues(sai.firstFlow, sai.secondFlow, serverState);
+
     int timeToService = (serverState.time1 < serverState.time2 ? serverState.time1 : serverState.time2);
     int firstLightCustomersToServe = timeToService;
     int secondLightCustomersToServe = timeToService;
     int midleQueueToServe;
 
-    firstLightCustomersToServe *= (serverState.state1 == Primary ? fls.primaryIntensity : 0);
-    secondLightCustomersToServe *= (serverState.state2 == LowPriority ? sls.lowPriorityIntensity : (serverState.state2 == HighPriority ? sls.highPriorityIntensity : sls.prolongationIntensity) );
+    firstLightCustomersToServe *= (serverState.state1 == Primary ? sai.fls.primaryIntensity : 0);
+    secondLightCustomersToServe *= (serverState.state2 == LowPriority ? sai.sls.lowPriorityIntensity : (serverState.state2 == HighPriority ? sai.sls.highPriorityIntensity : sai.sls.prolongationIntensity) );
 
     if (serverState.state2 == LowPriority)
       {
@@ -248,9 +252,48 @@ struct Queue
       }
 
   }
-  void UpdateQueues(PrimaryFlowDistribution firstFlow, PrimaryFlowDistribution secondFlow)
+
+  int GenerateCustomersInBatch(PrimaryFlowDistribution flow)
   {
+    float generated = float(rand()) / RAND_MAX;
+    int idx = 0;
+    float sum = flow.probabilities[idx++];
+    while (sum < 1 - 0.00001)
+      {
+	if (generated <= sum)
+	  {
+	    return idx;
+	  }
+	sum += flow.probabilities[idx++];
+      }
+    return idx;
+  }
+
+  void UpdateQueues(PrimaryFlowDistribution firstFlow, PrimaryFlowDistribution secondFlow, ServerState serverState)
+  {
+    int timeToService = (serverState.time1 < serverState.time2 ? serverState.time1 : serverState.time2);
+    int firstLightBatches = (firstFlow.lambda * timeToService);
+    int secondLightBatches = (secondFlow.lambda * timeToService);
+
+    Customer dummy = {0,0};
     
+    for (int i = 0; i < firstLightBatches; i++)
+      {
+	int custInBatch = GenerateCustomersInBatch(firstFlow);
+	for (int j = 0; j < custInBatch; j++)
+	  {
+	    firstLightPrimaryQueue.push(dummy);
+	  }
+      }
+
+    for (int i = 0; i < secondLightBatches; i++)
+      {
+	int custInBatch = GenerateCustomersInBatch(secondFlow);
+	for (int j = 0; j < custInBatch; j++)
+	  {
+	    secondLightLowPriorityQueue.push(dummy);
+	  }
+      }
   }
 };
   
@@ -277,5 +320,70 @@ struct Server
 
 void GenerateStates(vector<ServerState>& vs, int currentState, SystemAprioriInfo sai);
 
+struct Cycle
+{
+  vector<int> idxs;
+  int firstLightTime = 0;
+  int secondLightTime = 0;
+  float firstLightIncome;
+  float secondLightIncome;
+  
+  int primaryFlowServed = 0;
+  int highPriorityFlowServed = 0;
+  int lowPriorityFlowServed = 0;
+  void CalcStatistics(vector<ServerState>& vs, SystemAprioriInfo sai)
+  {
+    for (auto a:idxs)
+      {
+	firstLightTime += vs[a].timeDuration;
+	secondLightTime += vs[a].timeDuration;
+	if (vs[a].state1 == Primary)
+	  {
+	    primaryFlowServed += vs[a].numCustomersFirstLight;
+	  }
+	if (vs[a].state2 == LowPriority)
+	  {
+	    lowPriorityFlowServed += vs[a].numCustomersSecondLight;
+	  }
+	else
+	  {
+	    highPriorityFlowServed += vs[a].numCustomersSecondLight;
+	  }
+      }
+    float firstSum = 0;
+    int count = 1;
+    for (auto a: sai.firstFlow.probabilities)
+      {
+      firstSum += count * a;
+      count++;
+      }
+    float secondSum = 0;
+    count = 1;
+    for (auto a: sai.secondFlow.probabilities)
+      {
+	secondSum += count * a;
+	count++;
+      }
+
+    firstLightIncome = firstLightTime * sai.firstFlow.lambda * firstSum;
+    secondLightIncome = secondLightTime * sai.secondFlow.lambda * secondSum;
+  }
+  void Print()
+  {
+    cout<<"[ ";
+    for (auto a:idxs)
+      {
+	cout<<a<<" ";
+      }
+    cout <<"]"<<" FirstLightIncome="<<firstLightIncome<<", SecondLightIncome="<<secondLightIncome<<", PrimaryFirstLight_sum{l}="<<primaryFlowServed<<", LowPriority_sum{l}="<<lowPriorityFlowServed<<endl;
+  }
+};
+
+/* void CalcCycleStatistics(vector<Cycle>& cycles, vector<ServerState>& vs) */
+/* { */
+  
+/* } */
+
+vector<Cycle> FindCycles(vector<ServerState> vs, SystemAprioriInfo sai);
 
 #endif

@@ -33,9 +33,9 @@ SystemAprioriInfo ReadSpecs(string filename)
   while (!iss.eof())
     {
       iss >> temp;
-      sai.firstLight.probabilities.push_back(temp);
+      sai.firstFlow.probabilities.push_back(temp);
     }
-  float check = accumulate(sai.firstLight.probabilities.begin(), sai.firstLight.probabilities.end(), 0);
+  float check = accumulate(sai.firstFlow.probabilities.begin(), sai.firstFlow.probabilities.end(), 0);
   if (check - EPS > check || check + EPS < check)
     {
       cout <<"Error summing probs for first light."<<endl;
@@ -47,7 +47,7 @@ SystemAprioriInfo ReadSpecs(string filename)
   iss.clear();
   iss.str(line);
   iss >> temp;
-  sai.firstLight.lambda = temp;
+  sai.firstFlow.lambda = temp;
 
   //First light server spec
   getline(file,line);
@@ -69,9 +69,9 @@ SystemAprioriInfo ReadSpecs(string filename)
   while (!iss.eof())
     {
       iss >> temp;
-      sai.secondLight.probabilities.push_back(temp);
+      sai.secondFlow.probabilities.push_back(temp);
     }
-  check = accumulate(sai.secondLight.probabilities.begin(), sai.secondLight.probabilities.end(), 0);
+  check = accumulate(sai.secondFlow.probabilities.begin(), sai.secondFlow.probabilities.end(), 0);
   if (check - EPS > check || check + EPS < check)
     {
       cout <<"Error summing probs for second light."<<endl;
@@ -83,7 +83,7 @@ SystemAprioriInfo ReadSpecs(string filename)
   iss.clear();
   iss.str(line);
   iss >> temp;
-  sai.secondLight.lambda = temp;
+  sai.secondFlow.lambda = temp;
   
   //Second light server spec
   getline(file,line);

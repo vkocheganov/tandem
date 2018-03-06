@@ -28,6 +28,7 @@ void GenerateStates(vector<ServerState>& vs, int currentState, SystemAprioriInfo
       serverToFinish = 0;
       timeToFinish = vs[currentState].time1;
     }
+  vs[currentState].timeDuration = timeToFinish;
 
   if (vs[currentState].numCustomersFirstLight < 0 || vs[currentState].numCustomersSecondLight < 0)
     {
@@ -47,6 +48,7 @@ void GenerateStates(vector<ServerState>& vs, int currentState, SystemAprioriInfo
       newState.time1 = (newState.state1 == Primary ? sai.fls.primaryTime : sai.fls.secondaryTime);
       newState.state2 = vs[currentState].state2;
       newState.time2 = vs[currentState].time2 - timeToFinish;
+      newState.timeDuration = timeToFinish;
     }
   else if (serverToFinish == 2)
     {
@@ -57,6 +59,7 @@ void GenerateStates(vector<ServerState>& vs, int currentState, SystemAprioriInfo
     }
   else
     {
+      //      cout<<"both to finish"<<endl;
       newState.state1 = (vs[currentState].state1 == Primary ? Secondary : Primary);
       newState.time1 = (newState.state1 == Primary ? sai.fls.primaryTime : sai.fls.secondaryTime);
       newState.state2 = (vs[currentState].state2  > LowPriority ? LowPriority : HighPriority);
@@ -103,6 +106,55 @@ void GenerateStates(vector<ServerState>& vs, int currentState, SystemAprioriInfo
 	}
     }
 }
+
+
+void IterateFindCycles(vector<ServerState>& vs, int currentState, vector<bool>& processed, vector<Cycle>& cycles, int currentCycle)
+{
+  cycles[currentCycle].idxs.push_back(currentState);
+  processed[currentState] = true;
+  int nextRegular = vs[currentState].nextRegular;
+  int nextProlongation = vs[currentState].nextProlongation;
+
+  if (vs[currentState].state2 != Prolongation)
+    {
+      if (!processed[nextRegular])
+      	{
+      	  IterateFindCycles(vs, nextRegular, processed, cycles, currentCycle);
+      	}
+      if (nextProlongation != -1 && !processed[nextProlongation])
+      	{
+      	  Cycle dummy;
+      	  cycles.push_back(dummy);
+      	  IterateFindCycles(vs, nextProlongation, processed, cycles, cycles.size()-1);
+      	}
+    }
+  else
+    {
+      if (nextProlongation != -1 && !processed[nextProlongation])
+      	{
+      	  IterateFindCycles(vs, nextProlongation, processed, cycles, currentCycle);
+      	}
+      if (!processed[nextRegular])
+      	{
+      	  Cycle dummy;
+      	  cycles.push_back(dummy);
+      	  IterateFindCycles(vs, nextRegular, processed, cycles, cycles.size()-1);
+      	}
+    }
+}
+
+vector<Cycle> FindCycles(vector<ServerState> vs, SystemAprioriInfo sai)
+{
+  vector<bool> processed(vs.size(),0);
+  vector<Cycle> cycles;
+  Cycle dummy;
+  cycles.push_back(dummy);
+  IterateFindCycles(vs, 0, processed, cycles, 0);
+  for (auto& a:cycles)
+    a.CalcStatistics(vs, sai);
+  return cycles;
+}
+  
 
 const bool operator == (const ServerState &ss1, const ServerState &ss2)
 {
