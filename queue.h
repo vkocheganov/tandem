@@ -22,9 +22,9 @@ struct Queue
   void PrintState();
   void ServiceMidleQueue();
 
-  void MakeIteration(SystemAprioriInfo sai, ServerState serverState);
+  void MakeIteration(SystemAprioriInfo sai, ServerState serverState, int );
   int GenerateCustomersInBatch(PrimaryFlowDistribution flow);
-  void UpdateQueues(PrimaryFlowDistribution firstFlow, PrimaryFlowDistribution secondFlow, ServerState serverState);
+  void UpdateQueues(PrimaryFlowDistribution firstFlow, PrimaryFlowDistribution secondFlow, ServerState serverState, int);
 };
 
 #endif

@@ -12,20 +12,21 @@ Server::Server(ServerState initialState, SystemAprioriInfo sai)
 
   Print();
 
-  //   cout <<"find cycles"<< endl;
-  // int count = 0;
-  // for (auto a: server.allStates)
-  //   {
-  //     cout <<"["<<count<<"] ";
-  //     a.Print();
-  //     count++;
-  //   }
+  cout <<"find cycles"<< endl;
+  int count = 0;
+  for (auto a: allStates)
+    {
+      cout <<"["<<count<<"] ";
+      a.Print();
+      count++;
+    }
 
 }
 
-void Server::MakeIteration(const QueueState qs)
+int Server::MakeIteration(const QueueState qs)
 {
-  state = ( qs.secondLightPrimary > prolongationThreshold ? allStates[state].nextProlongation : allStates[state].nextRegular);
+  state = ( allStates[state].nextProlongation != -1 && qs.secondLightPrimary > prolongationThreshold ? allStates[state].nextProlongation : allStates[state].nextRegular);
+  return allStates[state].timeDuration;
 }
 void Server::Print()
 {
@@ -238,7 +239,19 @@ void Cycle::Print()
     {
       cout<<a<<" ";
     }
-  cout <<"]"<<" FirstLightIncome="<<firstLightIncome<<", SecondLightIncome="<<secondLightIncome<<", PrimaryFirstLight_sum{l}="<<primaryFlowServed<<", LowPriority_sum{l}="<<lowPriorityFlowServed<<endl;
+  //  cout <<"]"<<" FirstLightIncome="<<firstLightIncome<<", SecondLightIncome="<<secondLightIncome<<", PrimaryFirstLight_sum{l}="<<primaryFlowServed<<", LowPriority_sum{l}="<<lowPriorityFlowServed<<endl;
+  cout <<"]"<<" ("<<firstLightIncome<<", "<<primaryFlowServed<<") ("<<secondLightIncome<<", "<<lowPriorityFlowServed<<")"<<endl;
+}
+
+void Cycle::Print_Ext()
+{
+  cout<<"[ ";
+  for (auto a:idxs)
+    {
+      cout<<a<<" ";
+    }
+  //  cout <<"]"<<" FirstLightIncome="<<firstLightIncome<<", SecondLightIncome="<<secondLightIncome<<", PrimaryFirstLight_sum{l}="<<primaryFlowServed<<", LowPriority_sum{l}="<<lowPriorityFlowServed<<endl;
+  cout <<"]"<<" (FirstLightIncome"<<", SecondLightIncome"<<", PrimaryFirstLight_sum{l}"<<", LowPriority_sum{l}) = ("<<firstLightIncome<<","<<primaryFlowServed<<","<<secondLightIncome<<","<<lowPriorityFlowServed<<")"<<endl;
 }
 
 

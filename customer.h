@@ -3,10 +3,12 @@
 
 #include <iostream>
 using namespace std;
+
 struct Customer
 {
+Customer(int arrTime): arrivalTime(arrTime){}
   int arrivalTime;
-  int departureTime;
+  int departureTime = -1;
   void Print()
   {
     cout<<"Customer: arrival="<<arrivalTime<<", departure="<<departureTime<<endl;

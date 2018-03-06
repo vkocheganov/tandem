@@ -21,19 +21,11 @@ int main()
   System system(initialQueueState, initialServerState, sai);
 
   vector<Cycle> cycles = FindCycles(system.server.allStates, sai);
-  cout <<"Cycles num = "<<cycles.size()<<endl;
-  for (auto a:cycles) a.Print();
-  cout<<"server init"<<endl;
 
-  const int ITERS = 10000;
+  const int ITERS = 1;
   for (int i = 0; i < ITERS; i++)
     {
       system.MakeIteration();
-      // server.MakeIteration(myQueue.state);
-      // myQueue.MakeIteration(sai, server.allStates[server.state]);
-      // cout<<endl<<"after " <<i<<" iteration"<<endl;
-      // server.Print();
-      // myQueue.PrintState();
     }
 
   system.Print();

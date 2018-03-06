@@ -4,7 +4,7 @@
 Queue::Queue(QueueState initialState, float succProb)
 {
   midleQueueSuccProb = succProb;
-  Customer dummy = {0,0};
+  Customer dummy(0);
   for (int i = 0; i < initialState.firstLightPrimary; i++)
     {
       firstLightPrimaryQueue.push(dummy);
@@ -55,9 +55,9 @@ void Queue::ServiceMidleQueue()
 }
 
 
-void Queue::MakeIteration(SystemAprioriInfo sai, ServerState serverState)
+void Queue::MakeIteration(SystemAprioriInfo sai, ServerState serverState, int currentTime)
 {
-  UpdateQueues(sai.firstFlow, sai.secondFlow, serverState);
+  UpdateQueues(sai.firstFlow, sai.secondFlow, serverState, currentTime);
 
   int timeToService = (serverState.time1 < serverState.time2 ? serverState.time1 : serverState.time2);
   int firstLightCustomersToServe = timeToService;
@@ -72,20 +72,20 @@ void Queue::MakeIteration(SystemAprioriInfo sai, ServerState serverState)
       int temp_count = std::min(secondLightCustomersToServe,(int)secondLightLowPriorityQueue.size() );
       //	cout<<"Second: LowPriority serving: "<<temp_count<<endl;
       for (int i = 0; i < temp_count; i++)
-	{
-	  secondLightLowPriorityQueue.pop();
-	  //temp
-	}
+  	{
+  	  secondLightLowPriorityQueue.pop();
+  	  //temp
+  	}
     }
   else
     {
       int temp_count = std::min(secondLightCustomersToServe,(int)secondLightHighPriorityQueue.size() );
       //	cout<<"Second: High Priority serving: "<<temp_count<<endl;
       for (int i = 0; i < temp_count; i++)
-	{
-	  secondLightHighPriorityQueue.pop();
-	  //temp
-	}
+  	{
+  	  secondLightHighPriorityQueue.pop();
+  	  //temp
+  	}
     }
   ServiceMidleQueue();
   if (serverState.state1 == Primary)
@@ -93,16 +93,17 @@ void Queue::MakeIteration(SystemAprioriInfo sai, ServerState serverState)
       //	cout<<"First: Primary serving: "<<firstLightCustomersToServe<<endl;
       int temp_count = std::min(firstLightCustomersToServe,(int)firstLightPrimaryQueue.size() );
       for (int i =0; i < temp_count; i++)
-	{
-	  midleQueue.push_back(firstLightPrimaryQueue.front());
-	  firstLightPrimaryQueue.pop();
-	}
+  	{
+  	  midleQueue.push_back(firstLightPrimaryQueue.front());
+  	  firstLightPrimaryQueue.pop();
+  	}
     }
 
 }
 
 int Queue::GenerateCustomersInBatch(PrimaryFlowDistribution flow)
 {
+  return 1;
   float generated = float(rand()) / RAND_MAX;
   int idx = 0;
   float sum = flow.probabilities[idx++];
@@ -117,29 +118,29 @@ int Queue::GenerateCustomersInBatch(PrimaryFlowDistribution flow)
   return idx;
 }
 
-void Queue::UpdateQueues(PrimaryFlowDistribution firstFlow, PrimaryFlowDistribution secondFlow, ServerState serverState)
+void Queue::UpdateQueues(PrimaryFlowDistribution firstFlow, PrimaryFlowDistribution secondFlow, ServerState serverState, int currentTime)
 {
   int timeToService = (serverState.time1 < serverState.time2 ? serverState.time1 : serverState.time2);
   int firstLightBatches = (firstFlow.lambda * timeToService);
   int secondLightBatches = (secondFlow.lambda * timeToService);
-
-  Customer dummy = {0,0};
+  //  serverState.Print();
+    Customer dummy(currentTime);
     
   for (int i = 0; i < firstLightBatches; i++)
     {
       int custInBatch = GenerateCustomersInBatch(firstFlow);
       for (int j = 0; j < custInBatch; j++)
-	{
+  	{
 	  firstLightPrimaryQueue.push(dummy);
-	}
+  	}
     }
 
   for (int i = 0; i < secondLightBatches; i++)
     {
       int custInBatch = GenerateCustomersInBatch(secondFlow);
       for (int j = 0; j < custInBatch; j++)
-	{
-	  secondLightLowPriorityQueue.push(dummy);
-	}
+  	{
+  	  secondLightLowPriorityQueue.push(dummy);
+  	}
     }
 }

@@ -15,7 +15,7 @@ struct Server
   int state;
   vector<ServerState> allStates;
   int prolongationThreshold;
-  void MakeIteration(const QueueState qs);
+  int MakeIteration(const QueueState qs);
   void Print();
 };
 
@@ -33,6 +33,7 @@ struct Cycle
   int lowPriorityFlowServed = 0;
   void CalcStatistics(vector<ServerState>& vs, SystemAprioriInfo sai);
   void Print();
+  void Print_Ext();
 };
 
 /* void CalcCycleStatistics(vector<Cycle>& cycles, vector<ServerState>& vs) */
