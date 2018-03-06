@@ -18,7 +18,7 @@ struct Queue
   QueueState state;
   float midleQueueSuccProb;
 
-  void Init(QueueState initialState, float succProb);
+  Queue(QueueState initialState, float succProb);
   void PrintState();
   void ServiceMidleQueue();
 

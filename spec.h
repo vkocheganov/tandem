@@ -33,7 +33,6 @@ struct SecondLightSpec
   float prolongationIntensity;
 };
 
-#include "flow.h"
 
 struct SystemAprioriInfo
 {
@@ -58,7 +57,9 @@ struct ServerState
   
   int nextRegular = -1;
   int nextProlongation = -1;
+  
   void Print();
+  const bool operator == (const ServerState &ss2);
 };
 
 struct QueueState
@@ -67,6 +68,13 @@ struct QueueState
   int secondLightSecondary;
   int secondLightPrimary;
   int midleQueue;
+  void Print();
+};
+
+struct SystemState
+{
+  ServerState serverState;
+  QueueState queueState;
   void Print();
 };
 

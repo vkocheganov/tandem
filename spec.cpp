@@ -56,3 +56,20 @@ void QueueState::Print()
        << secondLightPrimary<<", "<< midleQueue;
   cout<< ")"<<endl;
 }
+
+const bool ServerState::operator == (const ServerState &ss2)
+{
+  if (state1 == ss2.state1 &&
+      time1 == ss2.time1 &&
+      state2 == ss2.state2 &&
+      time2 == ss2.time2)
+    return true;
+  else
+    return false;
+}
+
+void SystemState::Print()
+{
+  serverState.Print();
+  queueState.Print();
+}

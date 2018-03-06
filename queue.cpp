@@ -1,7 +1,7 @@
 #include "queue.h"
 
 
-void Queue::Init(QueueState initialState, float succProb)
+Queue::Queue(QueueState initialState, float succProb)
 {
   midleQueueSuccProb = succProb;
   Customer dummy = {0,0};
@@ -21,6 +21,8 @@ void Queue::Init(QueueState initialState, float succProb)
     {
       midleQueue.push_back(dummy);
     }
+
+    PrintState();
 }
 
 void Queue::PrintState()

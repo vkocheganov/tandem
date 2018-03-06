@@ -1,18 +1,35 @@
 #include "servers.h"
 
 
+void GenerateStates(vector<ServerState>& vs, int currentState, SystemAprioriInfo sai);
+
+Server::Server(ServerState initialState, SystemAprioriInfo sai)
+{
+  allStates.push_back(initialState);
+  GenerateStates(allStates, 0, sai);
+  state = 0;
+  prolongationThreshold = sai.prolongThres;
+
+  Print();
+
+  //   cout <<"find cycles"<< endl;
+  // int count = 0;
+  // for (auto a: server.allStates)
+  //   {
+  //     cout <<"["<<count<<"] ";
+  //     a.Print();
+  //     count++;
+  //   }
+
+}
+
 void Server::MakeIteration(const QueueState qs)
 {
-  state = ( qs.secondLightPrimary > prolongationThreshold ? allStates[state.nextProlongation] : allStates[state.nextRegular]);
-}
-void Server::Init(ServerState serverState, int prolongThres)
-{
-  prolongationThreshold = prolongThres;
-  state = serverState;
+  state = ( qs.secondLightPrimary > prolongationThreshold ? allStates[state].nextProlongation : allStates[state].nextRegular);
 }
 void Server::Print()
 {
-  state.Print();
+  allStates[state].Print();
 }
 
 void GenerateStates(vector<ServerState>& vs, int currentState, SystemAprioriInfo sai)
@@ -171,16 +188,6 @@ vector<Cycle> FindCycles(vector<ServerState> vs, SystemAprioriInfo sai)
 }
   
 
-const bool operator == (const ServerState &ss1, const ServerState &ss2)
-{
-  if (ss1.state1 == ss2.state1 &&
-      ss1.time1 == ss2.time1 &&
-      ss1.state2 == ss2.state2 &&
-      ss1.time2 == ss2.time2)
-    return true;
-  else
-    return false;
-}
 
   
 

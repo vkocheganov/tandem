@@ -8,28 +8,17 @@
 #include "spec.h"
 using namespace std;
 
-
-
-
-
-
-
-const bool operator == (const ServerState &ss1, const ServerState &ss2);
-
-
   
 struct Server
 {
-  //  Server (ServerState _state): state(_state){};
-  ServerState state;
+  Server (ServerState initialState, SystemAprioriInfo sai);
+  int state;
   vector<ServerState> allStates;
   int prolongationThreshold;
   void MakeIteration(const QueueState qs);
-  void Init(ServerState serverState, int prolongThres);
   void Print();
 };
 
-void GenerateStates(vector<ServerState>& vs, int currentState, SystemAprioriInfo sai);
 
 struct Cycle
 {
