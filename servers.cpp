@@ -1,5 +1,20 @@
 #include "servers.h"
 
+
+void Server::MakeIteration(const QueueState qs)
+{
+  state = ( qs.secondLightPrimary > prolongationThreshold ? allStates[state.nextProlongation] : allStates[state.nextRegular]);
+}
+void Server::Init(ServerState serverState, int prolongThres)
+{
+  prolongationThreshold = prolongThres;
+  state = serverState;
+}
+void Server::Print()
+{
+  state.Print();
+}
+
 void GenerateStates(vector<ServerState>& vs, int currentState, SystemAprioriInfo sai)
 {
   int serverToFinish;
@@ -90,8 +105,8 @@ void GenerateStates(vector<ServerState>& vs, int currentState, SystemAprioriInfo
 	{
 	  // cout <<"Adding new prolongation state:";
 	  // newState.Print();
-      // cout<<"CurrentState :";
-      // vs[currentState].Print();
+	  // cout<<"CurrentState :";
+	  // vs[currentState].Print();
 	  vs.push_back(newState);
 	  vs[currentState].nextProlongation = vs.size() - 1;
 	  GenerateStates(vs, vs.size()-1, sai);
@@ -166,3 +181,60 @@ const bool operator == (const ServerState &ss1, const ServerState &ss2)
   else
     return false;
 }
+
+  
+
+
+
+void Cycle::CalcStatistics(vector<ServerState>& vs, SystemAprioriInfo sai)
+{
+  for (auto a:idxs)
+    {
+      firstLightTime += vs[a].timeDuration;
+      secondLightTime += vs[a].timeDuration;
+      if (vs[a].state1 == Primary)
+	{
+	  primaryFlowServed += vs[a].numCustomersFirstLight;
+	}
+      if (vs[a].state2 == LowPriority)
+	{
+	  lowPriorityFlowServed += vs[a].numCustomersSecondLight;
+	}
+      else
+	{
+	  highPriorityFlowServed += vs[a].numCustomersSecondLight;
+	}
+    }
+  float firstSum = 0;
+  int count = 1;
+  for (auto a: sai.firstFlow.probabilities)
+    {
+      firstSum += count * a;
+      count++;
+    }
+  float secondSum = 0;
+  count = 1;
+  for (auto a: sai.secondFlow.probabilities)
+    {
+      secondSum += count * a;
+      count++;
+    }
+
+  firstLightIncome = firstLightTime * sai.firstFlow.lambda * firstSum;
+  secondLightIncome = secondLightTime * sai.secondFlow.lambda * secondSum;
+}
+
+void Cycle::Print()
+{
+  cout<<"[ ";
+  for (auto a:idxs)
+    {
+      cout<<a<<" ";
+    }
+  cout <<"]"<<" FirstLightIncome="<<firstLightIncome<<", SecondLightIncome="<<secondLightIncome<<", PrimaryFirstLight_sum{l}="<<primaryFlowServed<<", LowPriority_sum{l}="<<lowPriorityFlowServed<<endl;
+}
+
+
+
+
+

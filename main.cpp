@@ -1,6 +1,9 @@
 #include "servers.h"
 #include <iostream>
+#include "spec.h"
 #include "io.h"
+#include "servers.h"
+#include "queue.h"
 
 using namespace std;
 
@@ -47,7 +50,7 @@ int main()
   server.Print();
   myQueue.PrintState();
 
-  const int ITERS = 1000000;
+  const int ITERS = 10000;
   for (int i = 0; i < ITERS; i++)
     {
       
