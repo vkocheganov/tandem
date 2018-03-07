@@ -37,6 +37,7 @@ struct Queue
   int GenerateCustomersInBatch(PrimaryFlowDistribution flow);
   void UpdateQueues(ServerState serverState, int);
 
+  void DumpMeanTimes();
   void UpdateMeanTimes();
   void DumpDepartQueues();
 };

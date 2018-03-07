@@ -74,7 +74,7 @@ void Queue::MakeIteration(ServerState serverState, int currentTime, int iteratio
       for (int i = 0; i < temp_count; i++)
   	{
 	  Customer customerToRemove = secondLightLowPriorityQueue.front();
-	  customerToRemove.serviceTime = currentTime;
+	  customerToRemove.serviceTime = std::max(currentTime,customerToRemove.arrivalTime);
 	  customerToRemove.departureTime = currentTime + timeToService;
 	  departSecondQueue.push(customerToRemove);
   	  secondLightLowPriorityQueue.pop();
@@ -99,7 +99,7 @@ void Queue::MakeIteration(ServerState serverState, int currentTime, int iteratio
   	{
 	  Customer customerToMove = firstLightPrimaryQueue.front();
   	  firstLightPrimaryQueue.pop();
-	  customerToMove.serviceTime = currentTime;
+	  customerToMove.serviceTime = std::max(currentTime, customerToMove.arrivalTime);
   	  midleQueue.push_back(customerToMove);
   	}
     }
@@ -110,7 +110,7 @@ void Queue::MakeIteration(ServerState serverState, int currentTime, int iteratio
       int oldUntilServiceFirst = untilServiceTimeFirst;
       int oldUntilServiceSecond = untilServiceTimeSecond;
       UpdateMeanTimes();
-      if (!(stationaryModeFirst && stationaryModeSecond))
+      //      if (!(stationaryModeFirst && stationaryModeSecond))
 	{
 	  if (std::abs(oldUntilServiceFirst - untilServiceTimeFirst) <= 2 && untilServiceTimeFirst > 0)
 	    stationaryModeFirst = true;
@@ -120,11 +120,11 @@ void Queue::MakeIteration(ServerState serverState, int currentTime, int iteratio
 	    stationaryModeSecond = true;
 	  else
 	    stationaryModeSecond = false;
-	  if (stationaryModeFirst && stationaryModeSecond)
-	    {
-	    cout <<"stationary reached at "<<iteration<<" iteration"<<endl;
-	    cout << oldUntilServiceSecond<< " vs "<< untilServiceTimeSecond<< " and "<< oldUntilServiceFirst << " vs "<< untilServiceTimeFirst<<endl;
-	    }
+	  // if (stationaryModeFirst && stationaryModeSecond)
+	  //   {
+	  //   cout <<"stationary reached at "<<iteration<<" iteration"<<endl;
+	  //   cout << oldUntilServiceSecond<< " vs "<< untilServiceTimeSecond<< " and "<< oldUntilServiceFirst << " vs "<< untilServiceTimeFirst<<endl;
+	  //   }
 	}
     }
 }
@@ -176,6 +176,14 @@ void Queue::UpdateQueues(ServerState serverState, int currentTime)
     }
 }
 
+void Queue::DumpMeanTimes()
+{
+  ofstream file(sai.filename, ofstream::out | ofstream::app );
+  
+  file << "1 Light:"<<untilServiceTimeFirst<<endl;
+  file << "2 Light:"<<untilServiceTimeSecond<<endl;
+}
+
 void Queue::DumpDepartQueues()
 {
   ofstream file(sai.filename, ofstream::out | ofstream::app );
@@ -197,7 +205,6 @@ void Queue::DumpDepartQueues()
 
 void Queue::UpdateMeanTimes()
 {
-  ofstream file(sai.filename, ofstream::out | ofstream::app );
   long long sum = 0;
   int firstSize = departFirstQueue.size(),
     secondSize = departSecondQueue.size();
@@ -208,11 +215,7 @@ void Queue::UpdateMeanTimes()
       sum += (cust.serviceTime-cust.arrivalTime);
       departFirstQueue.pop();
     }
-  if (firstSize > 0)
-    {
-      untilServiceTimeFirst = sum/firstSize;
-      file << "1 Light:"<<untilServiceTimeFirst<<endl;
-    }
+  untilServiceTimeFirst = (firstSize > 0 ? sum/firstSize : 0);
   
   sum = 0;
   while (!departSecondQueue.empty())
@@ -221,10 +224,6 @@ void Queue::UpdateMeanTimes()
       sum += (cust.serviceTime-cust.arrivalTime);
       departSecondQueue.pop();
     }
-  if (secondSize > 0)
-    {
-      untilServiceTimeSecond = sum/secondSize;
-      file << "2 Light:"<<(sum/secondSize)<<endl;
-    }
+  untilServiceTimeSecond = (secondSize > 0 ? sum/secondSize : 0);
 }
 
