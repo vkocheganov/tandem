@@ -11,6 +11,7 @@ struct System
   vector<Cycle> cycles;
   SystemAprioriInfo sai;
   int timeTotal;
+  
   System (QueueState, ServerState, SystemAprioriInfo);
   void MakeIteration(int);
   void Print();

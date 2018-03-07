@@ -27,13 +27,15 @@ struct Queue
   SystemAprioriInfo sai;
   float midleQueueSuccProb;
 
+  
+
   Queue(QueueState initialState, SystemAprioriInfo sai);
   void PrintState();
   void ServiceMidleQueue();
 
   void MakeIteration(ServerState serverState, int ,int);
   int GenerateCustomersInBatch(PrimaryFlowDistribution flow);
-  void UpdateQueues(PrimaryFlowDistribution firstFlow, PrimaryFlowDistribution secondFlow, ServerState serverState, int);
+  void UpdateQueues(ServerState serverState, int);
 
   void UpdateMeanTimes();
   void DumpDepartQueues();

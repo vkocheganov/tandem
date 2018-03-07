@@ -4,8 +4,6 @@ using namespace std;
 
 long long Customer::count = 0;
 
-
-
 Queue::Queue(QueueState initialState, SystemAprioriInfo _sai): sai(_sai)
 {
   midleQueueSuccProb = sai.midleQueueSuccProb;
@@ -26,7 +24,8 @@ Queue::Queue(QueueState initialState, SystemAprioriInfo _sai): sai(_sai)
       midleQueue.push_back(Customer(0));
     }
 
-  PrintState();
+  if (sai.verbose)
+    PrintState();
 }
 
 void Queue::PrintState()
@@ -36,6 +35,7 @@ void Queue::PrintState()
       <<secondLightLowPriorityQueue.size()<<", "
       <<midleQueue.size()<<"]"<<endl;
 }
+
 void Queue::ServiceMidleQueue()
 {
   int queueSize = midleQueue.size();
@@ -43,12 +43,9 @@ void Queue::ServiceMidleQueue()
   for (auto a = midleQueue.begin(); a != midleQueue.end();)
     {
       generated = float(rand()) / RAND_MAX;
-      //	 cout<<"generated = "<<generated<<" vs "<<midleQueueSuccProb<<endl;
       if (generated <= midleQueueSuccProb)
 	{
 	  secondLightHighPriorityQueue.push(*a);
-	  //	     cout <<"erasing ";
-	  //	     a->Print();
 	  a = midleQueue.erase(a);
 	}
       else
@@ -61,9 +58,9 @@ void Queue::ServiceMidleQueue()
 
 void Queue::MakeIteration(ServerState serverState, int currentTime, int iteration)
 {
-  UpdateQueues(sai.firstFlow, sai.secondFlow, serverState, currentTime);
+  UpdateQueues(serverState, currentTime);
 
-  int timeToService = (serverState.time1 < serverState.time2 ? serverState.time1 : serverState.time2);
+  int timeToService = serverState.timeDuration;
   int firstLightCustomersToServe = timeToService;
   int secondLightCustomersToServe = timeToService;
   int midleQueueToServe;
@@ -137,7 +134,7 @@ int Queue::GenerateCustomersInBatch(PrimaryFlowDistribution flow)
   float generated = float(rand()) / RAND_MAX;
   int idx = 0;
   float sum = flow.probabilities[idx++];
-  while (sum < 1 - 0.00001)
+  while (sum < 1 - 0.00001 && idx < flow.probabilities.size())
     {
       if (generated <= sum)
 	{
@@ -148,28 +145,33 @@ int Queue::GenerateCustomersInBatch(PrimaryFlowDistribution flow)
   return idx;
 }
 
-void Queue::UpdateQueues(PrimaryFlowDistribution firstFlow, PrimaryFlowDistribution secondFlow, ServerState serverState, int currentTime)
+void Queue::UpdateQueues(ServerState serverState, int currentTime)
 {
-  int timeToService = (serverState.time1 < serverState.time2 ? serverState.time1 : serverState.time2);
-  int firstLightBatches = (firstFlow.lambda * timeToService);
-  int secondLightBatches = (secondFlow.lambda * timeToService);
+  // int timeToService = (serverState.time1 < serverState.time2 ? serverState.time1 : serverState.time2);
+  int timeToService = serverState.timeDuration,
+    firstLightBatches = (sai.firstFlow.lambda * timeToService),
+    secondLightBatches = (sai.secondFlow.lambda * timeToService),
+    custInBatch,
+    realTime;
   
     
   for (int i = 0; i < firstLightBatches; i++)
     {
-      int custInBatch = GenerateCustomersInBatch(firstFlow);
+      custInBatch = GenerateCustomersInBatch(sai.firstFlow);
+      realTime = currentTime + (rand() % timeToService);
       for (int j = 0; j < custInBatch; j++)
   	{
-	  firstLightPrimaryQueue.push(Customer(currentTime));
+	  firstLightPrimaryQueue.push(Customer(realTime));
   	}
     }
 
   for (int i = 0; i < secondLightBatches; i++)
     {
-      int custInBatch = GenerateCustomersInBatch(secondFlow);
+      custInBatch = GenerateCustomersInBatch(sai.secondFlow);
+      realTime = currentTime + (rand() % timeToService);
       for (int j = 0; j < custInBatch; j++)
   	{
-  	  secondLightLowPriorityQueue.push(Customer(currentTime));
+  	  secondLightLowPriorityQueue.push(Customer(realTime));
   	}
     }
 }

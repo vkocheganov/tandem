@@ -190,11 +190,6 @@ vector<Cycle> FindCycles(vector<ServerState> vs, SystemAprioriInfo sai)
     a.CalcStatistics(vs, sai);
   return cycles;
 }
-  
-
-
-  
-
 
 
 void Cycle::CalcStatistics(vector<ServerState>& vs, SystemAprioriInfo sai)
@@ -243,7 +238,7 @@ void Cycle::Print()
       cout<<a<<" ";
     }
   //  cout <<"]"<<" FirstLightIncome="<<firstLightIncome<<", SecondLightIncome="<<secondLightIncome<<", PrimaryFirstLight_sum{l}="<<primaryFlowServed<<", LowPriority_sum{l}="<<lowPriorityFlowServed<<endl;
-  cout <<"]"<<" ("<<firstLightIncome<<", "<<primaryFlowServed<<") ("<<secondLightIncome<<", "<<lowPriorityFlowServed<<")"<<endl;
+  cout <<"]"<<" ("<<firstLightIncome<<", "<<primaryFlowServed<<") ("<<secondLightIncome<<", "<<lowPriorityFlowServed<<"),("<<highPriorityFlowServed<<")"<<endl;
 }
 
 void Cycle::Print_Ext()
@@ -254,7 +249,7 @@ void Cycle::Print_Ext()
       cout<<a<<" ";
     }
   //  cout <<"]"<<" FirstLightIncome="<<firstLightIncome<<", SecondLightIncome="<<secondLightIncome<<", PrimaryFirstLight_sum{l}="<<primaryFlowServed<<", LowPriority_sum{l}="<<lowPriorityFlowServed<<endl;
-  cout <<"]"<<" (FirstLightIncome"<<", SecondLightIncome"<<", PrimaryFirstLight_sum{l}"<<", LowPriority_sum{l}) = ("<<firstLightIncome<<","<<primaryFlowServed<<","<<secondLightIncome<<","<<lowPriorityFlowServed<<")"<<endl;
+  cout <<"]"<<" (FirstLightIncome"<<", SecondLightIncome"<<", PrimaryFirstLight_sum{l}"<<", LowPriority_sum{l}, HighPriority_sum{l}) = ("<<firstLightIncome<<","<<primaryFlowServed<<","<<secondLightIncome<<","<<lowPriorityFlowServed<<", "<<highPriorityFlowServed<<")"<<endl;
 }
 
 
