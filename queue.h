@@ -15,15 +15,28 @@ struct Queue
   queue<Customer> secondLightHighPriorityQueue;
   queue<Customer> secondLightLowPriorityQueue;
   list<Customer> midleQueue;
+
+  queue<Customer> departFirstQueue;
+  queue<Customer> departSecondQueue;
+  int untilServiceTimeFirst = 0;
+  int untilServiceTimeSecond = 0;
+  bool stationaryModeFirst = false;
+  bool stationaryModeSecond = false;
+  
+
+  SystemAprioriInfo sai;
   float midleQueueSuccProb;
 
-  Queue(QueueState initialState, float succProb);
+  Queue(QueueState initialState, SystemAprioriInfo sai);
   void PrintState();
   void ServiceMidleQueue();
 
-  void MakeIteration(SystemAprioriInfo sai, ServerState serverState, int );
+  void MakeIteration(ServerState serverState, int ,int);
   int GenerateCustomersInBatch(PrimaryFlowDistribution flow);
   void UpdateQueues(PrimaryFlowDistribution firstFlow, PrimaryFlowDistribution secondFlow, ServerState serverState, int);
+
+  void UpdateMeanTimes();
+  void DumpDepartQueues();
 };
 
 #endif

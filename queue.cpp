@@ -1,28 +1,32 @@
 #include "queue.h"
+#include <fstream>
+using namespace std;
+
+long long Customer::count = 0;
 
 
-Queue::Queue(QueueState initialState, float succProb)
+
+Queue::Queue(QueueState initialState, SystemAprioriInfo _sai): sai(_sai)
 {
-  midleQueueSuccProb = succProb;
-  Customer dummy(0);
+  midleQueueSuccProb = sai.midleQueueSuccProb;
   for (int i = 0; i < initialState.firstLightPrimary; i++)
     {
-      firstLightPrimaryQueue.push(dummy);
+      firstLightPrimaryQueue.push(Customer(0));
     }
   for (int i = 0; i < initialState.secondLightSecondary; i++)
     {
-      secondLightHighPriorityQueue.push(dummy);
+      secondLightHighPriorityQueue.push(Customer(0));
     }
   for (int i = 0; i < initialState.secondLightPrimary; i++)
     {
-      secondLightLowPriorityQueue.push(dummy);
+      secondLightLowPriorityQueue.push(Customer(0));
     }
   for (int i = 0; i < initialState.midleQueue; i++)
     {
-      midleQueue.push_back(dummy);
+      midleQueue.push_back(Customer(0));
     }
 
-    PrintState();
+  PrintState();
 }
 
 void Queue::PrintState()
@@ -55,7 +59,7 @@ void Queue::ServiceMidleQueue()
 }
 
 
-void Queue::MakeIteration(SystemAprioriInfo sai, ServerState serverState, int currentTime)
+void Queue::MakeIteration(ServerState serverState, int currentTime, int iteration)
 {
   UpdateQueues(sai.firstFlow, sai.secondFlow, serverState, currentTime);
 
@@ -72,8 +76,11 @@ void Queue::MakeIteration(SystemAprioriInfo sai, ServerState serverState, int cu
       int temp_count = std::min(secondLightCustomersToServe,(int)secondLightLowPriorityQueue.size() );
       for (int i = 0; i < temp_count; i++)
   	{
+	  Customer customerToRemove = secondLightLowPriorityQueue.front();
+	  customerToRemove.serviceTime = currentTime;
+	  customerToRemove.departureTime = currentTime + timeToService;
+	  departSecondQueue.push(customerToRemove);
   	  secondLightLowPriorityQueue.pop();
-  	  //temp
   	}
     }
   else
@@ -81,7 +88,10 @@ void Queue::MakeIteration(SystemAprioriInfo sai, ServerState serverState, int cu
       int temp_count = std::min(secondLightCustomersToServe,(int)secondLightHighPriorityQueue.size() );
       for (int i = 0; i < temp_count; i++)
   	{
+	  Customer customerToRemove = secondLightHighPriorityQueue.front();
+	  customerToRemove.departureTime=currentTime + timeToService;
   	  secondLightHighPriorityQueue.pop();
+	  departFirstQueue.push(customerToRemove);
   	}
     }
   ServiceMidleQueue();
@@ -90,11 +100,36 @@ void Queue::MakeIteration(SystemAprioriInfo sai, ServerState serverState, int cu
       int temp_count = std::min(firstLightCustomersToServe,(int)firstLightPrimaryQueue.size() );
       for (int i =0; i < temp_count; i++)
   	{
-  	  midleQueue.push_back(firstLightPrimaryQueue.front());
+	  Customer customerToMove = firstLightPrimaryQueue.front();
   	  firstLightPrimaryQueue.pop();
+	  customerToMove.serviceTime = currentTime;
+  	  midleQueue.push_back(customerToMove);
   	}
     }
-
+  //  if (departFirstQueue.size() + departSecondQueue.size() > 200)
+  const int GRAN=10;
+  if ((iteration > 0) &&  (iteration % GRAN == 0))
+    {
+      int oldUntilServiceFirst = untilServiceTimeFirst;
+      int oldUntilServiceSecond = untilServiceTimeSecond;
+      UpdateMeanTimes();
+      if (!(stationaryModeFirst && stationaryModeSecond))
+	{
+	  if (std::abs(oldUntilServiceFirst - untilServiceTimeFirst) <= 2 && untilServiceTimeFirst > 0)
+	    stationaryModeFirst = true;
+	  else
+	    stationaryModeFirst = false;
+	  if (std::abs(oldUntilServiceSecond - untilServiceTimeSecond) <= 2 && untilServiceTimeSecond)
+	    stationaryModeSecond = true;
+	  else
+	    stationaryModeSecond = false;
+	  if (stationaryModeFirst && stationaryModeSecond)
+	    {
+	    cout <<"stationary reached at "<<iteration<<" iteration"<<endl;
+	    cout << oldUntilServiceSecond<< " vs "<< untilServiceTimeSecond<< " and "<< oldUntilServiceFirst << " vs "<< untilServiceTimeFirst<<endl;
+	    }
+	}
+    }
 }
 
 int Queue::GenerateCustomersInBatch(PrimaryFlowDistribution flow)
@@ -119,14 +154,13 @@ void Queue::UpdateQueues(PrimaryFlowDistribution firstFlow, PrimaryFlowDistribut
   int firstLightBatches = (firstFlow.lambda * timeToService);
   int secondLightBatches = (secondFlow.lambda * timeToService);
   
-  Customer dummy(currentTime);
     
   for (int i = 0; i < firstLightBatches; i++)
     {
       int custInBatch = GenerateCustomersInBatch(firstFlow);
       for (int j = 0; j < custInBatch; j++)
   	{
-	  firstLightPrimaryQueue.push(dummy);
+	  firstLightPrimaryQueue.push(Customer(currentTime));
   	}
     }
 
@@ -135,7 +169,60 @@ void Queue::UpdateQueues(PrimaryFlowDistribution firstFlow, PrimaryFlowDistribut
       int custInBatch = GenerateCustomersInBatch(secondFlow);
       for (int j = 0; j < custInBatch; j++)
   	{
-  	  secondLightLowPriorityQueue.push(dummy);
+  	  secondLightLowPriorityQueue.push(Customer(currentTime));
   	}
     }
 }
+
+void Queue::DumpDepartQueues()
+{
+  ofstream file(sai.filename, ofstream::out | ofstream::app );
+  file << "1 Light:"<<endl;
+  while (!departFirstQueue.empty())
+    {
+      departFirstQueue.front().Dump(file);
+      departFirstQueue.pop();
+    }
+  
+  file << "2 Light:"<<endl;
+  while (!departSecondQueue.empty())
+    {
+      departSecondQueue.front().Dump(file);
+      departSecondQueue.pop();
+    }
+}
+
+
+void Queue::UpdateMeanTimes()
+{
+  ofstream file(sai.filename, ofstream::out | ofstream::app );
+  long long sum = 0;
+  int firstSize = departFirstQueue.size(),
+    secondSize = departSecondQueue.size();
+  
+  while (!departFirstQueue.empty())
+    {
+      Customer cust = departFirstQueue.front();
+      sum += (cust.serviceTime-cust.arrivalTime);
+      departFirstQueue.pop();
+    }
+  if (firstSize > 0)
+    {
+      untilServiceTimeFirst = sum/firstSize;
+      file << "1 Light:"<<untilServiceTimeFirst<<endl;
+    }
+  
+  sum = 0;
+  while (!departSecondQueue.empty())
+    {
+      Customer cust = departSecondQueue.front();
+      sum += (cust.serviceTime-cust.arrivalTime);
+      departSecondQueue.pop();
+    }
+  if (secondSize > 0)
+    {
+      untilServiceTimeSecond = sum/secondSize;
+      file << "2 Light:"<<(sum/secondSize)<<endl;
+    }
+}
+

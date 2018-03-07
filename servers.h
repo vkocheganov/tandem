@@ -15,7 +15,8 @@ struct Server
   int state;
   vector<ServerState> allStates;
   int prolongationThreshold;
-  int MakeIteration(int);
+  SystemAprioriInfo sai;
+  int MakeIteration(int,int);
   void Print();
 };
 

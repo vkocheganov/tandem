@@ -12,7 +12,7 @@ struct System
   SystemAprioriInfo sai;
   int timeTotal;
   System (QueueState, ServerState, SystemAprioriInfo);
-  void MakeIteration();
+  void MakeIteration(int);
   void Print();
 };
 #endif

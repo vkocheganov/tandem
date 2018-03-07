@@ -1,6 +1,7 @@
 #ifndef SPEC_H
 #define SPEC_H
 #include "flow.h"
+#include <string>
 
 
 enum FirstLightStates
@@ -41,6 +42,8 @@ struct SystemAprioriInfo
   SecondLightSpec sls;
   float midleQueueSuccProb;
   int prolongThres;
+  bool verbose;
+  string filename;
   void Print();
 };
 

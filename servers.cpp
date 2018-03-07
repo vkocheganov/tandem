@@ -3,7 +3,7 @@
 
 void GenerateStates(vector<ServerState>& vs, int currentState, SystemAprioriInfo sai);
 
-Server::Server(ServerState initialState, SystemAprioriInfo sai)
+Server::Server(ServerState initialState, SystemAprioriInfo _sai): sai(_sai)
 {
   allStates.push_back(initialState);
   GenerateStates(allStates, 0, sai);
@@ -12,18 +12,20 @@ Server::Server(ServerState initialState, SystemAprioriInfo sai)
 
   Print();
 
-  cout <<"find cycles"<< endl;
-  int count = 0;
-  for (auto a: allStates)
+  if (sai.verbose)
     {
-      cout <<"["<<count<<"] ";
-      a.Print();
-      count++;
+      cout <<"find cycles"<< endl;
+      int count = 0;
+      for (auto a: allStates)
+	{
+	  cout <<"["<<count<<"] ";
+	  a.Print();
+	  count++;
+	}
     }
-
 }
 
-int Server::MakeIteration(int lowPriorityQueueSize)
+int Server::MakeIteration(int lowPriorityQueueSize, int )
 {
   state = ( allStates[state].nextProlongation != -1 && lowPriorityQueueSize <= prolongationThreshold ? allStates[state].nextProlongation : allStates[state].nextRegular);
   // allStates[state].Print();
