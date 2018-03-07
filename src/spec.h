@@ -45,6 +45,7 @@ struct SystemAprioriInfo
   bool verbose;
   string foldName;
   string filename;
+  int numIteration;
   void Print();
 };
 
