@@ -6,6 +6,7 @@
 #include "queue.h"
 #include "system.h"
 #include <unistd.h>
+#include <sys/stat.h>
 
 using namespace std;
 
@@ -26,9 +27,19 @@ int main(int argc, char * const argv[])
       exit(EXIT_FAILURE);
     }
   }
+
+  time_t rawtime;
+  struct tm *info;
+  time( &rawtime );
+  info = localtime( &rawtime );
+  char tmp_buf[80];
+  strftime(tmp_buf,80,"LOG_%Y_%m_%d__%H_%M_%S", info);
+  cout <<tmp_buf<<endl;
   
   SystemAprioriInfo sai = ReadSpecs("sample_spec_0");
-  sai.filename ="output_customers";
+  sai.foldName = tmp_buf;
+  mkdir(sai.foldName.c_str(), S_IRWXU | S_IRWXG | S_IROTH | S_IXOTH);
+  sai.filename = sai.foldName + "/output";
   sai.verbose = verbose;
 
   if (verbose)

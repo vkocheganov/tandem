@@ -43,6 +43,7 @@ struct SystemAprioriInfo
   float midleQueueSuccProb;
   int prolongThres;
   bool verbose;
+  string foldName;
   string filename;
   void Print();
 };
