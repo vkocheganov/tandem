@@ -66,7 +66,7 @@ SystemAprioriInfo CreateSai(int argc, char * const argv[])
 
   time( &rawtime );
   info = localtime( &rawtime );
-  strftime(tmp_buf,80,"LOG_%Y_%m_%d__%H_%M_%S", info);
+  strftime(tmp_buf,80,"LOGS/LOG_%Y_%m_%d__%H_%M_%S", info);
   cout <<tmp_buf<<endl;
   
   sai.foldName = tmp_buf;
