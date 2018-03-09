@@ -8,6 +8,27 @@
 #include "customer.h"
 using namespace std;
 
+
+
+struct Statistics
+{
+Statistics(SystemAprioriInfo _sai): sai(_sai){};
+  queue<Customer> departFirstQueue;
+  queue<Customer> departSecondQueue;
+  int untilServiceTimeFirst = 0;
+  int untilServiceTimeSecond = 0;
+  bool stationaryModeFirst = false;
+  bool stationaryModeSecond = false;
+  const int GRAN = 100;
+  SystemAprioriInfo sai;
+
+  void UpdateStatistics(int);
+  void DumpMeanTimes();
+  void UpdateMeanTimes();
+  void DumpDepartQueues();
+};
+  
+
 struct Queue
 {
   //Queue(QueueState _state): state(_state){};
@@ -16,12 +37,7 @@ struct Queue
   queue<Customer> secondLightLowPriorityQueue;
   list<Customer> midleQueue;
 
-  queue<Customer> departFirstQueue;
-  queue<Customer> departSecondQueue;
-  int untilServiceTimeFirst = 0;
-  int untilServiceTimeSecond = 0;
-  bool stationaryModeFirst = false;
-  bool stationaryModeSecond = false;
+  Statistics stats;
   
 
   SystemAprioriInfo sai;
@@ -37,9 +53,6 @@ struct Queue
   int GenerateCustomersInBatch(PrimaryFlowDistribution flow);
   void UpdateQueues(ServerState serverState, int);
 
-  void DumpMeanTimes();
-  void UpdateMeanTimes();
-  void DumpDepartQueues();
 };
 
 #endif

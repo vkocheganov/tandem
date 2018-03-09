@@ -4,7 +4,7 @@ using namespace std;
 
 long long Customer::count = 0;
 
-Queue::Queue(QueueState initialState, SystemAprioriInfo _sai): sai(_sai)
+Queue::Queue(QueueState initialState, SystemAprioriInfo _sai): sai(_sai), stats(_sai)
 {
   midleQueueSuccProb = sai.midleQueueSuccProb;
   for (int i = 0; i < initialState.firstLightPrimary; i++)
@@ -76,7 +76,7 @@ void Queue::MakeIteration(ServerState serverState, int currentTime, int iteratio
 	  Customer customerToRemove = secondLightLowPriorityQueue.front();
 	  customerToRemove.serviceTime = std::max(currentTime,customerToRemove.arrivalTime);
 	  customerToRemove.departureTime = currentTime + timeToService;
-	  departSecondQueue.push(customerToRemove);
+	  stats.departSecondQueue.push(customerToRemove);
   	  secondLightLowPriorityQueue.pop();
   	}
     }
@@ -88,7 +88,7 @@ void Queue::MakeIteration(ServerState serverState, int currentTime, int iteratio
 	  Customer customerToRemove = secondLightHighPriorityQueue.front();
 	  customerToRemove.departureTime=currentTime + timeToService;
   	  secondLightHighPriorityQueue.pop();
-	  departFirstQueue.push(customerToRemove);
+	  stats.departFirstQueue.push(customerToRemove);
   	}
     }
   ServiceMidleQueue();
@@ -103,30 +103,7 @@ void Queue::MakeIteration(ServerState serverState, int currentTime, int iteratio
   	  midleQueue.push_back(customerToMove);
   	}
     }
-  //  if (departFirstQueue.size() + departSecondQueue.size() > 200)
-  const int GRAN=10;
-  if ((iteration > 0) &&  (iteration % GRAN == 0))
-    {
-      int oldUntilServiceFirst = untilServiceTimeFirst;
-      int oldUntilServiceSecond = untilServiceTimeSecond;
-      UpdateMeanTimes();
-      //      if (!(stationaryModeFirst && stationaryModeSecond))
-	{
-	  if (std::abs(oldUntilServiceFirst - untilServiceTimeFirst) <= 2 && untilServiceTimeFirst > 0)
-	    stationaryModeFirst = true;
-	  else
-	    stationaryModeFirst = false;
-	  if (std::abs(oldUntilServiceSecond - untilServiceTimeSecond) <= 2 && untilServiceTimeSecond)
-	    stationaryModeSecond = true;
-	  else
-	    stationaryModeSecond = false;
-	  // if (stationaryModeFirst && stationaryModeSecond)
-	  //   {
-	  //   cout <<"stationary reached at "<<iteration<<" iteration"<<endl;
-	  //   cout << oldUntilServiceSecond<< " vs "<< untilServiceTimeSecond<< " and "<< oldUntilServiceFirst << " vs "<< untilServiceTimeFirst<<endl;
-	  //   }
-	}
-    }
+  stats.UpdateStatistics(iteration);
 }
 
 int Queue::GenerateCustomersInBatch(PrimaryFlowDistribution flow)
@@ -176,15 +153,42 @@ void Queue::UpdateQueues(ServerState serverState, int currentTime)
     }
 }
 
-void Queue::DumpMeanTimes()
+void Statistics::UpdateStatistics(int iteration)
+{
+  if ((iteration > 0) &&  (iteration % GRAN == 0))
+    {
+      int oldUntilServiceFirst = untilServiceTimeFirst;
+      int oldUntilServiceSecond = untilServiceTimeSecond;
+      UpdateMeanTimes();
+      //      if (!(stationaryModeFirst && stationaryModeSecond))
+	{
+	  if (std::abs(oldUntilServiceFirst - untilServiceTimeFirst) <= 2 && untilServiceTimeFirst > 0)
+	    stationaryModeFirst = true;
+	  else
+	    stationaryModeFirst = false;
+	  if (std::abs(oldUntilServiceSecond - untilServiceTimeSecond) <= 2 && untilServiceTimeSecond)
+	    stationaryModeSecond = true;
+	  else
+	    stationaryModeSecond = false;
+	  DumpMeanTimes();
+	  // if (stationaryModeFirst && stationaryModeSecond)
+	  //   {
+	  //   cout <<"stationary reached at "<<iteration<<" iteration"<<endl;
+	  //   cout << oldUntilServiceSecond<< " vs "<< untilServiceTimeSecond<< " and "<< oldUntilServiceFirst << " vs "<< untilServiceTimeFirst<<endl;
+	  //   }
+	}
+    }
+
+}
+
+void Statistics::DumpMeanTimes()
 {
   ofstream file(sai.filename, ofstream::out | ofstream::app );
   
-  file << "1 Light:"<<untilServiceTimeFirst<<endl;
-  file << "2 Light:"<<untilServiceTimeSecond<<endl;
+  file << "("<<untilServiceTimeFirst<<","<<untilServiceTimeSecond<<")"<<"("<<stationaryModeFirst<<","<<stationaryModeSecond <<")"<<endl;
 }
 
-void Queue::DumpDepartQueues()
+void Statistics::DumpDepartQueues()
 {
   ofstream file(sai.filename, ofstream::out | ofstream::app );
   file << "1 Light:"<<endl;
@@ -203,7 +207,7 @@ void Queue::DumpDepartQueues()
 }
 
 
-void Queue::UpdateMeanTimes()
+void Statistics::UpdateMeanTimes()
 {
   long long sum = 0;
   int firstSize = departFirstQueue.size(),
