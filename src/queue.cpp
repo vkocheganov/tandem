@@ -157,16 +157,16 @@ void Statistics::UpdateStatistics(int iteration)
 {
   if ((iteration > 0) &&  (iteration % GRAN == 0))
     {
-      int oldUntilServiceFirst = untilServiceTimeFirst;
-      int oldUntilServiceSecond = untilServiceTimeSecond;
+      int oldBeforeServiceFirst = beforeServiceTimeFirst;
+      int oldBeforeServiceSecond = beforeServiceTimeSecond;
       UpdateMeanTimes();
       //      if (!(stationaryModeFirst && stationaryModeSecond))
 	{
-	  if (std::abs(oldUntilServiceFirst - untilServiceTimeFirst) <= 2 && untilServiceTimeFirst > 0)
+	  if (std::abs(oldBeforeServiceFirst - beforeServiceTimeFirst) <= 2 && beforeServiceTimeFirst > 0)
 	    stationaryModeFirst = true;
 	  else
 	    stationaryModeFirst = false;
-	  if (std::abs(oldUntilServiceSecond - untilServiceTimeSecond) <= 2 && untilServiceTimeSecond)
+	  if (std::abs(oldBeforeServiceSecond - beforeServiceTimeSecond) <= 2 && beforeServiceTimeSecond)
 	    stationaryModeSecond = true;
 	  else
 	    stationaryModeSecond = false;
@@ -174,7 +174,7 @@ void Statistics::UpdateStatistics(int iteration)
 	  // if (stationaryModeFirst && stationaryModeSecond)
 	  //   {
 	  //   cout <<"stationary reached at "<<iteration<<" iteration"<<endl;
-	  //   cout << oldUntilServiceSecond<< " vs "<< untilServiceTimeSecond<< " and "<< oldUntilServiceFirst << " vs "<< untilServiceTimeFirst<<endl;
+	  //   cout << oldBeforeServiceSecond<< " vs "<< beforeServiceTimeSecond<< " and "<< oldBeforeServiceFirst << " vs "<< beforeServiceTimeFirst<<endl;
 	  //   }
 	}
     }
@@ -185,7 +185,7 @@ void Statistics::DumpMeanTimes()
 {
   ofstream file(sai.filename, ofstream::out | ofstream::app );
   
-  file << "("<<untilServiceTimeFirst<<","<<untilServiceTimeSecond<<")"<<"("<<stationaryModeFirst<<","<<stationaryModeSecond <<")"<<endl;
+  file << "("<<beforeServiceTimeFirst<<","<<beforeServiceTimeSecond<<")"<<"("<<stationaryModeFirst<<","<<stationaryModeSecond <<")"<<endl;
 }
 
 void Statistics::DumpDepartQueues()
@@ -219,7 +219,7 @@ void Statistics::UpdateMeanTimes()
       sum += (cust.serviceTime-cust.arrivalTime);
       departFirstQueue.pop();
     }
-  untilServiceTimeFirst = (firstSize > 0 ? sum/firstSize : 0);
+  beforeServiceTimeFirst = (firstSize > 0 ? sum/firstSize : 0);
   
   sum = 0;
   while (!departSecondQueue.empty())
@@ -228,6 +228,6 @@ void Statistics::UpdateMeanTimes()
       sum += (cust.serviceTime-cust.arrivalTime);
       departSecondQueue.pop();
     }
-  untilServiceTimeSecond = (secondSize > 0 ? sum/secondSize : 0);
+  beforeServiceTimeSecond = (secondSize > 0 ? sum/secondSize : 0);
 }
 

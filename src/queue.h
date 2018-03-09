@@ -15,8 +15,8 @@ struct Statistics
 Statistics(SystemAprioriInfo _sai): sai(_sai){};
   queue<Customer> departFirstQueue;
   queue<Customer> departSecondQueue;
-  int untilServiceTimeFirst = 0;
-  int untilServiceTimeSecond = 0;
+  int beforeServiceTimeFirst = 0;
+  int beforeServiceTimeSecond = 0;
   bool stationaryModeFirst = false;
   bool stationaryModeSecond = false;
   const int GRAN = 100;
