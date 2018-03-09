@@ -17,7 +17,7 @@ Customer(int arrTime): arrivalTime(arrTime){idx = count++;}
   {
     int timeUntilService = serviceTime - arrivalTime,
       timeService = departureTime - arrivalTime;
-    stream<<""<<idx<<", "<<arrivalTime<<","<<serviceTime<<","<<departureTime<<", "<<timeUntilService<<","<<timeService<<endl;
+    stream<<idx<<": ("<<arrivalTime<<","<<serviceTime<<","<<departureTime<<") ["<<timeUntilService<<","<<timeService<<"]"<<endl;
     //    stream<<"Customer_"<<idx<<": arrival="<<arrivalTime<<", departure="<<departureTime<<endl;
     
   }

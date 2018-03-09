@@ -10,7 +10,7 @@ Server::Server(ServerState initialState, SystemAprioriInfo _sai): sai(_sai)
   state = 0;
   prolongationThreshold = sai.prolongThres;
 
-  Print();
+  //  Print();
 
   if (sai.verbose)
     {

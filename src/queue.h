@@ -2,6 +2,7 @@
 #define QUEUE_H
 
 #include <queue>
+#include <deque>
 #include <iostream>
 #include <list>
 #include "spec.h"
@@ -9,21 +10,34 @@
 using namespace std;
 
 
+struct MovingMean
+{
+  double mean_untilService = 0;
+  double mean_Service = 0;
+  int num = 0;
+  void UpdateMean(deque<Customer>& newNumbers);
+};
 
 struct Statistics
 {
 Statistics(SystemAprioriInfo _sai): sai(_sai){};
-  queue<Customer> departFirstQueue;
-  queue<Customer> departSecondQueue;
-  int beforeServiceTimeFirst = 0;
-  int beforeServiceTimeSecond = 0;
+  deque<Customer> departFirstQueue;
+  deque<Customer> departSecondQueue;
+  float beforeServiceTimeFirst = 0;
+  float beforeServiceTimeSecond = 0;
   bool stationaryModeFirst = false;
   bool stationaryModeSecond = false;
-  const int GRAN = 100;
+  bool stationaryMode = false;
+  const int GRAN = 200;
+  const float RATIO_CHANGE = 0.15;
   SystemAprioriInfo sai;
+
+  MovingMean stationaryMeanTime_first;
+  MovingMean stationaryMeanTime_second;
 
   void UpdateStatistics(int);
   void DumpMeanTimes();
+  void DumpAllCustomers();
   void UpdateMeanTimes();
   void DumpDepartQueues();
 };
@@ -47,6 +61,7 @@ struct Queue
 
   Queue(QueueState initialState, SystemAprioriInfo sai);
   void PrintState();
+  void PrintStatistics();
   void ServiceMidleQueue();
 
   void MakeIteration(ServerState serverState, int ,int);

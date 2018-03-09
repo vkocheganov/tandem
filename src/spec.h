@@ -34,7 +34,6 @@ struct SecondLightSpec
   float prolongationIntensity;
 };
 
-
 struct SystemAprioriInfo
 {
   PrimaryFlowDistribution firstFlow, secondFlow;
@@ -43,9 +42,13 @@ struct SystemAprioriInfo
   float midleQueueSuccProb;
   int prolongThres;
   bool verbose;
+  int numIteration;
+  int numSamples;
+
   string foldName;
   string filename;
-  int numIteration;
+  string firstCustomersFile;
+  string secondCustomersFile;
   void Print();
 };
 

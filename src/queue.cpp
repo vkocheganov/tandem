@@ -1,5 +1,6 @@
 #include "queue.h"
 #include <fstream>
+#include <cmath>
 using namespace std;
 
 long long Customer::count = 0;
@@ -36,6 +37,13 @@ void Queue::PrintState()
       <<midleQueue.size()<<"]"<<endl;
 }
 
+void Queue::PrintStatistics()
+{
+  cout<<"Stationary mode"<<endl;
+  cout << "First queue: ("<<stats.stationaryMeanTime_first.mean_untilService<<","<<stats.stationaryMeanTime_first.mean_Service<<")"<<" num="<<stats.stationaryMeanTime_first.num<<endl;
+  cout << "Second queue: ("<<stats.stationaryMeanTime_second.mean_untilService<<","<<stats.stationaryMeanTime_second.mean_Service<<")"<<" num="<<stats.stationaryMeanTime_second.num<<endl;
+}
+
 void Queue::ServiceMidleQueue()
 {
   int queueSize = midleQueue.size();
@@ -54,7 +62,6 @@ void Queue::ServiceMidleQueue()
 	}
     }
 }
-
 
 void Queue::MakeIteration(ServerState serverState, int currentTime, int iteration)
 {
@@ -76,7 +83,7 @@ void Queue::MakeIteration(ServerState serverState, int currentTime, int iteratio
 	  Customer customerToRemove = secondLightLowPriorityQueue.front();
 	  customerToRemove.serviceTime = std::max(currentTime,customerToRemove.arrivalTime);
 	  customerToRemove.departureTime = currentTime + timeToService;
-	  stats.departSecondQueue.push(customerToRemove);
+	  stats.departSecondQueue.push_back(customerToRemove);
   	  secondLightLowPriorityQueue.pop();
   	}
     }
@@ -88,7 +95,7 @@ void Queue::MakeIteration(ServerState serverState, int currentTime, int iteratio
 	  Customer customerToRemove = secondLightHighPriorityQueue.front();
 	  customerToRemove.departureTime=currentTime + timeToService;
   	  secondLightHighPriorityQueue.pop();
-	  stats.departFirstQueue.push(customerToRemove);
+	  stats.departFirstQueue.push_back(customerToRemove);
   	}
     }
   ServiceMidleQueue();
@@ -155,27 +162,35 @@ void Queue::UpdateQueues(ServerState serverState, int currentTime)
 
 void Statistics::UpdateStatistics(int iteration)
 {
-  if ((iteration > 0) &&  (iteration % GRAN == 0))
+  if ( (iteration + 1) % GRAN == 0)
     {
-      int oldBeforeServiceFirst = beforeServiceTimeFirst;
-      int oldBeforeServiceSecond = beforeServiceTimeSecond;
+      float oldBeforeServiceFirst = beforeServiceTimeFirst;
+      float oldBeforeServiceSecond = beforeServiceTimeSecond;
       UpdateMeanTimes();
-      //      if (!(stationaryModeFirst && stationaryModeSecond))
+      
+      if (oldBeforeServiceFirst > 0 && float(std::abs(float(oldBeforeServiceFirst - beforeServiceTimeFirst)))/oldBeforeServiceFirst <= RATIO_CHANGE)
+	stationaryModeFirst = true;
+      else
+	stationaryModeFirst = false;
+      if (oldBeforeServiceSecond > 0 && std::abs(oldBeforeServiceSecond - beforeServiceTimeSecond)/oldBeforeServiceSecond <= RATIO_CHANGE)
+	stationaryModeSecond = true;
+      else
+	stationaryModeSecond = false;
+      
+      DumpMeanTimes();
+      DumpAllCustomers();
+
+      if (stationaryMode)
 	{
-	  if (std::abs(oldBeforeServiceFirst - beforeServiceTimeFirst) <= 2 && beforeServiceTimeFirst > 0)
-	    stationaryModeFirst = true;
-	  else
-	    stationaryModeFirst = false;
-	  if (std::abs(oldBeforeServiceSecond - beforeServiceTimeSecond) <= 2 && beforeServiceTimeSecond)
-	    stationaryModeSecond = true;
-	  else
-	    stationaryModeSecond = false;
-	  DumpMeanTimes();
-	  // if (stationaryModeFirst && stationaryModeSecond)
-	  //   {
-	  //   cout <<"stationary reached at "<<iteration<<" iteration"<<endl;
-	  //   cout << oldBeforeServiceSecond<< " vs "<< beforeServiceTimeSecond<< " and "<< oldBeforeServiceFirst << " vs "<< beforeServiceTimeFirst<<endl;
-	  //   }
+	  stationaryMeanTime_first.UpdateMean(departFirstQueue);
+	  stationaryMeanTime_second.UpdateMean(departSecondQueue);
+	}
+
+      departFirstQueue.clear();
+      departSecondQueue.clear();
+      if (!stationaryMode && stationaryModeFirst && stationaryModeSecond)
+	{
+	  stationaryMode = true;
 	}
     }
 
@@ -188,21 +203,30 @@ void Statistics::DumpMeanTimes()
   file << "("<<beforeServiceTimeFirst<<","<<beforeServiceTimeSecond<<")"<<"("<<stationaryModeFirst<<","<<stationaryModeSecond <<")"<<endl;
 }
 
+void Statistics::DumpAllCustomers()
+{
+  ofstream file1(sai.firstCustomersFile, ofstream::out | ofstream::app );
+  ofstream file2(sai.secondCustomersFile, ofstream::out | ofstream::app );
+
+  for (auto& a : departFirstQueue)
+    a.Dump(file1);
+  for (auto& a : departSecondQueue)
+    a.Dump(file2);
+}
+
 void Statistics::DumpDepartQueues()
 {
   ofstream file(sai.filename, ofstream::out | ofstream::app );
   file << "1 Light:"<<endl;
-  while (!departFirstQueue.empty())
+  for (auto& a:departFirstQueue)
     {
-      departFirstQueue.front().Dump(file);
-      departFirstQueue.pop();
+      a.Dump(file);
     }
   
   file << "2 Light:"<<endl;
-  while (!departSecondQueue.empty())
+  for (auto& a:departSecondQueue)
     {
-      departSecondQueue.front().Dump(file);
-      departSecondQueue.pop();
+      a.Dump(file);
     }
 }
 
@@ -213,21 +237,30 @@ void Statistics::UpdateMeanTimes()
   int firstSize = departFirstQueue.size(),
     secondSize = departSecondQueue.size();
   
-  while (!departFirstQueue.empty())
+  for (auto& a:departFirstQueue)
     {
-      Customer cust = departFirstQueue.front();
-      sum += (cust.serviceTime-cust.arrivalTime);
-      departFirstQueue.pop();
+      sum += (a.serviceTime-a.arrivalTime);
     }
-  beforeServiceTimeFirst = (firstSize > 0 ? sum/firstSize : 0);
+  beforeServiceTimeFirst = (firstSize > 0 ? sum/float(firstSize) : 0);
   
   sum = 0;
-  while (!departSecondQueue.empty())
+  for (auto& a:departSecondQueue)
     {
-      Customer cust = departSecondQueue.front();
-      sum += (cust.serviceTime-cust.arrivalTime);
-      departSecondQueue.pop();
+      sum += (a.serviceTime-a.arrivalTime);
     }
-  beforeServiceTimeSecond = (secondSize > 0 ? sum/secondSize : 0);
+  beforeServiceTimeSecond = (secondSize > 0 ? sum/float(secondSize) : 0);
 }
 
+void MovingMean::UpdateMean(deque<Customer>& newNumbers)
+{
+  double sum_until = mean_untilService * num,
+    sum_service = mean_Service * num;
+  for (auto& a: newNumbers)
+    {
+      sum_until += (a.serviceTime - a.arrivalTime);
+      sum_service += (a.departureTime - a.arrivalTime);
+    }
+  num += newNumbers.size();
+  mean_untilService = sum_until/num;
+  mean_Service = sum_service/num;
+}

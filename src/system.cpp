@@ -23,4 +23,5 @@ void System::Print()
 {
   server.Print();
   sQueue.PrintState();
+  sQueue.PrintStatistics();
 }
