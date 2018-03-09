@@ -49,7 +49,10 @@ struct SystemAprioriInfo
   string filename;
   string firstCustomersFile;
   string secondCustomersFile;
+
+  string optFile;
   void Print();
+  void PrintOpt(ofstream&);
 };
 
 struct ServerState

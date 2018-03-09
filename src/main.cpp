@@ -8,6 +8,7 @@
 #include <unistd.h>
 #include <sys/stat.h>
 #include <numeric>
+#include "optimization.h"
 
 using namespace std;
 
@@ -27,32 +28,43 @@ int main(int argc, char * const argv[])
       initialQueueState.Print();
     }
 
-  vector<double> firstUntilService,
-    firstService,
-    secondUntilService,
-    secondService;
-  for (int j = 0; j < sai.numSamples; j++)
-    {
-      System system(initialQueueState, initialServerState, sai);
+  
+  Optimization optimize(initialQueueState, initialServerState, sai);
+  optimize.firstLightTimePrimary = {10, 10, 100};
+  optimize.firstLightTimeSecondary = {10, 10, 60};
+  optimize.secondLightTimeLow = {10, 10, 60};
+  optimize.secondLightTimeHigh = {10, 10, 60};
+  optimize.secondLightTimeProlong = {5, 5, 20};
+  optimize.threshold = {0, 5, 30};
 
-      for (int i = 0; i < sai.numIteration; i++)
-	{
-	  system.MakeIteration(i);
-	}
-      firstUntilService.push_back(system.sQueue.stats.stationaryMeanTime_first.mean_untilService);
-      firstService.push_back(system.sQueue.stats.stationaryMeanTime_first.mean_Service);
-      secondUntilService.push_back(system.sQueue.stats.stationaryMeanTime_second.mean_untilService);
-      secondService.push_back(system.sQueue.stats.stationaryMeanTime_second.mean_Service);
-      if (sai.verbose)
-	{
-	  system.Print();
-	  cout << endl;
-	}
-    }
-  cout << endl;
+  optimize.MakeOptimization();
 
-  cout <<"First. Until service time="  <<(accumulate(firstUntilService.begin(), firstUntilService.end(), 0.))/firstUntilService.size()<<", service time="<<(accumulate(firstService.begin(), firstService.end(), 0.))/firstService.size()<<endl;
-  cout <<"Second. Until service time="  <<(accumulate(secondUntilService.begin(), secondUntilService.end(), 0.))/secondUntilService.size()<<", service time="<<(accumulate(secondService.begin(), secondService.end(), 0.))/secondService.size()<<endl;
+  // vector<double> firstUntilService,
+  //   firstService,
+  //   secondUntilService,
+  //   secondService;
+  // for (int j = 0; j < sai.numSamples; j++)
+  //   {
+  //     System system(initialQueueState, initialServerState, sai);
+
+  //     for (int i = 0; i < sai.numIteration; i++)
+  // 	{
+  // 	  system.MakeIteration(i);
+  // 	}
+  //     firstUntilService.push_back(system.sQueue.stats.stationaryMeanTime_first.mean_untilService);
+  //     firstService.push_back(system.sQueue.stats.stationaryMeanTime_first.mean_Service);
+  //     secondUntilService.push_back(system.sQueue.stats.stationaryMeanTime_second.mean_untilService);
+  //     secondService.push_back(system.sQueue.stats.stationaryMeanTime_second.mean_Service);
+  //     if (sai.verbose)
+  // 	{
+  // 	  system.Print();
+  // 	  cout << endl;
+  // 	}
+  //   }
+  // cout << endl;
+
+  // cout <<"First. Until service time="  <<(accumulate(firstUntilService.begin(), firstUntilService.end(), 0.))/firstUntilService.size()<<", service time="<<(accumulate(firstService.begin(), firstService.end(), 0.))/firstService.size()<<endl;
+  // cout <<"Second. Until service time="  <<(accumulate(secondUntilService.begin(), secondUntilService.end(), 0.))/secondUntilService.size()<<", service time="<<(accumulate(secondService.begin(), secondService.end(), 0.))/secondService.size()<<endl;
 
   
   return 0;
@@ -63,7 +75,7 @@ int main(int argc, char * const argv[])
 SystemAprioriInfo CreateSai(int argc, char * const argv[])
 {
   bool verbose = false;
-  SystemAprioriInfo sai = ReadSpecs("../sample_data/sample_spec_0");
+  SystemAprioriInfo sai = ReadSpecs("../sample_data/sample_spec_1");
   time_t rawtime;
   struct tm *info;
   char tmp_buf[80];
@@ -99,6 +111,7 @@ SystemAprioriInfo CreateSai(int argc, char * const argv[])
   sai.filename = sai.foldName + "/output";
   sai.firstCustomersFile = sai.foldName + "/output_customers_first";
   sai.secondCustomersFile = sai.foldName + "/output_customers_second";
+  sai.optFile = sai.foldName + "/optimization";
   sai.verbose = verbose;
   cout <<"Iterations: "<<sai.numIteration<<endl;
   cout <<"Samples: "<<sai.numSamples<<endl;

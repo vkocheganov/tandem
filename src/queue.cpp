@@ -176,9 +176,12 @@ void Statistics::UpdateStatistics(int iteration)
 	stationaryModeSecond = true;
       else
 	stationaryModeSecond = false;
-      
-      DumpMeanTimes();
-      DumpAllCustomers();
+
+      if (sai.verbose)
+	{
+	  DumpMeanTimes();
+	  DumpAllCustomers();
+	}
 
       if (stationaryMode)
 	{

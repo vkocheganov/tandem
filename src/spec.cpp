@@ -1,5 +1,6 @@
 #include "spec.h"
 #include "iostream"
+#include <fstream>
 using namespace std;
 
 void SystemAprioriInfo::Print()
@@ -37,6 +38,14 @@ void SystemAprioriInfo::Print()
     
   cout<<"--Prolongation Threshold: ";
   cout<<prolongThres<<endl;
+}
+
+
+
+void SystemAprioriInfo::PrintOpt(ofstream& outStream)
+{
+  outStream<<"["<<fls.primaryTime<<","<<fls.secondaryTime<<"]   ";
+  outStream <<"["<<sls.lowPriorityTime<<","<<sls.highPriorityTime<<","<<sls.prolongationTime <<"] ("<< prolongThres<<")   ";
 }
 
 void ServerState::Print()
