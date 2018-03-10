@@ -23,13 +23,11 @@ void Optimization::MakeOptimization()
 
   for (int fltp = firstLightTimePrimary.first; fltp <= firstLightTimePrimary.last; fltp += firstLightTimePrimary.step)
     {
-      stringstream ios;
-      ios << sai.optFile <<"_"<<fltp;
-      
-      currFile = sai.optFile + "";
       sai.fls.primaryTime = fltp;
       for (int flts = firstLightTimeSecondary.first; flts <= firstLightTimeSecondary.last; flts += firstLightTimeSecondary.step)
 	{
+	  stringstream ios;
+	  ios << sai.optFile <<"_"<<fltp;
 	  ios << "_"<<flts;
 	  currFile = ios.str();
 	  
