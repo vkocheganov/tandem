@@ -1,0 +1,7 @@
+  optimize.firstLightTimePrimary = {10, 10, 100};
+  optimize.firstLightTimeSecondary = {10, 10, 60};
+  optimize.secondLightTimeLow = {10, 10, 60};
+  optimize.secondLightTimeHigh = {10, 10, 60};
+  optimize.secondLightTimeProlong = {5, 5, 20};
+  optimize.threshold = {0, 5, 30};
+
