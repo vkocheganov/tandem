@@ -39,7 +39,7 @@ struct SystemAprioriInfo
   PrimaryFlowDistribution firstFlow, secondFlow;
   FirstLightSpec fls;
   SecondLightSpec sls;
-  float midleQueueSuccProb;
+  float midleSuccProbFactor;
   int prolongThres;
   bool verbose;
   int numIteration;
@@ -53,6 +53,7 @@ struct SystemAprioriInfo
   string optFile;
   void Print();
   void PrintOpt(ofstream&);
+  float GetSuccProb(int timeDur) { return (1 - exp(-timeDur));}
 };
 
 struct ServerState
@@ -65,6 +66,7 @@ struct ServerState
   int numCustomersFirstLight = -1;
   int numCustomersSecondLight = -1;
   int timeDuration = 0;
+  float midleSuccProb = 0.;
   
   int nextRegular = -1;
   int nextProlongation = -1;

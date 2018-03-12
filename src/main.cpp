@@ -9,6 +9,7 @@
 #include <sys/stat.h>
 #include <numeric>
 #include "optimization.h"
+#include <chrono>
 
 using namespace std;
 
@@ -16,7 +17,6 @@ SystemAprioriInfo CreateSai(int argc, char * const argv[]);
 
 int main(int argc, char * const argv[])
 {
-  srand(time(NULL));
   SystemAprioriInfo sai = CreateSai(argc, argv);
 
   ServerState initialServerState;
@@ -70,10 +70,10 @@ int main(int argc, char * const argv[])
   return 0;
 }
 
-
-
 SystemAprioriInfo CreateSai(int argc, char * const argv[])
 {
+  unsigned seed = std::chrono::system_clock::now().time_since_epoch().count();
+  PrimaryFlowDistribution::generator.seed(seed);  
   bool verbose = false;
   SystemAprioriInfo sai = ReadSpecs("../sample_data/sample_spec_1");
   time_t rawtime;

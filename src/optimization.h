@@ -14,6 +14,8 @@ struct Range
   T last;
 };
 
+
+						      
 struct Optimization
 {
   Optimization(QueueState, ServerState, SystemAprioriInfo);

@@ -1,13 +1,16 @@
 #include "queue.h"
 #include <fstream>
 #include <cmath>
+#include <random>
+#include "flow.h"
 using namespace std;
 
 long long Customer::count = 0;
 
+mt19937 PrimaryFlowDistribution::generator;
+
 Queue::Queue(QueueState initialState, SystemAprioriInfo _sai): sai(_sai), stats(_sai)
 {
-  midleQueueSuccProb = sai.midleQueueSuccProb;
   for (int i = 0; i < initialState.firstLightPrimary; i++)
     {
       firstLightPrimaryQueue.push(Customer(0));
@@ -44,14 +47,15 @@ void Queue::PrintStatistics()
   cout << "Second queue: ("<<stats.stationaryMeanTime_second.mean_untilService<<","<<stats.stationaryMeanTime_second.mean_Service<<")"<<" num="<<stats.stationaryMeanTime_second.num<<endl;
 }
 
-void Queue::ServiceMidleQueue()
+void Queue::ServiceMidleQueue(ServerState serverState)
 {
-  int queueSize = midleQueue.size();
+  uniform_real_distribution<float> distribution(0., 1.);
+ int queueSize = midleQueue.size();
   float generated;
   for (auto a = midleQueue.begin(); a != midleQueue.end();)
     {
-      generated = float(rand()) / RAND_MAX;
-      if (generated <= midleQueueSuccProb)
+      generated = distribution(PrimaryFlowDistribution::generator);
+      if (generated <= serverState.midleSuccProb)
 	{
 	  secondLightHighPriorityQueue.push(*a);
 	  a = midleQueue.erase(a);
@@ -98,7 +102,7 @@ void Queue::MakeIteration(ServerState serverState, int currentTime, int iteratio
 	  stats.departFirstQueue.push_back(customerToRemove);
   	}
     }
-  ServiceMidleQueue();
+  ServiceMidleQueue(serverState);
   if (serverState.state1 == Primary)
     {
       int temp_count = std::min(firstLightCustomersToServe,(int)firstLightPrimaryQueue.size() );
@@ -113,36 +117,36 @@ void Queue::MakeIteration(ServerState serverState, int currentTime, int iteratio
   stats.UpdateStatistics(iteration);
 }
 
+int Queue::GenerateBatches(float lambda, int timeToService)
+{
+  float mean = lambda * timeToService;
+  
+  poisson_distribution<int> distribution(mean);
+  
+  return distribution(PrimaryFlowDistribution::generator);
+}
+
 int Queue::GenerateCustomersInBatch(PrimaryFlowDistribution flow)
 {
-  float generated = float(rand()) / RAND_MAX;
-  int idx = 0;
-  float sum = flow.probabilities[idx++];
-  while (sum < 1 - 0.00001 && idx < flow.probabilities.size())
-    {
-      if (generated <= sum)
-	{
-	  return idx;
-	}
-      sum += flow.probabilities[idx++];
-    }
-  return idx;
+  discrete_distribution<int> distribution(flow.probabilities.begin(), flow.probabilities.end());
+  return (distribution(PrimaryFlowDistribution::generator) + 1);
 }
 
 void Queue::UpdateQueues(ServerState serverState, int currentTime)
 {
   // int timeToService = (serverState.time1 < serverState.time2 ? serverState.time1 : serverState.time2);
-  int timeToService = serverState.timeDuration,
-    firstLightBatches = (sai.firstFlow.lambda * timeToService),
-    secondLightBatches = (sai.secondFlow.lambda * timeToService),
+  int timeToService = serverState.timeDuration;
+  int firstLightBatches = GenerateBatches(sai.firstFlow.lambda, timeToService),
+    secondLightBatches = GenerateBatches(sai.secondFlow.lambda, timeToService),
     custInBatch,
     realTime;
   
+  uniform_int_distribution<int> distribution(currentTime, currentTime + timeToService);
     
   for (int i = 0; i < firstLightBatches; i++)
     {
       custInBatch = GenerateCustomersInBatch(sai.firstFlow);
-      realTime = currentTime + (rand() % timeToService);
+      realTime = distribution(PrimaryFlowDistribution::generator);
       for (int j = 0; j < custInBatch; j++)
   	{
 	  firstLightPrimaryQueue.push(Customer(realTime));
@@ -152,7 +156,7 @@ void Queue::UpdateQueues(ServerState serverState, int currentTime)
   for (int i = 0; i < secondLightBatches; i++)
     {
       custInBatch = GenerateCustomersInBatch(sai.secondFlow);
-      realTime = currentTime + (rand() % timeToService);
+      realTime = distribution(PrimaryFlowDistribution::generator);
       for (int j = 0; j < custInBatch; j++)
   	{
   	  secondLightLowPriorityQueue.push(Customer(realTime));

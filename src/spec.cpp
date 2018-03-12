@@ -34,7 +34,7 @@ void SystemAprioriInfo::Print()
   cout <<"       lowPriorityTime="<<sls.lowPriorityTime<<", lowPriorityIntensity="<<sls.lowPriorityIntensity<<", highPriorityTime="<<sls.highPriorityTime<<", highPriorityIntensity="<<sls.highPriorityIntensity<<", prolongationTime="<<sls.prolongationTime<<", prolongationIntensity="<<sls.prolongationIntensity<<endl;
 
   cout<<"--Midle queue info ";
-  cout<<"  queue success probabity: "<<midleQueueSuccProb<<endl;
+  cout<<"  queue success probabity factor: "<<midleSuccProbFactor<<endl;
     
   cout<<"--Prolongation Threshold: ";
   cout<<prolongThres<<endl;

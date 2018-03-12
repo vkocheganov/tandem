@@ -62,10 +62,11 @@ struct Queue
   Queue(QueueState initialState, SystemAprioriInfo sai);
   void PrintState();
   void PrintStatistics();
-  void ServiceMidleQueue();
+  void ServiceMidleQueue(ServerState serverState);
 
   void MakeIteration(ServerState serverState, int ,int);
   int GenerateCustomersInBatch(PrimaryFlowDistribution flow);
+  int GenerateBatches(float lambda, int timeToService);
   void UpdateQueues(ServerState serverState, int);
 
 };

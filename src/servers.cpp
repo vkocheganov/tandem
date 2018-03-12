@@ -65,6 +65,7 @@ void GenerateStates(vector<ServerState>& vs, int currentState, SystemAprioriInfo
       timeToFinish = vs[currentState].time1;
     }
   vs[currentState].timeDuration = timeToFinish;
+  vs[currentState].midleSuccProb = sai.GetSuccProb(vs[currentState].timeDuration);
 
   if (vs[currentState].numCustomersFirstLight < 0 || vs[currentState].numCustomersSecondLight < 0)
     {
@@ -85,6 +86,7 @@ void GenerateStates(vector<ServerState>& vs, int currentState, SystemAprioriInfo
       newState.state2 = vs[currentState].state2;
       newState.time2 = vs[currentState].time2 - timeToFinish;
       newState.timeDuration = timeToFinish;
+      vs[currentState].midleSuccProb = sai.GetSuccProb(newState.timeDuration);
     }
   else if (serverToFinish == 2)
     {
