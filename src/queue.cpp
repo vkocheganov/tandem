@@ -50,7 +50,7 @@ void Queue::PrintStatistics()
 void Queue::ServiceMidleQueue(ServerState serverState)
 {
   uniform_real_distribution<float> distribution(0., 1.);
- int queueSize = midleQueue.size();
+  int queueSize = midleQueue.size();
   float generated;
   for (auto a = midleQueue.begin(); a != midleQueue.end();)
     {
@@ -134,13 +134,12 @@ int Queue::GenerateCustomersInBatch(PrimaryFlowDistribution flow)
 
 void Queue::UpdateQueues(ServerState serverState, int currentTime)
 {
-  // int timeToService = (serverState.time1 < serverState.time2 ? serverState.time1 : serverState.time2);
   int timeToService = serverState.timeDuration;
   int firstLightBatches = GenerateBatches(sai.firstFlow.lambda, timeToService),
     secondLightBatches = GenerateBatches(sai.secondFlow.lambda, timeToService),
     custInBatch,
     realTime;
-  
+
   uniform_int_distribution<int> distribution(currentTime, currentTime + timeToService);
     
   for (int i = 0; i < firstLightBatches; i++)

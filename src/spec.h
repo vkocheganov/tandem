@@ -53,7 +53,7 @@ struct SystemAprioriInfo
   string optFile;
   void Print();
   void PrintOpt(ofstream&);
-  float GetSuccProb(int timeDur) { return (1 - exp(-timeDur));}
+  float GetSuccProb(int timeDur) { return (1 - exp(-timeDur*midleSuccProbFactor));}
 };
 
 struct ServerState

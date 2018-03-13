@@ -37,35 +37,40 @@ int main(int argc, char * const argv[])
   optimize.secondLightTimeProlong = {5, 5, 20};
   optimize.threshold = {0, 5, 30};
 
-  optimize.MakeOptimization();
+  if (0)
+    {
+      optimize.MakeOptimization();
+    }
+  else
+    {
 
-  // vector<double> firstUntilService,
-  //   firstService,
-  //   secondUntilService,
-  //   secondService;
-  // for (int j = 0; j < sai.numSamples; j++)
-  //   {
-  //     System system(initialQueueState, initialServerState, sai);
+      vector<double> firstUntilService,
+	firstService,
+	secondUntilService,
+	secondService;
+      for (int j = 0; j < sai.numSamples; j++)
+	{
+	  System system(initialQueueState, initialServerState, sai);
 
-  //     for (int i = 0; i < sai.numIteration; i++)
-  // 	{
-  // 	  system.MakeIteration(i);
-  // 	}
-  //     firstUntilService.push_back(system.sQueue.stats.stationaryMeanTime_first.mean_untilService);
-  //     firstService.push_back(system.sQueue.stats.stationaryMeanTime_first.mean_Service);
-  //     secondUntilService.push_back(system.sQueue.stats.stationaryMeanTime_second.mean_untilService);
-  //     secondService.push_back(system.sQueue.stats.stationaryMeanTime_second.mean_Service);
-  //     if (sai.verbose)
-  // 	{
-  // 	  system.Print();
-  // 	  cout << endl;
-  // 	}
-  //   }
-  // cout << endl;
+	  for (int i = 0; i < sai.numIteration; i++)
+	    {
+	      system.MakeIteration(i);
+	    }
+	  firstUntilService.push_back(system.sQueue.stats.stationaryMeanTime_first.mean_untilService);
+	  firstService.push_back(system.sQueue.stats.stationaryMeanTime_first.mean_Service);
+	  secondUntilService.push_back(system.sQueue.stats.stationaryMeanTime_second.mean_untilService);
+	  secondService.push_back(system.sQueue.stats.stationaryMeanTime_second.mean_Service);
+	  if (sai.verbose)
+	    {
+	      system.Print();
+	      cout << endl;
+	    }
+	}
+      cout << endl;
 
-  // cout <<"First. Until service time="  <<(accumulate(firstUntilService.begin(), firstUntilService.end(), 0.))/firstUntilService.size()<<", service time="<<(accumulate(firstService.begin(), firstService.end(), 0.))/firstService.size()<<endl;
-  // cout <<"Second. Until service time="  <<(accumulate(secondUntilService.begin(), secondUntilService.end(), 0.))/secondUntilService.size()<<", service time="<<(accumulate(secondService.begin(), secondService.end(), 0.))/secondService.size()<<endl;
-
+      cout <<"First. Until service time="  <<(accumulate(firstUntilService.begin(), firstUntilService.end(), 0.))/firstUntilService.size()<<", service time="<<(accumulate(firstService.begin(), firstService.end(), 0.))/firstService.size()<<endl;
+      cout <<"Second. Until service time="  <<(accumulate(secondUntilService.begin(), secondUntilService.end(), 0.))/secondUntilService.size()<<", service time="<<(accumulate(secondService.begin(), secondService.end(), 0.))/secondService.size()<<endl;
+    }
   
   return 0;
 }
