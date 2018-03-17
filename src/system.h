@@ -15,5 +15,6 @@ struct System
   System (QueueState, ServerState, SystemAprioriInfo);
   void MakeIteration(int);
   void Print();
+  void CheckStationaryMode(System& ,int);
 };
 #endif

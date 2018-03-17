@@ -10,12 +10,26 @@
 using namespace std;
 
 
+struct MyMean
+{
+  vector<int> values;
+  double mean = 0;
+  double mean_sq = 0;
+  
+  int num = 0;
+  void UpdateMean();
+};
+
 struct MovingMean
 {
   double mean_untilService = 0;
+  double mean_untilService_sq = 0;
+  
   double mean_Service = 0;
-  int num = 0;
-  void UpdateMean(deque<Customer>& newNumbers);
+  double mean_Service_sq = 0;
+  int numUntil = 0;
+  int numServ = 0;
+  void UpdateMean(deque<Customer>& newNumbers, bool stationary = false);
 };
 
 struct Statistics
@@ -23,23 +37,28 @@ struct Statistics
 Statistics(SystemAprioriInfo _sai): sai(_sai){};
   deque<Customer> departFirstQueue;
   deque<Customer> departSecondQueue;
-  float beforeServiceTimeFirst = 0;
-  float beforeServiceTimeSecond = 0;
-  bool stationaryModeFirst = false;
-  bool stationaryModeSecond = false;
+  
   bool stationaryMode = false;
-  const int GRAN = 200;
-  const float RATIO_CHANGE = 0.15;
+  const int GRAN = 10000;
+  const float RATIO_CHANGE = 0.1;
   SystemAprioriInfo sai;
 
-  MovingMean stationaryMeanTime_first;
-  MovingMean stationaryMeanTime_second;
+  MyMean firstTimeUntilServ;
+  MyMean firstTimeServ;
+  MyMean secondTimeUntilServ;
+  MyMean secondTimeServ;
+  
+  MyMean firstPrimary;
+  MyMean secondHigh;
+  MyMean secondLow;
+  MyMean middle;
 
   void UpdateStatistics(int);
   void DumpMeanTimes();
   void DumpAllCustomers();
-  void UpdateMeanTimes();
   void DumpDepartQueues();
+  void AddFirstCustomer(Customer);
+  void AddSecondCustomer(Customer);
 };
   
 
@@ -68,7 +87,6 @@ struct Queue
   int GenerateCustomersInBatch(PrimaryFlowDistribution flow);
   int GenerateBatches(float lambda, int timeToService);
   void UpdateQueues(ServerState serverState, int);
-
 };
 
 #endif

@@ -45,6 +45,7 @@ struct SystemAprioriInfo
   int numIteration;
   int numSamples;
 
+  bool fileVerbose = true;
   string foldName;
   string filename;
   string firstCustomersFile;
@@ -77,10 +78,13 @@ struct ServerState
 
 struct QueueState
 {
+  QueueState(bool Rand = false);
   int firstLightPrimary;
   int secondLightSecondary;
   int secondLightPrimary;
   int midleQueue;
+
+  int UPPER_BOUND = 10;
   const void Print();
 };
 

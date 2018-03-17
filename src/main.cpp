@@ -50,11 +50,18 @@ int main(int argc, char * const argv[])
 	secondService;
       for (int j = 0; j < sai.numSamples; j++)
 	{
-	  System system(initialQueueState, initialServerState, sai);
+	  SystemAprioriInfo refSai(sai);
+	  //	  refSai.verbose=false;
+	  //	  QueueState refInitialQueueState(true);
+	  QueueState refInitialQueueState(initialQueueState);	  
+	  System system(initialQueueState, initialServerState, sai),
+	    refSystem(refInitialQueueState, initialServerState, refSai);
 
 	  for (int i = 0; i < sai.numIteration; i++)
 	    {
+	      refSystem.MakeIteration(i);
 	      system.MakeIteration(i);
+	      system.CheckStationaryMode(refSystem,i);
 	    }
 	  firstUntilService.push_back(system.sQueue.stats.stationaryMeanTime_first.mean_untilService);
 	  firstService.push_back(system.sQueue.stats.stationaryMeanTime_first.mean_Service);

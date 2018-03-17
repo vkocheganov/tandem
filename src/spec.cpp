@@ -65,6 +65,17 @@ const void QueueState::Print()
        << secondLightPrimary<<", "<< midleQueue;
   cout<< ")"<<endl;
 }
+QueueState::QueueState(bool Rand)
+{
+  if (Rand)
+    {
+      uniform_int_distribution<int> distribution(0, UPPER_BOUND);
+      firstLightPrimary = distribution(PrimaryFlowDistribution::generator);
+      secondLightSecondary = distribution(PrimaryFlowDistribution::generator);
+      secondLightPrimary = distribution(PrimaryFlowDistribution::generator);
+      midleQueue = distribution(PrimaryFlowDistribution::generator);
+    }
+}
 
 const bool ServerState::operator == (const ServerState &ss2)
 {
@@ -82,3 +93,5 @@ void SystemState::Print()
   serverState.Print();
   queueState.Print();
 }
+
+
