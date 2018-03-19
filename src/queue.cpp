@@ -40,12 +40,12 @@ void Queue::PrintState()
       <<midleQueue.size()<<"]"<<endl;
 }
 
-void Queue::PrintStatistics()
-{
-  cout<<"Stationary mode"<<endl;
-  cout << "First queue: ("<<stats.stationaryMeanTime_first.mean_untilService<<","<<stats.stationaryMeanTime_first.mean_Service<<")"<<" num="<<stats.stationaryMeanTime_first.numServ<<endl;
-  cout << "Second queue: ("<<stats.stationaryMeanTime_second.mean_untilService<<","<<stats.stationaryMeanTime_second.mean_Service<<")"<<" num="<<stats.stationaryMeanTime_second.numServ<<endl;
-}
+// void Queue::PrintStatistics()
+// {
+//   cout<<"Stationary mode"<<endl;
+//   cout << "First queue: ("<<stats.stationaryMeanTime_first.mean_untilService<<","<<stats.stationaryMeanTime_first.mean_Service<<")"<<" num="<<stats.stationaryMeanTime_first.numServ<<endl;
+//   cout << "Second queue: ("<<stats.stationaryMeanTime_second.mean_untilService<<","<<stats.stationaryMeanTime_second.mean_Service<<")"<<" num="<<stats.stationaryMeanTime_second.numServ<<endl;
+// }
 
 void Queue::ServiceMidleQueue(ServerState serverState)
 {
@@ -79,12 +79,12 @@ void Queue::MakeIteration(ServerState serverState, int currentTime, int iteratio
   firstLightCustomersToServe *= (serverState.state1 == Primary ? sai.fls.primaryIntensity : 0);
   secondLightCustomersToServe *= (serverState.state2 == LowPriority ? sai.sls.lowPriorityIntensity : (serverState.state2 == HighPriority ? sai.sls.highPriorityIntensity : sai.sls.prolongationIntensity) );
 
-  if (serverState.nextProlongation != -1)
+  //  if (serverState.nextProlongation != -1)
     {
-      stats.firstPrimarySizes.values.push_back(firstLightPrimaryQueue.size());
-      stats.secondHighPrioritySizes.values.push_back(secondLightHighPriorityQueue.size());
-      stats.secondLowPrioritySizes.values.push_back(secondLightLowPriorityQueue.size());
-      stats.middleSizes.values.push_back(midleQueue.size());
+      stats.firstPrimary.values.push_back(firstLightPrimaryQueue.size());
+      stats.secondHigh.values.push_back(secondLightHighPriorityQueue.size());
+      stats.secondLow.values.push_back(secondLightLowPriorityQueue.size());
+      stats.middle.values.push_back(midleQueue.size());
     }
 
   if (serverState.state2 == LowPriority)
@@ -96,7 +96,6 @@ void Queue::MakeIteration(ServerState serverState, int currentTime, int iteratio
 	  customerToRemove.serviceTime = std::max(currentTime,customerToRemove.arrivalTime);
 	  customerToRemove.departureTime = currentTime + timeToService;
 	  stats.AddSecondCustomer(customerToRemove);
-	  stats.departSecondQueue.push_back(customerToRemove);
   	  secondLightLowPriorityQueue.pop();
   	}
     }
@@ -109,7 +108,6 @@ void Queue::MakeIteration(ServerState serverState, int currentTime, int iteratio
 	  customerToRemove.departureTime=currentTime + timeToService;
   	  secondLightHighPriorityQueue.pop();
 	  stats.AddFirstCustomer(customerToRemove);
-	  stats.departFirstQueue.push_back(customerToRemove);
   	}
     }
   ServiceMidleQueue(serverState);
@@ -182,12 +180,15 @@ void Statistics::UpdateStatistics(int iteration)
 	  DumpAllCustomers();
 	}
 
-      stationaryMeanTime_first.UpdateMean(departFirstQueue, stationaryMode);
-      stationaryMeanTime_second.UpdateMean(departSecondQueue, stationaryMode);
-      firstPrimary.UpdateMean(firstPrimarySizes);
-      secondHigh.UpdateMean(secondHighPrioritySizes);
-      secondLow.UpdateMean(secondLowPrioritySizes);
-      middle.UpdateMean(middleSizes);
+      firstTimeUntilServ.UpdateMean();
+      firstTimeServ.UpdateMean();
+      secondTimeUntilServ.UpdateMean();
+      secondTimeServ.UpdateMean();
+      
+      firstPrimary.UpdateMean();
+      secondHigh.UpdateMean();
+      secondLow.UpdateMean();
+      middle.UpdateMean();
       // if (sai.verbose)
       // 	cout <<"UntilServ time = "<<stationaryMeanTime_first.mean_untilService<<" "<<stationaryMeanTime_second.mean_untilService<<endl;
 
@@ -226,36 +227,65 @@ void Statistics::AddFirstCustomer(Customer cust)
 {
   firstTimeUntilServ.values.push_back(cust.serviceTime - cust.arrivalTime);
   firstTimeServ.values.push_back(cust.departureTime - cust.serviceTime);
+  departFirstQueue.push_back(cust);
 }
 void Statistics::AddSecondCustomer(Customer cust)
 {
   secondTimeUntilServ.values.push_back(cust.serviceTime - cust.arrivalTime);
   secondTimeServ.values.push_back(cust.departureTime - cust.serviceTime);
+  departSecondQueue.push_back(cust);
 }
 
-
-void MovingMean::UpdateMean(deque<Customer>& newNumbers, bool stationary)
+void Statistics::AddStatistics(Statistics& s)
 {
-  double sum_until = mean_untilService * numUntil,
-    sum_until_sq = mean_untilService_sq * numUntil,
-    sum_service = mean_Service * numServ,
-    sum_service_sq = mean_Service_sq * numServ;
-  for (auto& a: newNumbers)
-    {
-      sum_until += (a.serviceTime - a.arrivalTime);
-      sum_until_sq += (a.serviceTime - a.arrivalTime)*(a.serviceTime - a.arrivalTime);
-      
-      sum_service += (a.departureTime - a.arrivalTime);
-      sum_service_sq += (a.departureTime - a.arrivalTime) * (a.departureTime - a.arrivalTime);
-    }
-  numUntil += newNumbers.size();
-  mean_untilService = sum_until/numUntil;
-  mean_untilService_sq = sum_until_sq/numUntil;
+  firstTimeUntilServ.AddMeans(s.firstTimeUntilServ);
+  firstTimeServ.AddMeans(s.firstTimeServ);
+  secondTimeUntilServ.AddMeans(s.secondTimeUntilServ);
+  secondTimeServ.AddMeans(s.secondTimeServ);
 
-  numServ += newNumbers.size();
-  mean_Service = sum_service/numServ;
-  mean_Service_sq = sum_service_sq/numServ;
-  newNumbers.clear();
+  firstPrimary.AddMeans(s.firstPrimary);
+  secondHigh.AddMeans(s.secondHigh);
+  secondLow.AddMeans(s.secondLow);
+  middle.AddMeans(s.middle);
+}
+
+void Statistics::Print()
+{
+  cout << "FirstTimeUntilServ:";
+  firstTimeUntilServ.Print();
+
+  cout << "FirstTimeServ:";
+  firstTimeServ.Print();
+
+  cout << "SecondTimeUntilServ:";
+  secondTimeUntilServ.Print();
+
+  cout << "SecondTimeServ:";
+  secondTimeServ.Print();
+
+  cout << "FirstPrimary queue:";
+  firstPrimary.Print();
+
+  cout << "SecondHigh queue:";
+  secondHigh.Print();
+
+  cout << "SecondLow queue:";
+  secondLow.Print();
+
+  cout << "Middle queue:";
+  middle.Print();
+}
+
+void Statistics::ClearStatistics()
+{
+  firstTimeUntilServ.Clear();
+  firstTimeServ.Clear();
+  secondTimeUntilServ.Clear();
+  secondTimeServ.Clear();
+  firstPrimary.Clear();
+  secondHigh.Clear();
+  secondLow.Clear();
+  middle.Clear();
 }
 
 void MyMean::UpdateMean()
@@ -269,7 +299,27 @@ void MyMean::UpdateMean()
       sum_sq += a*a;
     }
   num += values.size();
-  mean = sum/num;
-  mean_sq = sum_sq/num;
-  values.clear();
+  if (num > 0)
+    {
+      mean = sum/num;
+      mean_sq = sum_sq/num;
+      values.clear();
+    }
 }
+
+void MyMean::AddMeans(MyMean& m)
+{
+  this->UpdateMean();
+  m.UpdateMean();
+  
+  mean = mean * num + m.mean * m.num;
+  mean_sq = mean_sq * num + m.mean_sq * m.num;
+  num += m.num;
+  if (num > 0)
+    {
+      mean /= num;
+      mean_sq /= num;
+    }
+}
+
+

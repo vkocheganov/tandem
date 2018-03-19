@@ -69,17 +69,23 @@ void Optimization::MakeOptimization()
 void Optimization::Iterate(SystemAprioriInfo sai)
 {
   vector<double> firstService, secondService;
+  SystemAprioriInfo refSai(sai);
+  refSai.verbose=false;
+  QueueState refInitialQueueState(true);
+  Statistics aggStats(sai);  
   
   for (int j = 0; j < sai.numSamples; j++)
     {
-      System system(initialQueueState, initialServerState, sai);
+      System system(initialQueueState, initialServerState, sai),
+	refSystem(refInitialQueueState, initialServerState, refSai);
 
       for (int i = 0; i < sai.numIteration; i++)
 	{
+	  refSystem.MakeIteration(i);
 	  system.MakeIteration(i);
+	  system.CheckStationaryMode(refSystem,i);
 	}
-      firstService.push_back(system.sQueue.stats.stationaryMeanTime_first.mean_Service);
-      secondService.push_back(system.sQueue.stats.stationaryMeanTime_second.mean_Service);
+      aggStats.AddStatistics(system.sQueue.stats);
       if (sai.verbose)
 	{
 	  system.Print();
