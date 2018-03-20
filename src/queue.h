@@ -19,7 +19,7 @@ struct MyMean
   int num = 0;
   void UpdateMean();
   void AddMeans(MyMean&);
-  void Print(){ cout<<"mean="<<mean<<", D="<<(mean_sq - mean*mean)<<", n_samples="<<num<<endl;}
+  void Print(){ cout<<"mean="<<mean<<", sigma="<<std::sqrt(double(mean_sq - mean*mean))<<", n_samples="<<num<<endl;}
   void Clear() {values.clear(); mean = mean_sq = num = 0;}
 };
 
@@ -30,8 +30,8 @@ Statistics(SystemAprioriInfo _sai): sai(_sai){};
   deque<Customer> departSecondQueue;
   
   bool stationaryMode = false;
-  const int GRAN = 500;
-  const float RATIO_CHANGE = 0.2;
+  const int GRAN = 100;
+  const float RATIO_CHANGE = 0.1;
   SystemAprioriInfo sai;
 
   MyMean firstTimeUntilServ;
@@ -77,7 +77,7 @@ struct Queue
   //  void PrintStatistics();
   void ServiceMidleQueue(ServerState serverState);
 
-  void MakeIteration(ServerState serverState, int ,int);
+  void MakeIteration(ServerState prevServerState, ServerState serverState, int ,int);
   int GenerateCustomersInBatch(PrimaryFlowDistribution flow);
   int GenerateBatches(float lambda, int timeToService);
   void UpdateQueues(ServerState serverState, int);

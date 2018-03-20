@@ -16,7 +16,7 @@ void System::MakeIteration(int iteration)
 {
   int prevTotalTime = timeTotal;
   timeTotal += server.MakeIteration(sQueue.secondLightLowPriorityQueue.size(), iteration);
-  sQueue.MakeIteration(server.allStates[server.state], prevTotalTime, iteration);
+  sQueue.MakeIteration(server.allStates[server.lastState], server.allStates[server.state], prevTotalTime, iteration);
 }
 
 void System::Print()
@@ -35,8 +35,9 @@ void System::CheckStationaryMode(System& sys, int iteration)
       )
     {
       this->sQueue.stats.stationaryMode = true;
+      this->sQueue.stats.ClearStatistics();
       cout <<"stationary mode! "<<iteration<<endl;
     }
-  if ((iteration+1) % sQueue.stats.GRAN == 0)
-    cout <<"diff1 = "<<diff1<<"("<<this->sQueue.stats.secondTimeUntilServ.mean <<")"<< "   |  diff2 = " <<diff2<<endl;
+  // if ((iteration+1) % sQueue.stats.GRAN == 0)
+  //   cout <<"diff1 = "<<diff1<<"("<<this->sQueue.stats.secondTimeUntilServ.mean <<")"<< "   |  diff2 = " <<diff2<<endl;
 }

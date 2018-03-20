@@ -44,10 +44,6 @@ int main(int argc, char * const argv[])
   else
     {
 
-      vector<double> firstUntilService,
-	firstService,
-	secondUntilService,
-	secondService;
       for (int j = 0; j < sai.numSamples; j++)
 	{
 	  SystemAprioriInfo refSai(sai);
@@ -56,15 +52,19 @@ int main(int argc, char * const argv[])
 	  // QueueState refInitialQueueState(initialQueueState);	  
 	  System system(initialQueueState, initialServerState, sai),
 	    refSystem(refInitialQueueState, initialServerState, refSai);
-
-	  for (int i = 0; i < sai.numIteration && !system.sQueue.stats.stationaryMode ; i++)
+	  int i = 0;
+	  for (i = 0; i < sai.numIteration && !system.sQueue.stats.stationaryMode ; i++)
+	  // for (i = 0; i < sai.numIteration; i++)	  
 	    {
 	      refSystem.MakeIteration(i);
 	      system.MakeIteration(i);
 	      system.CheckStationaryMode(refSystem,i);
 	    }
-	  system.MakeIteration(i);
-	  aggStats.AddStatistics(system.sQueue.stats);
+	  for (i = 0; i < system.sQueue.stats.GRAN+1; i++)
+	    system.MakeIteration(i);
+	  
+	  if (system.sQueue.stats.stationaryMode)
+	    aggStats.AddStatistics(system.sQueue.stats);
 	  if (sai.verbose)
 	    {
 	      system.Print();

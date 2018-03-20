@@ -12,7 +12,8 @@ using namespace std;
 struct Server
 {
   Server (ServerState initialState, SystemAprioriInfo sai);
-  int state;
+  int state = -1;
+  int lastState = -1;
   vector<ServerState> allStates;
   int prolongationThreshold;
   SystemAprioriInfo sai;

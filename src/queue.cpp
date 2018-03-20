@@ -67,9 +67,27 @@ void Queue::ServiceMidleQueue(ServerState serverState)
     }
 }
 
-void Queue::MakeIteration(ServerState serverState, int currentTime, int iteration)
+void Queue::MakeIteration(ServerState prevServerState, ServerState serverState, int currentTime, int iteration)
 {
-  UpdateQueues(serverState, currentTime);
+   // if (!stats.stationaryMode || (iteration % 10) == 0 )
+  // if (!stats.stationaryMode || (iteration % 10) == 0 )
+    {
+      if (prevServerState.state2 != LowPriority &&  serverState.state2 == LowPriority)
+	{
+	  stats.secondLow.values.push_back(secondLightLowPriorityQueue.size());
+	}
+      if (prevServerState.state2 == LowPriority &&  serverState.state2 != LowPriority)
+	stats.secondHigh.values.push_back(secondLightHighPriorityQueue.size());
+      
+      if (prevServerState.state1 != Primary  &&  serverState.state1 == Primary)
+      {
+	stats.firstPrimary.values.push_back(firstLightPrimaryQueue.size());
+	stats.middle.values.push_back(midleQueue.size());
+      }
+    }
+
+
+    UpdateQueues(serverState, currentTime);
 
   int timeToService = serverState.timeDuration;
   int firstLightCustomersToServe = timeToService;
@@ -79,13 +97,6 @@ void Queue::MakeIteration(ServerState serverState, int currentTime, int iteratio
   firstLightCustomersToServe *= (serverState.state1 == Primary ? sai.fls.primaryIntensity : 0);
   secondLightCustomersToServe *= (serverState.state2 == LowPriority ? sai.sls.lowPriorityIntensity : (serverState.state2 == HighPriority ? sai.sls.highPriorityIntensity : sai.sls.prolongationIntensity) );
 
-  //  if (serverState.nextProlongation != -1)
-    {
-      stats.firstPrimary.values.push_back(firstLightPrimaryQueue.size());
-      stats.secondHigh.values.push_back(secondLightHighPriorityQueue.size());
-      stats.secondLow.values.push_back(secondLightLowPriorityQueue.size());
-      stats.middle.values.push_back(midleQueue.size());
-    }
 
   if (serverState.state2 == LowPriority)
     {
