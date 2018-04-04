@@ -41,3 +41,9 @@ void System::CheckStationaryMode(System& sys, int iteration)
   // if ((iteration+1) % sQueue.stats.GRAN == 0)
   //   cout <<"diff1 = "<<diff1<<"("<<this->sQueue.stats.secondTimeUntilServ.mean <<")"<< "   |  diff2 = " <<diff2<<endl;
 }
+
+bool System::StopCriteria()
+{
+  if (!this->sQueue.stats.stationaryMode)
+    return false;
+}

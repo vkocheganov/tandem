@@ -16,5 +16,6 @@ struct System
   void MakeIteration(int);
   void Print();
   void CheckStationaryMode(System& ,int);
+  bool StopCriteria();
 };
 #endif

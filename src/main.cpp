@@ -43,7 +43,6 @@ int main(int argc, char * const argv[])
     }
   else
     {
-
       for (int j = 0; j < sai.numSamples; j++)
 	{
 	  SystemAprioriInfo refSai(sai);
@@ -53,15 +52,15 @@ int main(int argc, char * const argv[])
 	  System system(initialQueueState, initialServerState, sai),
 	    refSystem(refInitialQueueState, initialServerState, refSai);
 	  int i = 0;
-	  for (i = 0; i < sai.numIteration && !system.sQueue.stats.stationaryMode ; i++)
-	  // for (i = 0; i < sai.numIteration; i++)	  
+	  //	  for (i = 0; i < sai.numIteration && !system.sQueue.stats.stationaryMode ; i++)
+	  for (i = 0; i < sai.numIteration; i++)	  
 	    {
 	      refSystem.MakeIteration(i);
 	      system.MakeIteration(i);
 	      system.CheckStationaryMode(refSystem,i);
 	    }
-	  for (i = 0; i < system.sQueue.stats.GRAN+1; i++)
-	    system.MakeIteration(i);
+	  // for (i = 0; i < system.sQueue.stats.GRAN+1; i++)
+	  //   system.MakeIteration(i);
 	  
 	  if (system.sQueue.stats.stationaryMode)
 	    aggStats.AddStatistics(system.sQueue.stats);
@@ -84,7 +83,8 @@ int main(int argc, char * const argv[])
 SystemAprioriInfo CreateSai(int argc, char * const argv[])
 {
   unsigned seed = std::chrono::system_clock::now().time_since_epoch().count();
-  PrimaryFlowDistribution::generator.seed(seed);  
+  //  PrimaryFlowDistribution::generator.seed(seed);
+    PrimaryFlowDistribution::generator.seed(2);  
   bool verbose = false;
   SystemAprioriInfo sai = ReadSpecs("../sample_data/sample_spec_1");
   time_t rawtime;
@@ -119,7 +119,8 @@ SystemAprioriInfo CreateSai(int argc, char * const argv[])
   
   sai.foldName = tmp_buf;
   mkdir(sai.foldName.c_str(), S_IRWXU | S_IRWXG | S_IROTH | S_IXOTH);
-  sai.filename = sai.foldName + "/output";
+  sai.stationaryFileMeans = sai.foldName + "/stationaryMeans";
+  sai.stationaryFileStds = sai.foldName + "/stationaryStds";
   sai.firstCustomersFile = sai.foldName + "/output_customers_first";
   sai.secondCustomersFile = sai.foldName + "/output_customers_second";
   sai.optFile = sai.foldName + "/optimization";

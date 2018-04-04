@@ -71,23 +71,19 @@ void Queue::MakeIteration(ServerState prevServerState, ServerState serverState, 
 {
    // if (!stats.stationaryMode || (iteration % 10) == 0 )
   // if (!stats.stationaryMode || (iteration % 10) == 0 )
-    {
-      if (prevServerState.state2 != LowPriority &&  serverState.state2 == LowPriority)
-	{
-	  stats.secondLow.values.push_back(secondLightLowPriorityQueue.size());
-	}
-      if (prevServerState.state2 == LowPriority &&  serverState.state2 != LowPriority)
-	stats.secondHigh.values.push_back(secondLightHighPriorityQueue.size());
+  
+  if (prevServerState.state2 != LowPriority &&  serverState.state2 == LowPriority)
+    stats.secondLow.values.push_back(secondLightLowPriorityQueue.size());
+  if (prevServerState.state2 == LowPriority &&  serverState.state2 != LowPriority)
+    stats.secondHigh.values.push_back(secondLightHighPriorityQueue.size());
       
-      if (prevServerState.state1 != Primary  &&  serverState.state1 == Primary)
-      {
-	stats.firstPrimary.values.push_back(firstLightPrimaryQueue.size());
-	stats.middle.values.push_back(midleQueue.size());
-      }
+  if (prevServerState.state1 != Primary  &&  serverState.state1 == Primary)
+    {
+      stats.firstPrimary.values.push_back(firstLightPrimaryQueue.size());
+      stats.middle.values.push_back(midleQueue.size());
     }
 
-
-    UpdateQueues(serverState, currentTime);
+  UpdateQueues(serverState, currentTime);
 
   int timeToService = serverState.timeDuration;
   int firstLightCustomersToServe = timeToService;
@@ -200,6 +196,13 @@ void Statistics::UpdateStatistics(int iteration)
       secondHigh.UpdateMean();
       secondLow.UpdateMean();
       middle.UpdateMean();
+
+      if (stationaryMode)
+	{
+	  ofstream file_(sai.stationaryFileMeans, ofstream::out | ofstream::app );
+	  DumpStatsMean(file_); file_<<endl;
+	}
+      
       // if (sai.verbose)
       // 	cout <<"UntilServ time = "<<stationaryMeanTime_first.mean_untilService<<" "<<stationaryMeanTime_second.mean_untilService<<endl;
 
@@ -218,21 +221,21 @@ void Statistics::DumpAllCustomers()
     a.Dump(file2);
 }
 
-void Statistics::DumpDepartQueues()
-{
-  ofstream file(sai.filename, ofstream::out | ofstream::app );
-  file << "1 Light:"<<endl;
-  for (auto& a:departFirstQueue)
-    {
-      a.Dump(file);
-    }
+// void Statistics::DumpDepartQueues()
+// {
+//   ofstream file(sai.filename, ofstream::out | ofstream::app );
+//   file << "1 Light:"<<endl;
+//   for (auto& a:departFirstQueue)
+//     {
+//       a.Dump(file);
+//     }
   
-  file << "2 Light:"<<endl;
-  for (auto& a:departSecondQueue)
-    {
-      a.Dump(file);
-    }
-}
+//   file << "2 Light:"<<endl;
+//   for (auto& a:departSecondQueue)
+//     {
+//       a.Dump(file);
+//     }
+// }
 
 void Statistics::AddFirstCustomer(Customer cust)
 {
@@ -299,8 +302,65 @@ void Statistics::ClearStatistics()
   middle.Clear();
 }
 
+void Statistics::DumpStatsMean(ofstream& _stream)
+{
+  firstTimeUntilServ.DumpMeans(_stream);
+  firstTimeServ.DumpMeans(_stream);
+  secondTimeUntilServ.DumpMeans(_stream);
+  secondTimeServ.DumpMeans(_stream);
+  
+  firstPrimary.DumpMeans(_stream);
+  secondHigh.DumpMeans(_stream);
+  secondLow.DumpMeans(_stream);
+  middle.DumpMeans(_stream);
+}
+
+void Statistics::DumpStatsMeanDiffs(ofstream& _stream)
+{
+  firstTimeUntilServ.DumpMeansDiffs(_stream);
+  firstTimeServ.DumpMeansDiffs(_stream);
+  secondTimeUntilServ.DumpMeansDiffs(_stream);
+  secondTimeServ.DumpMeansDiffs(_stream);
+  
+  firstPrimary.DumpMeansDiffs(_stream);
+  secondHigh.DumpMeansDiffs(_stream);
+  secondLow.DumpMeansDiffs(_stream);
+  middle.DumpMeansDiffs(_stream);
+}
+
+void Statistics::DumpStatsStd(ofstream& _stream)
+{
+  firstTimeUntilServ.DumpStd(_stream);
+  firstTimeServ.DumpStd(_stream);
+  secondTimeUntilServ.DumpStd(_stream);
+  secondTimeServ.DumpStd(_stream);
+  
+  firstPrimary.DumpStd(_stream);
+  secondHigh.DumpStd(_stream);
+  secondLow.DumpStd(_stream);
+  middle.DumpStd(_stream);
+}
+
+
+void Statistics::DumpStatsStdDiffs(ofstream& _stream)
+{
+  firstTimeUntilServ.DumpStdDiffs(_stream);
+  firstTimeServ.DumpStdDiffs(_stream);
+  secondTimeUntilServ.DumpStdDiffs(_stream);
+  secondTimeServ.DumpStdDiffs(_stream);
+  
+  firstPrimary.DumpStdDiffs(_stream);
+  secondHigh.DumpStdDiffs(_stream);
+  secondLow.DumpStdDiffs(_stream);
+  middle.DumpStdDiffs(_stream);
+}
+
+
 void MyMean::UpdateMean()
 {
+  double old_sum = mean,
+    old_sum_sq = mean_sq;
+  
   double sum = mean * num,
     sum_sq = mean_sq * num;
 
@@ -316,10 +376,26 @@ void MyMean::UpdateMean()
       mean_sq = sum_sq/num;
       values.clear();
     }
+
+  if (old_sum > 0)
+    diff = std::abs(old_sum - mean)/old_sum;
+  else
+    diff = 1.;
+    
+  double old_std = std::sqrt(double(old_sum_sq - old_sum * old_sum)),
+    new_std = std::sqrt(double(mean_sq - mean*mean));
+
+  if (old_std > 0)
+    diff_std = std::abs(old_std - new_std)/double(old_std);
+  else
+    diff_std = 1.;
 }
 
 void MyMean::AddMeans(MyMean& m)
 {
+  double old_sum = mean,
+    old_sum_sq = mean_sq;
+  
   this->UpdateMean();
   m.UpdateMean();
   
@@ -331,6 +407,19 @@ void MyMean::AddMeans(MyMean& m)
       mean /= num;
       mean_sq /= num;
     }
+  
+  if (old_sum > 0)
+    diff = std::abs(old_sum - mean)/old_sum;
+  else
+    diff = 1.;
+  
+  double old_std = std::sqrt(double(old_sum_sq - old_sum * old_sum)),
+    new_std = std::sqrt(double(mean_sq - mean*mean));
+
+  if (old_std > 0)
+    diff_std = std::abs(old_std - new_std)/double(old_std);
+  else
+    diff_std = 1.;
 }
 
 

@@ -47,7 +47,9 @@ struct SystemAprioriInfo
 
   bool fileVerbose = true;
   string foldName;
-  string filename;
+  string stationaryFileMeans;
+  string stationaryFileStds;
+  //  string filename;
   string firstCustomersFile;
   string secondCustomersFile;
 
