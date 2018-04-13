@@ -59,8 +59,11 @@ int main(int argc, char * const argv[])
 	      system.MakeIteration(i);
 	      system.CheckStationaryMode(refSystem,i);
 	    }
-	  // for (i = 0; i < system.sQueue.stats.GRAN+1; i++)
-	  //   system.MakeIteration(i);
+
+          cout <<"intensity input/output 1 = "<<double(system.sQueue.stats.inputFirstCust)/system.timeTotal
+               <<"/"<<double(system.sQueue.stats.outputFirstCust)/system.timeTotal<<endl
+               <<"intensity input/output 3 = "<<double(system.sQueue.stats.inputThirdCust)/system.timeTotal
+               <<"/"<<double(system.sQueue.stats.outputThirdCust)/system.timeTotal<<endl;
 	  
 	  if (system.sQueue.stats.stationaryMode)
 	    aggStats.AddStatistics(system.sQueue.stats);
@@ -72,9 +75,6 @@ int main(int argc, char * const argv[])
 	}
       cout << endl;
       aggStats.Print();
-      
-      // cout <<"First. Until service time="  <<(accumulate(firstUntilService.begin(), firstUntilService.end(), 0.))/firstUntilService.size()<<", service time="<<(accumulate(firstService.begin(), firstService.end(), 0.))/firstService.size()<<endl;
-      // cout <<"Second. Until service time="  <<(accumulate(secondUntilService.begin(), secondUntilService.end(), 0.))/secondUntilService.size()<<", service time="<<(accumulate(secondService.begin(), secondService.end(), 0.))/secondService.size()<<endl;
     }
   
   return 0;
@@ -117,13 +117,12 @@ SystemAprioriInfo CreateSai(int argc, char * const argv[])
   strftime(tmp_buf,80,"LOGS/LOG_%Y_%m_%d__%H_%M_%S", info);
   cout <<tmp_buf<<endl;
   
-  sai.foldName = tmp_buf;
-  mkdir(sai.foldName.c_str(), S_IRWXU | S_IRWXG | S_IROTH | S_IXOTH);
-  sai.stationaryFileMeans = sai.foldName + "/stationaryMeans";
-  sai.stationaryFileStds = sai.foldName + "/stationaryStds";
-  sai.firstCustomersFile = sai.foldName + "/output_customers_first";
-  sai.secondCustomersFile = sai.foldName + "/output_customers_second";
-  sai.optFile = sai.foldName + "/optimization";
+  sai.outFiles.foldName = tmp_buf;
+  mkdir(sai.outFiles.foldName.c_str(), S_IRWXU | S_IRWXG | S_IROTH | S_IXOTH);
+  sai.outFiles.stationaryFileMeans = sai.outFiles.foldName + "/stationaryMeans";
+  sai.outFiles.firstCustomersFile = sai.outFiles.foldName + "/output_customers_first";
+  sai.outFiles.secondCustomersFile = sai.outFiles.foldName + "/output_customers_second";
+  sai.outFiles.optFile = sai.outFiles.foldName + "/optimization";
   sai.verbose = verbose;
   cout <<"Iterations: "<<sai.numIteration<<endl;
   cout <<"Samples: "<<sai.numSamples<<endl;

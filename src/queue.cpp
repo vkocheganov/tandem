@@ -97,11 +97,13 @@ void Queue::MakeIteration(ServerState prevServerState, ServerState serverState, 
   if (serverState.state2 == LowPriority)
     {
       int temp_count = std::min(secondLightCustomersToServe,(int)secondLightLowPriorityQueue.size() );
+      stats.outputThirdCust += temp_count;
       for (int i = 0; i < temp_count; i++)
   	{
 	  Customer customerToRemove = secondLightLowPriorityQueue.front();
 	  customerToRemove.serviceTime = std::max(currentTime,customerToRemove.arrivalTime);
 	  customerToRemove.departureTime = currentTime + timeToService;
+
 	  stats.AddSecondCustomer(customerToRemove);
   	  secondLightLowPriorityQueue.pop();
   	}
@@ -109,6 +111,7 @@ void Queue::MakeIteration(ServerState prevServerState, ServerState serverState, 
   else
     {
       int temp_count = std::min(secondLightCustomersToServe,(int)secondLightHighPriorityQueue.size() );
+      stats.outputFirstCust += temp_count;
       for (int i = 0; i < temp_count; i++)
   	{
 	  Customer customerToRemove = secondLightHighPriorityQueue.front();
@@ -160,6 +163,7 @@ void Queue::UpdateQueues(ServerState serverState, int currentTime)
   for (int i = 0; i < firstLightBatches; i++)
     {
       custInBatch = GenerateCustomersInBatch(sai.firstFlow);
+      stats.inputFirstCust += custInBatch;
       realTime = distribution(PrimaryFlowDistribution::generator);
       for (int j = 0; j < custInBatch; j++)
   	{
@@ -170,6 +174,7 @@ void Queue::UpdateQueues(ServerState serverState, int currentTime)
   for (int i = 0; i < secondLightBatches; i++)
     {
       custInBatch = GenerateCustomersInBatch(sai.secondFlow);
+      stats.inputThirdCust += custInBatch;
       realTime = distribution(PrimaryFlowDistribution::generator);
       for (int j = 0; j < custInBatch; j++)
   	{
@@ -180,12 +185,12 @@ void Queue::UpdateQueues(ServerState serverState, int currentTime)
 
 void Statistics::UpdateStatistics(int iteration)
 {
-  if ( (iteration + 1) % GRAN == 0)
+    if ( (iteration + 1) % GRAN == 0)
     {
-      if (sai.verbose)
-	{
-	  DumpAllCustomers();
-	}
+        if (sai.verbose)
+        {
+          DumpAllCustomers();
+        }
 
       firstTimeUntilServ.UpdateMean();
       firstTimeServ.UpdateMean();
@@ -199,43 +204,23 @@ void Statistics::UpdateStatistics(int iteration)
 
       if (stationaryMode)
 	{
-	  ofstream file_(sai.stationaryFileMeans, ofstream::out | ofstream::app );
+	  ofstream file_(sai.outFiles.stationaryFileMeans, ofstream::out | ofstream::app );
 	  DumpStatsMean(file_); file_<<endl;
 	}
-      
-      // if (sai.verbose)
-      // 	cout <<"UntilServ time = "<<stationaryMeanTime_first.mean_untilService<<" "<<stationaryMeanTime_second.mean_untilService<<endl;
-
     }
 }
 
 
 void Statistics::DumpAllCustomers()
 {
-  ofstream file1(sai.firstCustomersFile, ofstream::out | ofstream::app );
-  ofstream file2(sai.secondCustomersFile, ofstream::out | ofstream::app );
+  ofstream file1(sai.outFiles.firstCustomersFile, ofstream::out | ofstream::app );
+  ofstream file2(sai.outFiles.secondCustomersFile, ofstream::out | ofstream::app );
 
   for (auto& a : departFirstQueue)
     a.Dump(file1);
   for (auto& a : departSecondQueue)
     a.Dump(file2);
 }
-
-// void Statistics::DumpDepartQueues()
-// {
-//   ofstream file(sai.filename, ofstream::out | ofstream::app );
-//   file << "1 Light:"<<endl;
-//   for (auto& a:departFirstQueue)
-//     {
-//       a.Dump(file);
-//     }
-  
-//   file << "2 Light:"<<endl;
-//   for (auto& a:departSecondQueue)
-//     {
-//       a.Dump(file);
-//     }
-// }
 
 void Statistics::AddFirstCustomer(Customer cust)
 {

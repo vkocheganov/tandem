@@ -34,6 +34,16 @@ struct SecondLightSpec
   float prolongationIntensity;
 };
 
+struct OutFiles
+{
+  string foldName;
+  string stationaryFileMeans;
+    
+  string firstCustomersFile;
+  string secondCustomersFile;
+  string optFile;
+};
+
 struct SystemAprioriInfo
 {
   PrimaryFlowDistribution firstFlow, secondFlow;
@@ -46,17 +56,12 @@ struct SystemAprioriInfo
   int numSamples;
 
   bool fileVerbose = true;
-  string foldName;
-  string stationaryFileMeans;
-  string stationaryFileStds;
   //  string filename;
-  string firstCustomersFile;
-  string secondCustomersFile;
 
-  string optFile;
   void Print();
   void PrintOpt(ofstream&);
   float GetSuccProb(int timeDur) { return (1 - exp(-timeDur*midleSuccProbFactor));}
+    OutFiles outFiles;
 };
 
 struct ServerState

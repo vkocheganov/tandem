@@ -27,7 +27,7 @@ void Optimization::MakeOptimization()
       for (int flts = firstLightTimeSecondary.first; flts <= firstLightTimeSecondary.last; flts += firstLightTimeSecondary.step)
 	{
 	  stringstream ios;
-	  ios << sai.optFile <<"_"<<fltp;
+	  ios << sai.outFiles.optFile <<"_"<<fltp;
 	  ios << "_"<<flts;
 	  currFile = ios.str();
 	  
@@ -105,7 +105,7 @@ void Optimization::DumpTarget(double target, SystemAprioriInfo sai, string filen
 {
   ofstream file;
   if (filename == "")
-    file.open(baseSai.optFile, ofstream::out | ofstream::app );
+    file.open(baseSai.outFiles.optFile, ofstream::out | ofstream::app );
   else
     file.open(filename, ofstream::out | ofstream::app );
 
@@ -122,7 +122,7 @@ void Optimization::UpdateTarget(double firstTime, double secondTime, SystemAprio
       bestTarget = target;
       bestTargetSpec = sai;
       //      DumpTarget(target, sai, filename);
-      DumpTarget(bestTarget, sai, sai.optFile);
+      DumpTarget(bestTarget, sai, sai.outFiles.optFile);
     }
 }
 

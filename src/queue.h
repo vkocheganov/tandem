@@ -35,6 +35,11 @@ struct Statistics
 Statistics(SystemAprioriInfo _sai): sai(_sai){};
   deque<Customer> departFirstQueue;
   deque<Customer> departSecondQueue;
+
+    long long unsigned inputFirstCust = 0;
+    long long unsigned outputFirstCust = 0;
+    long long unsigned inputThirdCust = 0;
+    long long unsigned outputThirdCust = 0;
   
   bool stationaryMode = false;
   const int GRAN = 100;
