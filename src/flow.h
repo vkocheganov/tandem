@@ -7,9 +7,9 @@ using namespace std;
 
 struct PrimaryFlowDistribution
 {
-static mt19937 generator;
-  float lambda;
-  vector<float> probabilities;
+    static mt19937 generator;
+    float lambda;
+    vector<float> probabilities;
 };
 
 

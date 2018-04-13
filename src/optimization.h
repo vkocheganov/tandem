@@ -8,39 +8,39 @@
 template <typename T>
 struct Range
 {
-  Range (T f, T s, T l): first(f), step(s), last(l){}
-  T first = -1;
-  T step;
-  T last;
+    Range (T f, T s, T l): first(f), step(s), last(l){}
+    T first = -1;
+    T step;
+    T last;
 };
 
 
 						      
 struct Optimization
 {
-  Optimization(QueueState, ServerState, SystemAprioriInfo);
-  QueueState initialQueueState;
-  ServerState initialServerState;
-  SystemAprioriInfo baseSai;
+    Optimization(QueueState, ServerState, SystemAprioriInfo);
+    QueueState initialQueueState;
+    ServerState initialServerState;
+    SystemAprioriInfo baseSai;
 
-  Range<int> firstLightTimePrimary;
-  Range<int> firstLightTimeSecondary;
+    Range<int> firstLightTimePrimary;
+    Range<int> firstLightTimeSecondary;
 
-  Range<int> secondLightTimeLow;
-  Range<int> secondLightTimeHigh;
-  Range<int> secondLightTimeProlong;
+    Range<int> secondLightTimeLow;
+    Range<int> secondLightTimeHigh;
+    Range<int> secondLightTimeProlong;
 
-  Range<int> threshold;
+    Range<int> threshold;
 
-  void UpdateTarget(double firstTime, double secondTime, SystemAprioriInfo, string filename="");
-  double bestTarget = std::numeric_limits<double>::max();
-  SystemAprioriInfo bestTargetSpec;
+    void UpdateTarget(double firstTime, double secondTime, SystemAprioriInfo, string filename="");
+    double bestTarget = std::numeric_limits<double>::max();
+    SystemAprioriInfo bestTargetSpec;
 
-  void MakeOptimization();
-  void Iterate(SystemAprioriInfo sai);
-  void DumpTarget(double target, SystemAprioriInfo sai, string filename="");
+    void MakeOptimization();
+    void Iterate(SystemAprioriInfo sai);
+    void DumpTarget(double target, SystemAprioriInfo sai, string filename="");
 
-  string currFile;
+    string currFile;
 };
   
   

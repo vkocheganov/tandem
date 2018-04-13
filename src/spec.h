@@ -5,101 +5,102 @@
 
 
 enum FirstLightStates
-  {
+{
     Primary,
     Secondary
-  };
+};
 struct FirstLightSpec
 {
-  int primaryTime;
-  float primaryIntensity;
-  int secondaryTime;
-  float secondaryIntensity;
+    int primaryTime;
+    float primaryIntensity;
+    int secondaryTime;
+    float secondaryIntensity;
 };
   
 enum SecondLightStates
-  {
+{
     LowPriority,
     HighPriority,
     Prolongation
-  };
+};
 
 struct SecondLightSpec
 {
-  int lowPriorityTime;
-  float lowPriorityIntensity;
-  int highPriorityTime;
-  float highPriorityIntensity;
-  int prolongationTime;
-  float prolongationIntensity;
+    int lowPriorityTime;
+    float lowPriorityIntensity;
+    int highPriorityTime;
+    float highPriorityIntensity;
+    int prolongationTime;
+    float prolongationIntensity;
 };
 
 struct OutFiles
 {
-  string foldName;
-  string stationaryFileMeans;
+    string foldName;
     
-  string firstCustomersFile;
-  string secondCustomersFile;
-  string optFile;
+    string stationaryFileMeans;
+    string firstCustomersFile;
+    string secondCustomersFile;
+    
+    string optFile;
 };
 
 struct SystemAprioriInfo
 {
-  PrimaryFlowDistribution firstFlow, secondFlow;
-  FirstLightSpec fls;
-  SecondLightSpec sls;
-  float midleSuccProbFactor;
-  int prolongThres;
-  bool verbose;
-  int numIteration;
-  int numSamples;
+    PrimaryFlowDistribution firstFlow, secondFlow;
+    FirstLightSpec fls;
+    SecondLightSpec sls;
+    float midleSuccProbFactor;
+    int prolongThres;
+    bool verbose;
+    int numIteration;
+    int numSamples;
 
-  bool fileVerbose = true;
-  //  string filename;
+    bool fileVerbose = true;
+    //  string filename;
 
-  void Print();
-  void PrintOpt(ofstream&);
-  float GetSuccProb(int timeDur) { return (1 - exp(-timeDur*midleSuccProbFactor));}
+    void Print();
+    void PrintOpt(ofstream&);
+    float GetSuccProb(int timeDur) { return (1 - exp(-timeDur*midleSuccProbFactor));}
     OutFiles outFiles;
 };
 
 struct ServerState
 {
-  //  ServerState(): nextRegular(-1), nextProlongation(-1) {};
-  FirstLightStates state1 = Primary;
-  int time1 = 0;
-  SecondLightStates state2 = LowPriority;
-  int time2 = 0;
-  int numCustomersFirstLight = -1;
-  int numCustomersSecondLight = -1;
-  int timeDuration = 0;
-  float midleSuccProb = 0.;
+    //  ServerState(): nextRegular(-1), nextProlongation(-1) {};
+    FirstLightStates state1 = Primary;
+    int time1 = 0;
+    SecondLightStates state2 = LowPriority;
+    int time2 = 0;
+    int numCustomersFirstLight = -1;
+    int numCustomersSecondLight = -1;
+    int timeDuration = 0;
+    float midleSuccProb = 0.;
   
-  int nextRegular = -1;
-  int nextProlongation = -1;
+    int nextRegular = -1;
+    int nextProlongation = -1;
   
-  void Print();
-  const bool operator == (const ServerState &ss2);
+    void Print();
+    const bool operator == (const ServerState &ss2);
 };
 
 struct QueueState
 {
-  QueueState(bool Rand = false);
-  int firstLightPrimary;
-  int secondLightSecondary;
-  int secondLightPrimary;
-  int midleQueue;
+    QueueState(bool Rand = false);
+    int firstLightPrimary;
+    int secondLightSecondary;
+    int secondLightPrimary;
+    int midleQueue;
 
-  int UPPER_BOUND = 10;
-  const void Print();
+    int UPPER_BOUND = 10;
+    const void Print();
 };
 
 struct SystemState
 {
-  ServerState serverState;
-  QueueState queueState;
-  void Print();
+    ServerState serverState;
+    QueueState queueState;
+    void Print();
 };
 
 #endif

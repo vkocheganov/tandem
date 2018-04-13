@@ -6,16 +6,16 @@
 #include "spec.h"
 struct System
 {
-  Queue sQueue;
-  Server server;
-  vector<Cycle> cycles;
-  SystemAprioriInfo sai;
-  int timeTotal;
+    Queue sQueue;
+    Server server;
+    vector<Cycle> cycles;
+    SystemAprioriInfo sai;
+    int timeTotal;
   
-  System (QueueState, ServerState, SystemAprioriInfo);
-  void MakeIteration(int);
-  void Print();
-  void CheckStationaryMode(System& ,int);
-  bool StopCriteria();
+    System (QueueState, ServerState, SystemAprioriInfo);
+    void MakeIteration(int);
+    void Print();
+    void CheckStationaryMode(System& ,int);
+    bool StopCriteria();
 };
 #endif
