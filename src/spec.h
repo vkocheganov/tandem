@@ -53,7 +53,8 @@ struct SystemAprioriInfo
     float midleSuccProbFactor;
     int prolongThres;
     bool verbose;
-    int numIteration;
+    int numMaxIteration;
+    int numIterationStationary;
     int numSamples;
 
     bool fileVerbose = true;

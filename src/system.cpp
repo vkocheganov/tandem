@@ -9,13 +9,12 @@ System::System (QueueState initQueueState, ServerState initServerState, SystemAp
         cout <<"Cycles num = "<<cycles.size()<<endl;
         for (auto a:cycles) a.Print();
     }
-    timeTotal = 0;
 }
 
 void System::MakeIteration(int iteration)
 {
-    int prevTotalTime = timeTotal;
-    timeTotal += server.MakeIteration(sQueue.secondLightLowPriorityQueue.size(), iteration);
+    int prevTotalTime = sQueue.stats.timeTotal;
+    sQueue.stats.timeTotal += server.MakeIteration(sQueue.secondLightLowPriorityQueue.size(), iteration);
     sQueue.MakeIteration(server.allStates[server.lastState], server.allStates[server.state], prevTotalTime, iteration);
 }
 
@@ -25,7 +24,7 @@ void System::Print()
     sQueue.PrintState();
 }
 
-void System::CheckStationaryMode(System& sys, int iteration)
+bool System::CheckStationaryMode(System& sys, int iteration)
 {
     float diff1 = std::abs(sys.sQueue.stats.firstTimeUntilServ.mean - this->sQueue.stats.firstTimeUntilServ.mean)/float(this->sQueue.stats.firstTimeUntilServ.mean),
         diff2 = std::abs(sys.sQueue.stats.secondTimeUntilServ.mean - this->sQueue.stats.secondTimeUntilServ.mean)/float(this->sQueue.stats.secondTimeUntilServ.mean);
@@ -40,6 +39,7 @@ void System::CheckStationaryMode(System& sys, int iteration)
     }
     // if ((iteration+1) % sQueue.stats.GRAN == 0)
     //   cout <<"diff1 = "<<diff1<<"("<<this->sQueue.stats.secondTimeUntilServ.mean <<")"<< "   |  diff2 = " <<diff2<<endl;
+    return this->sQueue.stats.stationaryMode;
 }
 
 bool System::StopCriteria()

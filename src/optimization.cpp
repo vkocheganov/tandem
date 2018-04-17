@@ -79,7 +79,7 @@ void Optimization::Iterate(SystemAprioriInfo sai)
         System system(initialQueueState, initialServerState, sai),
             refSystem(refInitialQueueState, initialServerState, refSai);
 
-        for (int i = 0; i < sai.numIteration; i++)
+        for (int i = 0; i < sai.numMaxIteration; i++)
 	{
             refSystem.MakeIteration(i);
             system.MakeIteration(i);

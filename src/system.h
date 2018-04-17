@@ -10,12 +10,11 @@ struct System
     Server server;
     vector<Cycle> cycles;
     SystemAprioriInfo sai;
-    int timeTotal;
   
     System (QueueState, ServerState, SystemAprioriInfo);
     void MakeIteration(int);
     void Print();
-    void CheckStationaryMode(System& ,int);
+    bool CheckStationaryMode(System& ,int);
     bool StopCriteria();
 };
 #endif

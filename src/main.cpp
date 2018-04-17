@@ -53,20 +53,28 @@ int main(int argc, char * const argv[])
                 refSystem(refInitialQueueState, initialServerState, refSai);
             int i = 0;
             //	  for (i = 0; i < sai.numIteration && !system.sQueue.stats.stationaryMode ; i++)
-            for (i = 0; i < sai.numIteration; i++)	  
+            for (i = 0; i < sai.numMaxIteration; i++)	  
 	    {
                 refSystem.MakeIteration(i);
                 system.MakeIteration(i);
-                system.CheckStationaryMode(refSystem,i);
-                if (i % 1000 == 0)
-                    cout <<"i = "<<i<<endl;
-
+                // if (i % 1000 == 0)
+                //     cout <<"i = "<<i<<endl;
+                if (system.CheckStationaryMode(refSystem,i))
+                    break;
 	    }
+            
+            for (i = 0; i < sai.numIterationStationary; i++)	  
+	    {
+                system.MakeIteration(i);
+                // if (i % 1000 == 0)
+                //     cout <<"i = "<<i<<endl;
+	    }
+            system.sQueue.stats.UpdateStatistics(i);
 
-            cout <<"intensity input/output 1 = "<<double(system.sQueue.stats.inputFirstCust)/system.timeTotal
-                 <<"/"<<double(system.sQueue.stats.outputFirstCust)/system.timeTotal<<endl
-                 <<"intensity input/output 3 = "<<double(system.sQueue.stats.inputThirdCust)/system.timeTotal
-                 <<"/"<<double(system.sQueue.stats.outputThirdCust)/system.timeTotal<<endl;
+            cout <<"intensity input/output 1 = "<<double(system.sQueue.stats.inputFirstCust)/system.sQueue.stats.timeTotal
+                 <<"/"<<double(system.sQueue.stats.outputFirstCust)/system.sQueue.stats.timeTotal<<endl
+                 <<"intensity input/output 3 = "<<double(system.sQueue.stats.inputThirdCust)/system.sQueue.stats.timeTotal
+                 <<"/"<<double(system.sQueue.stats.outputThirdCust)/system.sQueue.stats.timeTotal<<endl;
 	  
             if (system.sQueue.stats.stationaryMode)
                 aggStats.AddStatistics(system.sQueue.stats);
@@ -75,9 +83,10 @@ int main(int argc, char * const argv[])
                 system.Print();
                 cout << endl;
 	    }
+            system.sQueue.stats.Print();
 	}
         cout << endl;
-        aggStats.Print();
+//        aggStats.Print();
     }
   
     return 0;
@@ -86,24 +95,28 @@ int main(int argc, char * const argv[])
 SystemAprioriInfo CreateSai(int argc, char * const argv[])
 {
     unsigned seed = std::chrono::system_clock::now().time_since_epoch().count();
-    //  PrimaryFlowDistribution::generator.seed(seed);
-    PrimaryFlowDistribution::generator.seed(2);  
+     PrimaryFlowDistribution::generator.seed(seed);
+    // PrimaryFlowDistribution::generator.seed(2);  
     bool verbose = false;
     SystemAprioriInfo sai = ReadSpecs("../sample_data/sample_spec_1");
     time_t rawtime;
     struct tm *info;
     char tmp_buf[80];
     int opt;
-    sai.numIteration = 1000;
+    sai.numMaxIteration = 20000;
+    sai.numIterationStationary = 5000;
     sai.numSamples = 10;
-    while ((opt = getopt(argc, argv, "v:i:s:")) != -1) {
+    while ((opt = getopt(argc, argv, "v:i:m:s:")) != -1) {
         switch (opt) {
         case 'v':
             verbose = (atoi(optarg) == 1);
             if (verbose) cout <<"Verbose mode"<<endl;
             break;
+        case 'm':
+            sai.numMaxIteration = atoi(optarg);
+            break;
         case 'i':
-            sai.numIteration = atoi(optarg);
+            sai.numIterationStationary = atoi(optarg);
             break;
         case 's':
             sai.numSamples = atoi(optarg);
@@ -127,7 +140,8 @@ SystemAprioriInfo CreateSai(int argc, char * const argv[])
     sai.outFiles.secondCustomersFile = sai.outFiles.foldName + "/output_customers_second";
     sai.outFiles.optFile = sai.outFiles.foldName + "/optimization";
     sai.verbose = verbose;
-    cout <<"Iterations: "<<sai.numIteration<<endl;
+    cout <<"Iterations stationary: "<<sai.numIterationStationary<<endl;
+    cout <<"MaxIterations: "<<sai.numMaxIteration<<endl;
     cout <<"Samples: "<<sai.numSamples<<endl;
   
     if (sai.verbose)
