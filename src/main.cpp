@@ -59,11 +59,11 @@ int main(int argc, char * const argv[])
                 system.MakeIteration(i);
                 // if (i % 1000 == 0)
                 //     cout <<"i = "<<i<<endl;
-                if (system.CheckStationaryMode(refSystem,i))
+                if (i >= sai.numMaxIteration * 0.1 && system.CheckStationaryMode(refSystem,i))
                     break;
 	    }
             
-            for (i = 0; i < sai.numIterationStationary; i++)	  
+            for (i = 0; i < sai.numIterationStationary; i++)
 	    {
                 system.MakeIteration(i);
                 // if (i % 1000 == 0)

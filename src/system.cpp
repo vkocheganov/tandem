@@ -4,7 +4,7 @@ System::System (QueueState initQueueState, ServerState initServerState, SystemAp
     sQueue(initQueueState, _sai), server(initServerState, _sai), sai(_sai)
 {
     cycles = FindCycles(server.allStates, sai);
-    if (sai.verbose)
+//    if (sai.verbose)
     {
         cout <<"Cycles num = "<<cycles.size()<<endl;
         for (auto a:cycles) a.Print();
@@ -28,19 +28,33 @@ bool System::CheckStationaryMode(System& sys, int iteration)
 {
     float diff1 = std::abs(sys.sQueue.stats.firstTimeUntilServ.mean - this->sQueue.stats.firstTimeUntilServ.mean)/float(this->sQueue.stats.firstTimeUntilServ.mean),
         diff2 = std::abs(sys.sQueue.stats.secondTimeUntilServ.mean - this->sQueue.stats.secondTimeUntilServ.mean)/float(this->sQueue.stats.secondTimeUntilServ.mean);
+
+    double inputFirstFlow = double(sQueue.stats.inputFirstCust)/sQueue.stats.timeTotal,
+        outputFirstFlow = double(sQueue.stats.outputFirstCust)/sQueue.stats.timeTotal,
+        inputThirdFlow = double(sQueue.stats.inputThirdCust)/sQueue.stats.timeTotal,
+        outputThirdFlow = double(sQueue.stats.outputThirdCust)/sQueue.stats.timeTotal;
+
     
     if (!this->sQueue.stats.stationaryMode && 
         diff1 < this->sQueue.stats.RATIO_CHANGE &&
-        diff2 < this->sQueue.stats.RATIO_CHANGE
+        diff2 < this->sQueue.stats.RATIO_CHANGE &&
+        inputFirstFlow < 1.1 * outputFirstFlow &&
+        inputThirdFlow < 1.01 * outputThirdFlow
+        &&
+        sQueue.stats.firstPrimary.CheckErr(0.1) &&
+        sQueue.stats.secondHigh.CheckErr(0.1) &&
+        sQueue.stats.secondLow.CheckErr(0.1) &&
+        sQueue.stats.middle.CheckErr(0.1)
         )
     {
         this->sQueue.stats.stationaryMode = true;
+        this->sQueue.stats.Print();
         this->sQueue.stats.ClearStatistics();
         cout <<"stationary mode! "<<iteration<<endl;
-        // cout <<"("<<diff1<<","<<diff2<<")"<<endl;
+        cout <<"("<<diff1<<","<<diff2<<")"<<endl;
     }
-    // if (iteration % this->sQueue.stats.GRAN == 0)
-    //     cout <<"("<<diff1<<","<<diff2<<")"<<endl;
+    if (iteration % this->sQueue.stats.GRAN == 0)
+        cout <<"("<<diff1<<","<<diff2<<")"<<endl;
     
     // cout <<std::max(diff1,diff2)<<endl;
     // if ((iteration+1) % sQueue.stats.GRAN == 0)

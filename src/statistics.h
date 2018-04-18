@@ -40,6 +40,8 @@ struct MyMean
     void DumpStd(ofstream& _stream){ _stream<<std::sqrt(double(mean_sq - mean*mean))<<" ";}
     void DumpStdDiffs(ofstream& _stream){ _stream<<diff_std<<" ";}
     void Clear() {values.clear(); mean = mean_sq = num = 0; est_err = est_err_sq = est_num = 0;}
+
+    bool CheckErr(double ratio = 0.2) {return (std::sqrt(double(est_err_sq - est_err*est_err))/mean < ratio ? true : false) ;  }
 };
 
 struct Statistics
@@ -57,7 +59,7 @@ Statistics(SystemAprioriInfo _sai): sai(_sai){};
   
     bool stationaryMode = false;
     const int GRAN = 100;
-    const float RATIO_CHANGE = 0.05;
+    const float RATIO_CHANGE = 0.1;
     SystemAprioriInfo sai;
 
     MyMean firstTimeUntilServ;
