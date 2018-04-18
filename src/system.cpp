@@ -28,6 +28,7 @@ bool System::CheckStationaryMode(System& sys, int iteration)
 {
     float diff1 = std::abs(sys.sQueue.stats.firstTimeUntilServ.mean - this->sQueue.stats.firstTimeUntilServ.mean)/float(this->sQueue.stats.firstTimeUntilServ.mean),
         diff2 = std::abs(sys.sQueue.stats.secondTimeUntilServ.mean - this->sQueue.stats.secondTimeUntilServ.mean)/float(this->sQueue.stats.secondTimeUntilServ.mean);
+    
     if (!this->sQueue.stats.stationaryMode && 
         diff1 < this->sQueue.stats.RATIO_CHANGE &&
         diff2 < this->sQueue.stats.RATIO_CHANGE
@@ -36,7 +37,12 @@ bool System::CheckStationaryMode(System& sys, int iteration)
         this->sQueue.stats.stationaryMode = true;
         this->sQueue.stats.ClearStatistics();
         cout <<"stationary mode! "<<iteration<<endl;
+        // cout <<"("<<diff1<<","<<diff2<<")"<<endl;
     }
+    // if (iteration % this->sQueue.stats.GRAN == 0)
+    //     cout <<"("<<diff1<<","<<diff2<<")"<<endl;
+    
+    // cout <<std::max(diff1,diff2)<<endl;
     // if ((iteration+1) % sQueue.stats.GRAN == 0)
     //   cout <<"diff1 = "<<diff1<<"("<<this->sQueue.stats.secondTimeUntilServ.mean <<")"<< "   |  diff2 = " <<diff2<<endl;
     return this->sQueue.stats.stationaryMode;
