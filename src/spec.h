@@ -43,6 +43,8 @@ struct OutFiles
     string secondCustomersFile;
     
     string optFile;
+
+    string saiFile;
 };
 
 struct SystemAprioriInfo
@@ -60,7 +62,7 @@ struct SystemAprioriInfo
     bool fileVerbose = true;
     //  string filename;
 
-    void Print();
+    void Print(ofstream&);
     void PrintOpt(ofstream&);
     float GetSuccProb(int timeDur) { return (1 - exp(-timeDur*midleSuccProbFactor));}
     OutFiles outFiles;
@@ -81,7 +83,7 @@ struct ServerState
     int nextRegular = -1;
     int nextProlongation = -1;
   
-    void Print();
+    void Print(ostream&);
     const bool operator == (const ServerState &ss2);
 };
 
@@ -101,7 +103,7 @@ struct SystemState
 {
     ServerState serverState;
     QueueState queueState;
-    void Print();
+    void Print(ostream&);
 };
 
 #endif

@@ -4,11 +4,10 @@ System::System (QueueState initQueueState, ServerState initServerState, SystemAp
     sQueue(initQueueState, _sai), server(initServerState, _sai), sai(_sai)
 {
     cycles = FindCycles(server.allStates, sai);
-//    if (sai.verbose)
-    {
-        cout <<"Cycles num = "<<cycles.size()<<endl;
-        for (auto a:cycles) a.Print();
-    }
+
+    ofstream saiFile(sai.outFiles.saiFile, ofstream::out | ofstream::app);
+    saiFile <<"Cycles num = "<<cycles.size()<<endl;
+    for (auto a:cycles) a.Print(saiFile);
 }
 
 void System::MakeIteration(int iteration)
@@ -18,10 +17,10 @@ void System::MakeIteration(int iteration)
     sQueue.MakeIteration(server.allStates[server.lastState], server.allStates[server.state], prevTotalTime, iteration);
 }
 
-void System::Print()
+void System::Print(ostream& outStream)
 {
-    server.Print();
-    sQueue.PrintState();
+    server.Print(outStream);
+    sQueue.PrintState(outStream);
 }
 
 bool System::CheckStationaryMode(System& sys, int iteration)
@@ -48,13 +47,13 @@ bool System::CheckStationaryMode(System& sys, int iteration)
         )
     {
         this->sQueue.stats.stationaryMode = true;
-        this->sQueue.stats.Print();
+        // this->sQueue.stats.Print();
         this->sQueue.stats.ClearStatistics();
         cout <<"stationary mode! "<<iteration<<endl;
-        cout <<"("<<diff1<<","<<diff2<<")"<<endl;
+        // cout <<"("<<diff1<<","<<diff2<<")"<<endl;
     }
-    if (iteration % this->sQueue.stats.GRAN == 0)
-        cout <<"("<<diff1<<","<<diff2<<")"<<endl;
+    // if (iteration % this->sQueue.stats.GRAN == 0)
+    //     cout <<"("<<diff1<<","<<diff2<<")"<<endl;
     
     // cout <<std::max(diff1,diff2)<<endl;
     // if ((iteration+1) % sQueue.stats.GRAN == 0)

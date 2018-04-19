@@ -10,8 +10,6 @@ Server::Server(ServerState initialState, SystemAprioriInfo _sai): sai(_sai)
     state = 0;
     prolongationThreshold = sai.prolongThres;
 
-    //  Print();
-
     if (sai.verbose)
     {
         cout <<"find cycles"<< endl;
@@ -19,7 +17,7 @@ Server::Server(ServerState initialState, SystemAprioriInfo _sai): sai(_sai)
         for (auto a: allStates)
 	{
             cout <<"["<<count<<"] ";
-            a.Print();
+            a.Print(cout);
             count++;
 	}
     }
@@ -29,12 +27,11 @@ int Server::MakeIteration(int lowPriorityQueueSize, int )
 {
     lastState = state;
     state = ( allStates[state].nextProlongation != -1 && lowPriorityQueueSize <= prolongationThreshold ? allStates[state].nextProlongation : allStates[state].nextRegular);
-    // allStates[state].Print();
     return allStates[state].timeDuration;
 }
-void Server::Print()
+void Server::Print(ostream& outStream)
 {
-    allStates[state].Print();
+    allStates[state].Print(outStream);
 }
 
 void GenerateStates(vector<ServerState>& vs, int currentState, SystemAprioriInfo sai)
@@ -108,12 +105,8 @@ void GenerateStates(vector<ServerState>& vs, int currentState, SystemAprioriInfo
     auto tmp = find(vs.begin(), vs.end(), newState);
     if (tmp == vs.end())
     {
-        // cout <<"Adding new regular state:";
-        // newState.Print();
         vs.push_back(newState);
         vs[currentState].nextRegular = vs.size() - 1;
-        // cout<<"CurrentState :" <<eligibleToProlong;
-        // vs[currentState].Print();
         GenerateStates(vs, vs.size()-1, sai);
     }
     else
@@ -127,10 +120,6 @@ void GenerateStates(vector<ServerState>& vs, int currentState, SystemAprioriInfo
         auto tmp = find(vs.begin(), vs.end(), newState);
         if ( tmp == vs.end())
 	{
-            // cout <<"Adding new prolongation state:";
-            // newState.Print();
-            // cout<<"CurrentState :";
-            // vs[currentState].Print();
             vs.push_back(newState);
             vs[currentState].nextProlongation = vs.size() - 1;
             GenerateStates(vs, vs.size()-1, sai);
@@ -138,10 +127,6 @@ void GenerateStates(vector<ServerState>& vs, int currentState, SystemAprioriInfo
         else
 	{
             vs[currentState].nextProlongation = tmp - vs.begin();
-            // cout<<"found CurrentState :";
-            // vs[currentState].Print();
-            // vs[0].Print();
-            // tmp->Print();
 	}
     }
 }
@@ -233,26 +218,26 @@ void Cycle::CalcStatistics(vector<ServerState>& vs, SystemAprioriInfo sai)
     secondLightIncome = secondLightTime * sai.secondFlow.lambda * secondSum;
 }
 
-void Cycle::Print()
+void Cycle::Print(ofstream& outStream)
 {
-    cout<<"[ ";
+    outStream<<"[ ";
     for (auto a:idxs)
     {
-        cout<<a<<" ";
+        outStream<<a<<" ";
     }
-    //  cout <<"]"<<" FirstLightIncome="<<firstLightIncome<<", SecondLightIncome="<<secondLightIncome<<", PrimaryFirstLight_sum{l}="<<primaryFlowServed<<", LowPriority_sum{l}="<<lowPriorityFlowServed<<endl;
-    cout <<"]"<<" ("<<firstLightIncome<<", "<<primaryFlowServed<<") ("<<secondLightIncome<<", "<<lowPriorityFlowServed<<"),("<<highPriorityFlowServed<<")"<<endl;
+    //  outStream <<"]"<<" FirstLightIncome="<<firstLightIncome<<", SecondLightIncome="<<secondLightIncome<<", PrimaryFirstLight_sum{l}="<<primaryFlowServed<<", LowPriority_sum{l}="<<lowPriorityFlowServed<<endl;
+    outStream <<"]"<<" ("<<firstLightIncome<<", "<<primaryFlowServed<<") ("<<secondLightIncome<<", "<<lowPriorityFlowServed<<"),("<<highPriorityFlowServed<<")"<<endl;
 }
 
-void Cycle::Print_Ext()
+void Cycle::Print_Ext(ofstream& outStream)
 {
-    cout<<"[ ";
+    outStream<<"[ ";
     for (auto a:idxs)
     {
-        cout<<a<<" ";
+        outStream<<a<<" ";
     }
-    //  cout <<"]"<<" FirstLightIncome="<<firstLightIncome<<", SecondLightIncome="<<secondLightIncome<<", PrimaryFirstLight_sum{l}="<<primaryFlowServed<<", LowPriority_sum{l}="<<lowPriorityFlowServed<<endl;
-    cout <<"]"<<" (FirstLightIncome"<<", SecondLightIncome"<<", PrimaryFirstLight_sum{l}"<<", LowPriority_sum{l}, HighPriority_sum{l}) = ("<<firstLightIncome<<","<<primaryFlowServed<<","<<secondLightIncome<<","<<lowPriorityFlowServed<<", "<<highPriorityFlowServed<<")"<<endl;
+    //  outStream <<"]"<<" FirstLightIncome="<<firstLightIncome<<", SecondLightIncome="<<secondLightIncome<<", PrimaryFirstLight_sum{l}="<<primaryFlowServed<<", LowPriority_sum{l}="<<lowPriorityFlowServed<<endl;
+    outStream <<"]"<<" (FirstLightIncome"<<", SecondLightIncome"<<", PrimaryFirstLight_sum{l}"<<", LowPriority_sum{l}, HighPriority_sum{l}) = ("<<firstLightIncome<<","<<primaryFlowServed<<","<<secondLightIncome<<","<<lowPriorityFlowServed<<", "<<highPriorityFlowServed<<")"<<endl;
 }
 
 

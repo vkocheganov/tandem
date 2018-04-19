@@ -24,7 +24,7 @@ int main(int argc, char * const argv[])
     ReadStates("../sample_data/sample_states", initialServerState, initialQueueState);
     if (sai.verbose)
     {
-        initialServerState.Print();
+        initialServerState.Print(cout);
         initialQueueState.Print();
     }
 
@@ -71,19 +71,17 @@ int main(int argc, char * const argv[])
 	    }
             system.sQueue.stats.UpdateStatistics(i);
 
-            cout <<"intensity input/output 1 = "<<double(system.sQueue.stats.inputFirstCust)/system.sQueue.stats.timeTotal
+            ofstream saiFile(sai.outFiles.saiFile, ofstream::out | ofstream::app);
+             saiFile<<"intensity input/output 1 = "<<double(system.sQueue.stats.inputFirstCust)/system.sQueue.stats.timeTotal
                  <<"/"<<double(system.sQueue.stats.outputFirstCust)/system.sQueue.stats.timeTotal<<endl
                  <<"intensity input/output 3 = "<<double(system.sQueue.stats.inputThirdCust)/system.sQueue.stats.timeTotal
                  <<"/"<<double(system.sQueue.stats.outputThirdCust)/system.sQueue.stats.timeTotal<<endl;
 	  
             if (system.sQueue.stats.stationaryMode)
                 aggStats.AddStatistics(system.sQueue.stats);
-            if (sai.verbose)
-	    {
-                system.Print();
-                cout << endl;
-	    }
-            system.sQueue.stats.Print();
+
+            
+            system.sQueue.stats.Print(saiFile);
 	}
         cout << endl;
 //        aggStats.Print();
@@ -138,13 +136,15 @@ SystemAprioriInfo CreateSai(int argc, char * const argv[])
     sai.outFiles.stationaryFileMeans = sai.outFiles.foldName + "/stationaryMeans";
     sai.outFiles.firstCustomersFile = sai.outFiles.foldName + "/output_customers_first";
     sai.outFiles.secondCustomersFile = sai.outFiles.foldName + "/output_customers_second";
+    sai.outFiles.saiFile = sai.outFiles.foldName + "/sai";
     sai.outFiles.optFile = sai.outFiles.foldName + "/optimization";
     sai.verbose = verbose;
-    cout <<"Iterations stationary: "<<sai.numIterationStationary<<endl;
-    cout <<"MaxIterations: "<<sai.numMaxIteration<<endl;
-    cout <<"Samples: "<<sai.numSamples<<endl;
-  
-    if (sai.verbose)
-        sai.Print();
+    
+    ofstream saiFile(sai.outFiles.saiFile, ofstream::out | ofstream::app);
+    saiFile <<"Iterations stationary: "<<sai.numIterationStationary<<endl;
+    saiFile <<"MaxIterations: "<<sai.numMaxIteration<<endl;
+    saiFile <<"Samples: "<<sai.numSamples<<endl;
+
+    sai.Print(saiFile);
     return sai;
 }

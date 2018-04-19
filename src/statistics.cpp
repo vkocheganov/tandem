@@ -76,32 +76,32 @@ void Statistics::AddStatistics(Statistics& s)
     middle.AddMeans(s.middle);
 }
 
-void Statistics::Print()
+void Statistics::Print(ostream& outStream)
 {
-    cout << "FirstTimeUntilServ:";
-    firstTimeUntilServ.Print();
+    outStream << "FirstTimeUntilServ:";
+    firstTimeUntilServ.Print(outStream);
 
-    cout << "FirstTimeServ:";
-    firstTimeServ.Print();
+    outStream << "FirstTimeServ:";
+    firstTimeServ.Print(outStream);
 
-    cout << "SecondTimeUntilServ:";
-    secondTimeUntilServ.Print();
+    outStream << "SecondTimeUntilServ:";
+    secondTimeUntilServ.Print(outStream);
 
-    cout << "SecondTimeServ:";
-    secondTimeServ.Print();
-    cout<<endl;
+    outStream << "SecondTimeServ:";
+    secondTimeServ.Print(outStream);
+    outStream<<endl;
 
-    cout << "FirstPrimary queue:";
-    firstPrimary.Print();
+    outStream << "FirstPrimary queue:";
+    firstPrimary.Print(outStream);
 
-    cout << "SecondHigh queue:";
-    secondHigh.Print();
+    outStream << "SecondHigh queue:";
+    secondHigh.Print(outStream);
 
-    cout << "SecondLow queue:";
-    secondLow.Print();
+    outStream << "SecondLow queue:";
+    secondLow.Print(outStream);
 
-    cout << "Middle queue:";
-    middle.Print();
+    outStream << "Middle queue:";
+    middle.Print(outStream);
 }
 
 void Statistics::ClearStatistics()

@@ -29,12 +29,12 @@ Queue::Queue(QueueState initialState, SystemAprioriInfo _sai): sai(_sai), stats(
     }
 
     if (sai.verbose)
-        PrintState();
+        PrintState(cout);
 }
 
-void Queue::PrintState()
+void Queue::PrintState(ostream& outStream)
 {
-    cout<<"Queue state: ["<<firstLightPrimaryQueue.size()<<", "
+    outStream<<"Queue state: ["<<firstLightPrimaryQueue.size()<<", "
         <<secondLightHighPriorityQueue.size()<<", "
         <<secondLightLowPriorityQueue.size()<<", "
         <<midleQueue.size()<<"]"<<endl;

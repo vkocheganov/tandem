@@ -31,7 +31,7 @@ struct MyMean
     int num = 0;
     void UpdateMean();
     void AddMeans(MyMean&);
-    void Print(){ cout<<"mean="<<mean<<", sigma="<<std::sqrt(double(mean_sq - mean*mean))<<", n_samples="<<num<<"; err="<<std::sqrt(double(est_err_sq - est_err*est_err))<<"("<<est_num<<")"<<endl;}
+    void Print(ostream& outStream){ outStream<<"mean="<<mean<<", sigma="<<std::sqrt(double(mean_sq - mean*mean))<<", n_samples="<<num<<"; err="<<std::sqrt(double(est_err_sq - est_err*est_err))<<"("<<est_num<<")"<<endl;}
     // void Print_errs() {cout<<std::sqrt(double(est_err_sq - est_err*est_err));}
     void Print_errs() {cout<<est_err_sq;}
     /* void DumpMeans(ofstream& _stream){ _stream<<mean<<" ";} */
@@ -79,7 +79,7 @@ Statistics(SystemAprioriInfo _sai): sai(_sai){};
     void AddFirstCustomer(Customer);
     void AddSecondCustomer(Customer);
     void AddStatistics(Statistics&);
-    void Print();
+    void Print(ostream&);
     void DumpStatsMean(ofstream&);
     void DumpStatsMeanDiffs(ofstream&);
     void DumpStatsStd(ofstream&);

@@ -13,7 +13,7 @@ struct System
   
     System (QueueState, ServerState, SystemAprioriInfo);
     void MakeIteration(int);
-    void Print();
+    void Print(ostream&);
     bool CheckStationaryMode(System& ,int);
     bool StopCriteria();
 };

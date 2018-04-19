@@ -3,41 +3,41 @@
 #include <fstream>
 using namespace std;
 
-void SystemAprioriInfo::Print()
+void SystemAprioriInfo::Print(ofstream& outStream)
 {
-    cout <<"--First light info"<<endl;
+    outStream <<"--First light info"<<endl;
     
-    cout <<"  --Primary flow: ";
-    cout <<" lambda = "<<firstFlow.lambda <<"; ";
-    cout <<"probabilities = [ ";
+    outStream <<"  --Primary flow: ";
+    outStream <<" lambda = "<<firstFlow.lambda <<"; ";
+    outStream <<"probabilities = [ ";
     for (auto& a:firstFlow.probabilities)
-        cout << a<<" ";
-    cout <<"]"<<endl;
+        outStream << a<<" ";
+    outStream <<"]"<<endl;
 
-    cout <<"  --Server: ";
-    cout <<"       primaryTime="<<fls.primaryTime<<", primaryIntensity="<<fls.primaryIntensity<<
+    outStream <<"  --Server: ";
+    outStream <<"       primaryTime="<<fls.primaryTime<<", primaryIntensity="<<fls.primaryIntensity<<
         ", secondaryTime="<<fls.secondaryTime<<", secondaryIntensity="<<fls.secondaryIntensity<<endl;
 
 
 
     
-    cout <<"--Second light info"<<endl;
+    outStream <<"--Second light info"<<endl;
     
-    cout <<"  --Primary flow: ";
-    cout <<" lambda = "<<secondFlow.lambda <<"; ";
-    cout <<"probabilities = [ ";
+    outStream <<"  --Primary flow: ";
+    outStream <<" lambda = "<<secondFlow.lambda <<"; ";
+    outStream <<"probabilities = [ ";
     for (auto& a:secondFlow.probabilities)
-        cout << a<<" ";
-    cout <<"]"<<endl;
+        outStream << a<<" ";
+    outStream <<"]"<<endl;
 
-    cout <<"  --Server: ";
-    cout <<"       lowPriorityTime="<<sls.lowPriorityTime<<", lowPriorityIntensity="<<sls.lowPriorityIntensity<<", highPriorityTime="<<sls.highPriorityTime<<", highPriorityIntensity="<<sls.highPriorityIntensity<<", prolongationTime="<<sls.prolongationTime<<", prolongationIntensity="<<sls.prolongationIntensity<<endl;
+    outStream <<"  --Server: ";
+    outStream <<"       lowPriorityTime="<<sls.lowPriorityTime<<", lowPriorityIntensity="<<sls.lowPriorityIntensity<<", highPriorityTime="<<sls.highPriorityTime<<", highPriorityIntensity="<<sls.highPriorityIntensity<<", prolongationTime="<<sls.prolongationTime<<", prolongationIntensity="<<sls.prolongationIntensity<<endl;
 
-    cout<<"--Midle queue info ";
-    cout<<"  queue success probabity factor: "<<midleSuccProbFactor<<endl;
+    outStream<<"--Midle queue info ";
+    outStream<<"  queue success probabity factor: "<<midleSuccProbFactor<<endl;
     
-    cout<<"--Prolongation Threshold: ";
-    cout<<prolongThres<<endl;
+    outStream<<"--Prolongation Threshold: ";
+    outStream<<prolongThres<<endl;
 }
 
 
@@ -48,13 +48,13 @@ void SystemAprioriInfo::PrintOpt(ofstream& outStream)
     outStream <<"["<<sls.lowPriorityTime<<","<<sls.highPriorityTime<<","<<sls.prolongationTime <<"] ("<< prolongThres<<")   ";
 }
 
-void ServerState::Print()
+void ServerState::Print(ostream& outStream)
 {
-    cout<< "(";
-    cout <<(state1 == Primary ? "Pri_" : "S_") << time1<< " | "<< (state2 == LowPriority ? "L_" : (state2 == HighPriority ? "H_" : "Pro_"))<< time2;
-    cout<< ")"<<" ("<<numCustomersFirstLight<<","<<numCustomersSecondLight<<")";
-    cout<<" ("<<nextRegular<<","<<nextProlongation<<")";
-    cout <<" ["<<timeDuration<<"]"<<endl;
+    outStream<< "(";
+    outStream <<(state1 == Primary ? "Pri_" : "S_") << time1<< " | "<< (state2 == LowPriority ? "L_" : (state2 == HighPriority ? "H_" : "Pro_"))<< time2;
+    outStream<< ")"<<" ("<<numCustomersFirstLight<<","<<numCustomersSecondLight<<")";
+    outStream<<" ("<<nextRegular<<","<<nextProlongation<<")";
+    outStream <<" ["<<timeDuration<<"]"<<endl;
 }
 
 
@@ -88,9 +88,9 @@ const bool ServerState::operator == (const ServerState &ss2)
         return false;
 }
 
-void SystemState::Print()
+void SystemState::Print(ostream& outStream)
 {
-    serverState.Print();
+    serverState.Print(outStream);
     queueState.Print();
 }
 

@@ -29,7 +29,7 @@ struct Queue
   
 
     Queue(QueueState initialState, SystemAprioriInfo sai);
-    void PrintState();
+    void PrintState(ostream&);
     //  void PrintStatistics();
     void ServiceMidleQueue(ServerState serverState);
 

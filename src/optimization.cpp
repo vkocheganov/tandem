@@ -88,7 +88,7 @@ void Optimization::Iterate(SystemAprioriInfo sai)
         aggStats.AddStatistics(system.sQueue.stats);
         if (sai.verbose)
 	{
-            system.Print();
+            system.Print(cout);
             cout << endl;
 	}
     }

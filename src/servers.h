@@ -3,6 +3,7 @@
 
 #include <vector>
 #include <iostream>
+#include <fstream>
 #include <algorithm>
 #include "generating.h"
 #include "spec.h"
@@ -18,7 +19,7 @@ struct Server
     int prolongationThreshold;
     SystemAprioriInfo sai;
     int MakeIteration(int,int);
-    void Print();
+    void Print(ostream&);
 };
 
 
@@ -34,8 +35,8 @@ struct Cycle
     int highPriorityFlowServed = 0;
     int lowPriorityFlowServed = 0;
     void CalcStatistics(vector<ServerState>& vs, SystemAprioriInfo sai);
-    void Print();
-    void Print_Ext();
+    void Print(ofstream&);
+    void Print_Ext(ofstream&);
 };
 
 /* void CalcCycleStatistics(vector<Cycle>& cycles, vector<ServerState>& vs) */
