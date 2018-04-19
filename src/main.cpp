@@ -21,7 +21,7 @@ int main(int argc, char * const argv[])
 
     ServerState initialServerState;
     QueueState initialQueueState;
-    ReadStates("../sample_data/sample_states_0", initialServerState, initialQueueState);
+    ReadStates("../sample_data/sample_states", initialServerState, initialQueueState);
     if (sai.verbose)
     {
         initialServerState.Print();
@@ -98,7 +98,7 @@ SystemAprioriInfo CreateSai(int argc, char * const argv[])
      PrimaryFlowDistribution::generator.seed(seed);
     // PrimaryFlowDistribution::generator.seed(2);  
     bool verbose = false;
-    SystemAprioriInfo sai = ReadSpecs("../sample_data/sample_spec_1");
+    SystemAprioriInfo sai = ReadSpecs("../sample_data/sample_spec");
     time_t rawtime;
     struct tm *info;
     char tmp_buf[80];
