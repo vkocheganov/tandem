@@ -32,9 +32,6 @@ struct MyMean
     void UpdateMean();
     void AddMeans(MyMean&);
     void Print(ostream& outStream){ outStream<<"mean="<<mean<<", sigma="<<std::sqrt(double(mean_sq - mean*mean))<<", n_samples="<<num<<"; err="<<std::sqrt(double(est_err_sq - est_err*est_err))<<"("<<est_num<<")"<<endl;}
-    // void Print_errs() {cout<<std::sqrt(double(est_err_sq - est_err*est_err));}
-    void Print_errs() {cout<<est_err_sq;}
-    /* void DumpMeans(ofstream& _stream){ _stream<<mean<<" ";} */
     void DumpMeans(ofstream& _stream){ _stream<<mean<<" "<<diff<<"  ";}
     void DumpMeansDiffs(ofstream& _stream){ _stream<<diff<<" ";}
     void DumpStd(ofstream& _stream){ _stream<<std::sqrt(double(mean_sq - mean*mean))<<" ";}
@@ -72,18 +69,15 @@ Statistics(SystemAprioriInfo _sai): sai(_sai){};
     MyMean secondLow;
     MyMean middle;
 
-    void UpdateStatistics(int);
-    void ClearStatistics();
+    void Print(ostream&);
     void DumpAllCustomers();
-    void DumpDepartQueues();
+    void DumpStatsMean(ofstream&);
+    
+    void ClearStatistics();
+    void UpdateStatistics(int);
     void AddFirstCustomer(Customer);
     void AddSecondCustomer(Customer);
     void AddStatistics(Statistics&);
-    void Print(ostream&);
-    void DumpStatsMean(ofstream&);
-    void DumpStatsMeanDiffs(ofstream&);
-    void DumpStatsStd(ofstream&);
-    void DumpStatsStdDiffs(ofstream&);
 };
   
 

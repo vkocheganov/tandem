@@ -116,13 +116,6 @@ void Statistics::ClearStatistics()
     secondHigh.Clear();
     secondLow.Clear();
     middle.Clear();
-
-    // inputFirstCust =
-    //     outputFirstCust =
-    //     inputThirdCust =
-    //     outputThirdCust = 0;
-
-    // timeTotal = 0;
 }
 
 void Statistics::DumpStatsMean(ofstream& _stream)
@@ -136,46 +129,6 @@ void Statistics::DumpStatsMean(ofstream& _stream)
     secondHigh.DumpMeans(_stream);
     secondLow.DumpMeans(_stream);
     middle.DumpMeans(_stream);
-}
-
-void Statistics::DumpStatsMeanDiffs(ofstream& _stream)
-{
-    firstTimeUntilServ.DumpMeansDiffs(_stream);
-    firstTimeServ.DumpMeansDiffs(_stream);
-    secondTimeUntilServ.DumpMeansDiffs(_stream);
-    secondTimeServ.DumpMeansDiffs(_stream);
-  
-    firstPrimary.DumpMeansDiffs(_stream);
-    secondHigh.DumpMeansDiffs(_stream);
-    secondLow.DumpMeansDiffs(_stream);
-    middle.DumpMeansDiffs(_stream);
-}
-
-void Statistics::DumpStatsStd(ofstream& _stream)
-{
-    firstTimeUntilServ.DumpStd(_stream);
-    firstTimeServ.DumpStd(_stream);
-    secondTimeUntilServ.DumpStd(_stream);
-    secondTimeServ.DumpStd(_stream);
-  
-    firstPrimary.DumpStd(_stream);
-    secondHigh.DumpStd(_stream);
-    secondLow.DumpStd(_stream);
-    middle.DumpStd(_stream);
-}
-
-
-void Statistics::DumpStatsStdDiffs(ofstream& _stream)
-{
-    firstTimeUntilServ.DumpStdDiffs(_stream);
-    firstTimeServ.DumpStdDiffs(_stream);
-    secondTimeUntilServ.DumpStdDiffs(_stream);
-    secondTimeServ.DumpStdDiffs(_stream);
-  
-    firstPrimary.DumpStdDiffs(_stream);
-    secondHigh.DumpStdDiffs(_stream);
-    secondLow.DumpStdDiffs(_stream);
-    middle.DumpStdDiffs(_stream);
 }
 
 

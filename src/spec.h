@@ -38,13 +38,15 @@ struct OutFiles
 {
     string foldName;
     
+    string saiFile;
     string stationaryFileMeans;
+
+    
     string firstCustomersFile;
     string secondCustomersFile;
     
     string optFile;
 
-    string saiFile;
 };
 
 struct SystemAprioriInfo

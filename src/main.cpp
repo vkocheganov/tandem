@@ -48,17 +48,13 @@ int main(int argc, char * const argv[])
             SystemAprioriInfo refSai(sai);
             refSai.verbose=false;
             QueueState refInitialQueueState(true);
-            // QueueState refInitialQueueState(initialQueueState);	  
             System system(initialQueueState, initialServerState, sai),
                 refSystem(refInitialQueueState, initialServerState, refSai);
             int i = 0;
-            //	  for (i = 0; i < sai.numIteration && !system.sQueue.stats.stationaryMode ; i++)
             for (i = 0; i < sai.numMaxIteration; i++)	  
 	    {
                 refSystem.MakeIteration(i);
                 system.MakeIteration(i);
-                // if (i % 1000 == 0)
-                //     cout <<"i = "<<i<<endl;
                 if (i >= sai.numMaxIteration * 0.1 && system.CheckStationaryMode(refSystem,i))
                     break;
 	    }
@@ -66,16 +62,15 @@ int main(int argc, char * const argv[])
             for (i = 0; i < sai.numIterationStationary; i++)
 	    {
                 system.MakeIteration(i);
-                // if (i % 1000 == 0)
-                //     cout <<"i = "<<i<<endl;
 	    }
             system.sQueue.stats.UpdateStatistics(i);
 
             ofstream saiFile(sai.outFiles.saiFile, ofstream::out | ofstream::app);
-             saiFile<<"intensity input/output 1 = "<<double(system.sQueue.stats.inputFirstCust)/system.sQueue.stats.timeTotal
-                 <<"/"<<double(system.sQueue.stats.outputFirstCust)/system.sQueue.stats.timeTotal<<endl
-                 <<"intensity input/output 3 = "<<double(system.sQueue.stats.inputThirdCust)/system.sQueue.stats.timeTotal
-                 <<"/"<<double(system.sQueue.stats.outputThirdCust)/system.sQueue.stats.timeTotal<<endl;
+            saiFile<<"intensity input/output 1 = "<<double(system.sQueue.stats.inputFirstCust)/system.sQueue.stats.timeTotal
+                   <<"/"<<double(system.sQueue.stats.outputFirstCust)/system.sQueue.stats.timeTotal<<endl
+                   <<"intensity input/output 3 = "<<double(system.sQueue.stats.inputThirdCust)/system.sQueue.stats.timeTotal
+                   <<"/"<<double(system.sQueue.stats.outputThirdCust)/system.sQueue.stats.timeTotal<<endl;
+            saiFile.close();
 	  
             if (system.sQueue.stats.stationaryMode)
                 aggStats.AddStatistics(system.sQueue.stats);
