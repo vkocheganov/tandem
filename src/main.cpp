@@ -28,24 +28,24 @@ int main(int argc, char * const argv[])
         initialQueueState.Print();
     }
 
-    Statistics aggStats(sai);  
+    Statistics aggStats(sai);
     Optimization optimize(initialQueueState, initialServerState, sai);
-    optimize.rangeArray.ranges[FIRST_LIGHT_TIME_PRIMARY] = {10, 10, 100};
-    optimize.rangeArray.ranges[FIRST_LIGHT_TIME_SECONDARY] = {10, 10, 60};
+    optimize.rangeArray.ranges[FIRST_LIGHT_TIME_PRIMARY] = {10, 1, 15};
+    optimize.rangeArray.ranges[FIRST_LIGHT_TIME_SECONDARY] = {10, 1, 15};
     // optimize.rangeArray.ranges[SECOND_LIGHT_TIME_LOW] = {10, 10, 60};
     // optimize.rangeArray.ranges[SECOND_LIGHT_TIME_HIGH] = {10, 10, 60};
     // optimize.rangeArray.ranges[SECOND_LIGHT_TIME_PROLONG] = {5, 5, 20};
     // optimize.rangeArray.ranges[THRESHOLD] = {0, 5, 30};
     
-    optimize.rangeArray.Resize();
-    optimize.rangeArray.Print(cout);
 
-    do
-    {
-    } while (optimize.rangeArray.Iterate());
+    // do
+    // {
+    //     optimize.rangeArray.PrintCurrParams(cout);
+    // } while (optimize.rangeArray.Iterate());
 
-    return 0;
-    if (0)
+    // return 0;
+    cout <<"Make optimization"<<endl;
+    if (1)
     {
         optimize.MakeOptimization();
     }

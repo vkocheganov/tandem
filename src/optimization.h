@@ -34,13 +34,15 @@ struct RangeArray
     int arrIdx;
 
     int maxIdx[RANGE_INDEXES_LAST];
-    int currIdx;
     int currIdxs[RANGE_INDEXES_LAST];
     int currValues[RANGE_INDEXES_LAST];
-    void Resize();
+    void Start();
     bool Iterate();
 
-    void Print(ostream&);
+    void PrintArr(ostream&);
+    void PrintCurrParams(ostream&);
+
+    void SetSai(SystemAprioriInfo& sai);
 };
 
 struct Optimization

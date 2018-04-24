@@ -13,7 +13,7 @@ RangeArray::RangeArray(SystemAprioriInfo _baseSai):
     {_baseSai.sls.highPriorityTime, 1, _baseSai.sls.highPriorityTime},
     {_baseSai.sls.prolongationTime, 1, _baseSai.sls.prolongationTime},
     {_baseSai.prolongThres, 1, _baseSai.prolongThres}
-}, currIdx{}, maxIdx{}, currIdxs{},
+}, maxIdx{}, currIdxs{},
     currValues{
         _baseSai.fls.primaryTime,
             _baseSai.fls.secondaryTime,
@@ -26,7 +26,7 @@ RangeArray::RangeArray(SystemAprioriInfo _baseSai):
 {
 }
     
-    void RangeArray::Resize()
+    void RangeArray::Start()
     {
         unsigned count = 1;
         for (int i = 0; i < RANGE_INDEXES_LAST; i++)
@@ -59,13 +59,10 @@ bool RangeArray::Iterate()
     currIdxs[currIdx]++;
     currValues[currIdx] += ranges[currIdx].step;
 
-    // for (int i = 0; i < RANGE_INDEXES_LAST; i++)
-    //     cout << currValues[i]<<" ";
-    // cout<<endl;
     return true;
 }
 
-void RangeArray::Print(ostream& outStream)
+void RangeArray::PrintArr(ostream& outStream)
 {
     unsigned idxs[RANGE_INDEXES_LAST]{};
     int idx = RANGE_INDEXES_LAST - 1;
@@ -94,7 +91,23 @@ void RangeArray::Print(ostream& outStream)
     outStream<<endl;
 }
 
+void RangeArray::SetSai(SystemAprioriInfo& sai)
+{
+    sai.fls.primaryTime = currValues[FIRST_LIGHT_TIME_PRIMARY];
+    sai.fls.secondaryTime = currValues[FIRST_LIGHT_TIME_SECONDARY];
+    sai.sls.lowPriorityTime = currValues[SECOND_LIGHT_TIME_LOW];
+    sai.sls.highPriorityTime = currValues[SECOND_LIGHT_TIME_HIGH];
+    sai.sls.prolongationTime = currValues[SECOND_LIGHT_TIME_PROLONG];
+    sai.prolongThres = currValues[THRESHOLD];
+}
 
+void RangeArray::PrintCurrParams(ostream& outStream)
+{
+    for (int i = 0; i < RANGE_INDEXES_LAST; i++)
+        outStream<<currValues[i]<<" ";
+    outStream<<endl;
+}
+    
 Optimization::Optimization(QueueState initQueue, ServerState initServer, SystemAprioriInfo _baseSai):
     initialQueueState(initQueue), initialServerState(initServer), baseSai(_baseSai),
     rangeArray(_baseSai)
@@ -105,20 +118,18 @@ Optimization::Optimization(QueueState initQueue, ServerState initServer, SystemA
 void Optimization::MakeOptimization()
 {
     SystemAprioriInfo sai(baseSai);
+    
+    this->rangeArray.Start();
+    this->rangeArray.PrintArr(cout);
 
-    // for (int fltp = firstLightTimePrimary.first; fltp <= firstLightTimePrimary.last; fltp += firstLightTimePrimary.step)
-    // {
-    //     sai.fls.primaryTime = fltp;
-    //     for (int flts = firstLightTimeSecondary.first; flts <= firstLightTimeSecondary.last; flts += firstLightTimeSecondary.step)
-    //     {
-    //         stringstream ios;
-    //         ios << sai.outFiles.optFile <<"_"<<fltp;
-    //         ios << "_"<<flts;
-    //         currFile = ios.str();
-	  
-    //         sai.fls.secondaryTime = flts;
-    //         for (int sltl = secondLightTimeLow.first; sltl <= secondLightTimeLow.last; sltl += secondLightTimeLow.step)
-    //         {
+    do
+    {
+        this->rangeArray.PrintCurrParams(cout);
+        this->rangeArray.SetSai(sai);
+        this->Iterate(sai);
+    } while (this->rangeArray.Iterate());
+    this->rangeArray.PrintArr(cout);
+
     //             time_t rawtime;
     //             struct tm *info;
     //             char tmp_buf[80];
@@ -128,27 +139,6 @@ void Optimization::MakeOptimization()
     //             cout <<tmp_buf<<endl;
   
     //             sai.sls.lowPriorityTime = sltl;
-    //             for (int slth = secondLightTimeHigh.first; slth <= secondLightTimeHigh.last; slth += secondLightTimeHigh.step)
-    //     	{
-    //                 sai.sls.highPriorityTime = slth;
-    //                 for (int sltp = secondLightTimeProlong.first; sltp <= secondLightTimeProlong.last; sltp += secondLightTimeProlong.step)
-    //     	    {
-    //                     sai.sls.prolongationTime = sltp;
-    //                     for (int t = threshold.first; t <= threshold.last; t += threshold.step)
-    //     		{
-    //                         sai.prolongThres = t;
-    //                         Iterate(sai);
-    //     		}
-
-    //     	    }
-
-    //     	}
-
-    //         }
-
-    //     }
-
-    // }
 }
 
 void Optimization::Iterate(SystemAprioriInfo sai)
@@ -161,24 +151,40 @@ void Optimization::Iterate(SystemAprioriInfo sai)
   
     System system(initialQueueState, initialServerState, sai),
         refSystem(refInitialQueueState, initialServerState, refSai);
+    bool statSucc = false;
 
     for (int i = 0; i < sai.numMaxIteration; i++)
     {
         refSystem.MakeIteration(i);
         system.MakeIteration(i);
-        system.CheckStationaryMode(refSystem,i);
-    }
-    aggStats.AddStatistics(system.sQueue.stats);
-    if (sai.verbose)
-    {
-        system.Print(cout);
-        cout << endl;
+        if (system.CheckStationaryMode(refSystem,i) && i >= sai.numMaxIteration * 0.1)
+        {
+            statSucc = true;
+            break;
+        }
     }
 
-    double firstServiceAvg = accumulate(firstService.begin(), firstService.end(), 0.)/firstService.size(),
-        secondServiceAvg = accumulate(secondService.begin(), secondService.end(), 0.)/secondService.size();
+    if (statSucc)
+    {
+        for (int i = 0; i < sai.numIterationStationary; i++)
+        {
+            system.MakeIteration(i);
+        }
+        system.sQueue.stats.UpdateStatistics(0);
+    }
+
+    rangeArray.arr[rangeArray.arrIdx] = statSucc;
+    // aggStats.AddStatistics(system.sQueue.stats);
+    // if (sai.verbose)
+    // {
+    //     system.Print(cout);
+    //     cout << endl;
+    // }
+
+    // double firstServiceAvg = accumulate(firstService.begin(), firstService.end(), 0.)/firstService.size(),
+    //     secondServiceAvg = accumulate(secondService.begin(), secondService.end(), 0.)/secondService.size();
   
-    UpdateTarget(firstServiceAvg, secondServiceAvg, sai, currFile);
+    // UpdateTarget(firstServiceAvg, secondServiceAvg, sai, currFile);
   
 }
 
