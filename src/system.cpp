@@ -25,13 +25,15 @@ void System::Print(ostream& outStream)
 
 bool System::CheckStationaryMode(System& sys, int iteration)
 {
-    float diff1 = std::abs(sys.sQueue.stats.firstTimeUntilServ.mean - this->sQueue.stats.firstTimeUntilServ.mean)/float(this->sQueue.stats.firstTimeUntilServ.mean),
-        diff2 = std::abs(sys.sQueue.stats.secondTimeUntilServ.mean - this->sQueue.stats.secondTimeUntilServ.mean)/float(this->sQueue.stats.secondTimeUntilServ.mean);
+    float diff1 = std::abs(sys.sQueue.stats.firstTimeUntilServ.mean - this->sQueue.stats.firstTimeUntilServ.mean) /this->sQueue.stats.firstTimeUntilServ.mean ,
+        diff2 = std::abs(sys.sQueue.stats.secondTimeUntilServ.mean - this->sQueue.stats.secondTimeUntilServ.mean) / this->sQueue.stats.secondTimeUntilServ.mean;
 
     double inputFirstFlow = double(sQueue.stats.inputFirstCust)/sQueue.stats.timeTotal,
         outputFirstFlow = double(sQueue.stats.outputFirstCust)/sQueue.stats.timeTotal,
         inputThirdFlow = double(sQueue.stats.inputThirdCust)/sQueue.stats.timeTotal,
         outputThirdFlow = double(sQueue.stats.outputThirdCust)/sQueue.stats.timeTotal;
+
+    
 
     
     if (!this->sQueue.stats.stationaryMode && 
@@ -58,6 +60,10 @@ bool System::CheckStationaryMode(System& sys, int iteration)
     // cout <<std::max(diff1,diff2)<<endl;
     // if ((iteration+1) % sQueue.stats.GRAN == 0)
     //   cout <<"diff1 = "<<diff1<<"("<<this->sQueue.stats.secondTimeUntilServ.mean <<")"<< "   |  diff2 = " <<diff2<<endl;
+
+    ofstream oFile (this->sQueue.stats.sai.outFiles.stationaryReaching, ofstream::out | ofstream::app);
+    oFile << diff1 <<" "<<diff2<<endl;
+    
     return this->sQueue.stats.stationaryMode;
 }
 

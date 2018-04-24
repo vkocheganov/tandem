@@ -40,6 +40,7 @@ struct OutFiles
     
     string saiFile;
     string stationaryFileMeans;
+    string stationaryReaching;
 
     
     string firstCustomersFile;

@@ -30,13 +30,21 @@ int main(int argc, char * const argv[])
 
     Statistics aggStats(sai);  
     Optimization optimize(initialQueueState, initialServerState, sai);
-    optimize.firstLightTimePrimary = {10, 10, 100};
-    optimize.firstLightTimeSecondary = {10, 10, 60};
-    optimize.secondLightTimeLow = {10, 10, 60};
-    optimize.secondLightTimeHigh = {10, 10, 60};
-    optimize.secondLightTimeProlong = {5, 5, 20};
-    optimize.threshold = {0, 5, 30};
+    optimize.rangeArray.ranges[FIRST_LIGHT_TIME_PRIMARY] = {10, 10, 100};
+    optimize.rangeArray.ranges[FIRST_LIGHT_TIME_SECONDARY] = {10, 10, 60};
+    // optimize.rangeArray.ranges[SECOND_LIGHT_TIME_LOW] = {10, 10, 60};
+    // optimize.rangeArray.ranges[SECOND_LIGHT_TIME_HIGH] = {10, 10, 60};
+    // optimize.rangeArray.ranges[SECOND_LIGHT_TIME_PROLONG] = {5, 5, 20};
+    // optimize.rangeArray.ranges[THRESHOLD] = {0, 5, 30};
+    
+    optimize.rangeArray.Resize();
+    optimize.rangeArray.Print(cout);
 
+    do
+    {
+    } while (optimize.rangeArray.Iterate());
+
+    return 0;
     if (0)
     {
         optimize.MakeOptimization();
@@ -55,7 +63,7 @@ int main(int argc, char * const argv[])
 	    {
                 refSystem.MakeIteration(i);
                 system.MakeIteration(i);
-                if (i >= sai.numMaxIteration * 0.1 && system.CheckStationaryMode(refSystem,i))
+                if (system.CheckStationaryMode(refSystem,i) && i >= sai.numMaxIteration * 0.1)
                     break;
 	    }
             
@@ -133,6 +141,7 @@ SystemAprioriInfo CreateSai(int argc, char * const argv[])
     sai.outFiles.secondCustomersFile = sai.outFiles.foldName + "/output_customers_second";
     sai.outFiles.saiFile = sai.outFiles.foldName + "/sai";
     sai.outFiles.optFile = sai.outFiles.foldName + "/optimization";
+    sai.outFiles.stationaryReaching = sai.outFiles.foldName + "/stationaryReaching";
     sai.verbose = verbose;
     
     ofstream saiFile(sai.outFiles.saiFile, ofstream::out | ofstream::app);
