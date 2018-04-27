@@ -34,7 +34,10 @@ struct Cycle
     int primaryFlowServed = 0;
     int highPriorityFlowServed = 0;
     int lowPriorityFlowServed = 0;
+
     void CalcStatistics(vector<ServerState>& vs, SystemAprioriInfo sai);
+
+    bool IsStationar(SystemAprioriInfo sai);
     void Print(ofstream&);
     void Print_Ext(ofstream&);
 };

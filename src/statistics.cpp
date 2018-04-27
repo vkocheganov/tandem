@@ -106,7 +106,7 @@ void Statistics::Print(ostream& outStream)
 
 void Statistics::ClearStatistics()
 {
-    cout<<"Clearing stats"<<endl;
+    // cout<<"Clearing stats"<<endl;
     firstTimeUntilServ.Clear();
     firstTimeServ.Clear();
     secondTimeUntilServ.Clear();

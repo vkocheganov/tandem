@@ -26,7 +26,14 @@ Server::Server(ServerState initialState, SystemAprioriInfo _sai): sai(_sai)
 int Server::MakeIteration(int lowPriorityQueueSize, int )
 {
     lastState = state;
-    state = ( allStates[state].nextProlongation != -1 && lowPriorityQueueSize <= prolongationThreshold ? allStates[state].nextProlongation : allStates[state].nextRegular);
+    state = ( allStates[state].nextProlongation != -1 && lowPriorityQueueSize <= prolongationThreshold ? allStates[state].nextProlongation :
+              (allStates[state].nextRegular == -1 ? allStates[state].nextProlongation : allStates[state].nextRegular)
+                  );
+    if (state == -1)
+    {
+        cout<<"Error!!!"<<endl;
+        exit(1);
+    }
     return allStates[state].timeDuration;
 }
 void Server::Print(ostream& outStream)
@@ -76,15 +83,14 @@ void GenerateStates(vector<ServerState>& vs, int currentState, SystemAprioriInfo
     }
 
   
-    eligibleToProlong = (serverToFinish == 0 || serverToFinish == 2) && vs[currentState].state2 > LowPriority;
+    newState.timeDuration = timeToFinish;
+    vs[currentState].midleSuccProb = sai.GetSuccProb(newState.timeDuration);
     if (serverToFinish == 1)
     {
         newState.state1 = (vs[currentState].state1 == Primary ? Secondary : Primary);
         newState.time1 = (newState.state1 == Primary ? sai.fls.primaryTime : sai.fls.secondaryTime);
         newState.state2 = vs[currentState].state2;
         newState.time2 = vs[currentState].time2 - timeToFinish;
-        newState.timeDuration = timeToFinish;
-        vs[currentState].midleSuccProb = sai.GetSuccProb(newState.timeDuration);
     }
     else if (serverToFinish == 2)
     {
@@ -102,32 +108,53 @@ void GenerateStates(vector<ServerState>& vs, int currentState, SystemAprioriInfo
         newState.time2 = (newState.state2 == LowPriority ? sai.sls.lowPriorityTime : sai.sls.highPriorityTime);
     }
 
-    auto tmp = find(vs.begin(), vs.end(), newState);
-    if (tmp == vs.end())
+    bool newStateIsRegular = newState.state2 != Prolongation;
+    eligibleToProlong = ((serverToFinish == 0 || serverToFinish == 2) && vs[currentState].state2 > LowPriority ) ||
+        (serverToFinish == 1  && vs[currentState].state2 == Prolongation );
+
+    if (newStateIsRegular)
     {
-        vs.push_back(newState);
-        vs[currentState].nextRegular = vs.size() - 1;
-        GenerateStates(vs, vs.size()-1, sai);
+        auto tmp = find(vs.begin(), vs.end(), newState);
+        if (tmp == vs.end())
+        {
+            vs.push_back(newState);
+            vs[currentState].nextRegular = vs.size() - 1;
+            GenerateStates(vs, vs.size()-1, sai);
+        }
+        else
+        {
+            vs[currentState].nextRegular = tmp - vs.begin();
+        }
+        if (eligibleToProlong)
+        {
+            newState.state2 = Prolongation;
+            newState.time2 = sai.sls.prolongationTime;
+            auto tmp = find(vs.begin(), vs.end(), newState);
+            if ( tmp == vs.end())
+            {
+                vs.push_back(newState);
+                vs[currentState].nextProlongation = vs.size() - 1;
+                GenerateStates(vs, vs.size()-1, sai);
+            }
+            else
+            {
+                vs[currentState].nextProlongation = tmp - vs.begin();
+            }
+        }
     }
     else
     {
-        vs[currentState].nextRegular = tmp - vs.begin();
-    }
-    if (eligibleToProlong)
-    {
-        newState.state2 = Prolongation;
-        newState.time2 = sai.sls.prolongationTime;
         auto tmp = find(vs.begin(), vs.end(), newState);
-        if ( tmp == vs.end())
-	{
+        if (tmp == vs.end())
+        {
             vs.push_back(newState);
             vs[currentState].nextProlongation = vs.size() - 1;
             GenerateStates(vs, vs.size()-1, sai);
-	}
+        }
         else
-	{
+        {
             vs[currentState].nextProlongation = tmp - vs.begin();
-	}
+        }
     }
 }
 
@@ -158,13 +185,14 @@ void IterateFindCycles(vector<ServerState>& vs, int currentState, vector<bool>& 
       	{
             IterateFindCycles(vs, nextProlongation, processed, cycles, currentCycle);
       	}
-        if (!processed[nextRegular])
+        if (nextRegular != -1 && !processed[nextRegular])
       	{
             Cycle dummy;
             cycles.push_back(dummy);
             IterateFindCycles(vs, nextRegular, processed, cycles, cycles.size()-1);
       	}
     }
+    // cout<<"iterate end"<<endl;
 }
 
 vector<Cycle> FindCycles(vector<ServerState> vs, SystemAprioriInfo sai)
@@ -216,6 +244,11 @@ void Cycle::CalcStatistics(vector<ServerState>& vs, SystemAprioriInfo sai)
 
     firstLightIncome = firstLightTime * sai.firstFlow.lambda * firstSum;
     secondLightIncome = secondLightTime * sai.secondFlow.lambda * secondSum;
+}
+
+bool Cycle::IsStationar(SystemAprioriInfo sai)
+{
+
 }
 
 void Cycle::Print(ofstream& outStream)

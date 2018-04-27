@@ -51,7 +51,7 @@ bool System::CheckStationaryMode(System& sys, int iteration)
         this->sQueue.stats.stationaryMode = true;
         // this->sQueue.stats.Print();
         this->sQueue.stats.ClearStatistics();
-        cout <<"stationary mode! "<<iteration<<endl;
+        // cout <<"stationary mode! "<<iteration<<endl;
         // cout <<"("<<diff1<<","<<diff2<<")"<<endl;
     }
     // if (iteration % this->sQueue.stats.GRAN == 0)
