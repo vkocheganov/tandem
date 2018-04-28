@@ -106,7 +106,7 @@ SystemAprioriInfo CreateSai(int argc, char * const argv[])
     int opt;
     sai.numMaxIteration = 20000;
     sai.numIterationStationary = 5000;
-    sai.numSamples = 10;
+    sai.numSamples = 1;
     while ((opt = getopt(argc, argv, "v:i:m:s:")) != -1) {
         switch (opt) {
         case 'v':
@@ -149,6 +149,6 @@ SystemAprioriInfo CreateSai(int argc, char * const argv[])
     saiFile <<"MaxIterations: "<<sai.numMaxIteration<<endl;
     saiFile <<"Samples: "<<sai.numSamples<<endl;
 
-    sai.Print(saiFile);
+    // sai.Print(saiFile);
     return sai;
 }

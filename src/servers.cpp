@@ -175,6 +175,7 @@ void IterateFindCycles(vector<ServerState>& vs, int currentState, vector<bool>& 
         if (nextProlongation != -1 && !processed[nextProlongation])
       	{
             Cycle dummy;
+            dummy.isProlongation = true;
             cycles.push_back(dummy);
             IterateFindCycles(vs, nextProlongation, processed, cycles, cycles.size()-1);
       	}
@@ -188,6 +189,7 @@ void IterateFindCycles(vector<ServerState>& vs, int currentState, vector<bool>& 
         if (nextRegular != -1 && !processed[nextRegular])
       	{
             Cycle dummy;
+            dummy.isProlongation = true;
             cycles.push_back(dummy);
             IterateFindCycles(vs, nextRegular, processed, cycles, cycles.size()-1);
       	}
@@ -246,20 +248,30 @@ void Cycle::CalcStatistics(vector<ServerState>& vs, SystemAprioriInfo sai)
     secondLightIncome = secondLightTime * sai.secondFlow.lambda * secondSum;
 }
 
-bool Cycle::IsStationar(SystemAprioriInfo sai)
+bool Cycle::IsStationar()
 {
+    bool ret;
+    ret = (firstLightIncome < primaryFlowServed);
+    ret = ret && (primaryFlowServed < highPriorityFlowServed);
 
+    if (!this->isProlongation)
+    {
+        ret = ret && (secondLightIncome < lowPriorityFlowServed);
+    }
+    return ret;
 }
 
 void Cycle::Print(ofstream& outStream)
 {
-    outStream<<"[ ";
+    outStream<<"States: [ ";
     for (auto a:idxs)
     {
         outStream<<a<<" ";
     }
     //  outStream <<"]"<<" FirstLightIncome="<<firstLightIncome<<", SecondLightIncome="<<secondLightIncome<<", PrimaryFirstLight_sum{l}="<<primaryFlowServed<<", LowPriority_sum{l}="<<lowPriorityFlowServed<<endl;
-    outStream <<"]"<<" ("<<firstLightIncome<<", "<<primaryFlowServed<<") ("<<secondLightIncome<<", "<<lowPriorityFlowServed<<"),("<<highPriorityFlowServed<<")"<<endl;
+    outStream <<"]"<<endl<<
+        "      FirstLight: primaryIncome="<<firstLightIncome<<", primaryServed="<<primaryFlowServed<<""<<endl<<
+        "      SecondLight: lowPriorityIncome="<<secondLightIncome<<", lowPriorityServed="<<lowPriorityFlowServed<<", highPriorityServed"<<highPriorityFlowServed<<")"<<endl;
 }
 
 void Cycle::Print_Ext(ofstream& outStream)

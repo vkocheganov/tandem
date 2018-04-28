@@ -16,5 +16,6 @@ struct System
     void Print(ostream&);
     bool CheckStationaryMode(System& ,int);
     bool StopCriteria();
+    bool IsStationar();
 };
 #endif

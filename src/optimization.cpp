@@ -163,6 +163,7 @@ void Optimization::Iterate(SystemAprioriInfo sai)
             break;
         }
     }
+    system.sQueue.PrintState(cout);
 
     if (statSucc)
     {
@@ -173,7 +174,8 @@ void Optimization::Iterate(SystemAprioriInfo sai)
         system.sQueue.stats.UpdateStatistics(0);
     }
 
-    rangeArray.arr[rangeArray.arrIdx] = statSucc;
+    rangeArray.arr[rangeArray.arrIdx].stationar = statSucc;
+    rangeArray.arr[rangeArray.arrIdx].theoreticalStationar = system.IsStationar();
     // aggStats.AddStatistics(system.sQueue.stats);
     // if (sai.verbose)
     // {

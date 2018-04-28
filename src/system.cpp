@@ -62,7 +62,15 @@ bool System::CheckStationaryMode(System& sys, int iteration)
     //   cout <<"diff1 = "<<diff1<<"("<<this->sQueue.stats.secondTimeUntilServ.mean <<")"<< "   |  diff2 = " <<diff2<<endl;
 
     ofstream oFile (this->sQueue.stats.sai.outFiles.stationaryReaching, ofstream::out | ofstream::app);
-    oFile << diff1 <<" "<<diff2<<endl;
+    oFile << diff1 <<" "<<diff2<<" "
+          <<inputFirstFlow<<"/"<<1.1*outputFirstFlow<<" "
+          <<inputThirdFlow<<"/"<<1.01*outputThirdFlow<<" ";
+    sQueue.stats.firstPrimary.PrintErr(oFile);
+    sQueue.stats.secondHigh.PrintErr(oFile);
+    sQueue.stats.secondLow.PrintErr(oFile);
+    sQueue.stats.middle.PrintErr(oFile);
+    oFile<<endl;
+    
     
     return this->sQueue.stats.stationaryMode;
 }
@@ -71,4 +79,14 @@ bool System::StopCriteria()
 {
     if (!this->sQueue.stats.stationaryMode)
         return false;
+}
+
+bool System::IsStationar()
+{
+    bool ret = true;
+    for (auto& a:cycles)
+    {
+        ret *= a.IsStationar();
+    }
+    return ret;
 }

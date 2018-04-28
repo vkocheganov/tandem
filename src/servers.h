@@ -26,6 +26,8 @@ struct Server
 struct Cycle
 {
     vector<int> idxs;
+
+    bool isProlongation = false;
     int firstLightTime = 0;
     int secondLightTime = 0;
     float firstLightIncome;
@@ -37,7 +39,7 @@ struct Cycle
 
     void CalcStatistics(vector<ServerState>& vs, SystemAprioriInfo sai);
 
-    bool IsStationar(SystemAprioriInfo sai);
+    bool IsStationar();
     void Print(ofstream&);
     void Print_Ext(ofstream&);
 };

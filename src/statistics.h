@@ -39,6 +39,7 @@ struct MyMean
     void Clear() {values.clear(); mean = mean_sq = num = 0; est_err = est_err_sq = est_num = 0;}
 
     bool CheckErr(double ratio = 0.2) {return (std::sqrt(double(est_err_sq - est_err*est_err))/mean < ratio ? true : false) ;  }
+    void PrintErr(ostream& outStream) {outStream<<std::sqrt(double(est_err_sq - est_err*est_err))/mean<<" ";}
 };
 
 struct Statistics

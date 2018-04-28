@@ -5,6 +5,7 @@
 #include <limits>
 #include <string>
 #include <vector>
+#include <iostream>
 
 template <typename T>
 struct Range
@@ -26,11 +27,21 @@ enum RangeIndexes
     RANGE_INDEXES_LAST
 };
 
+struct OptStats
+{
+    bool stationar;
+    bool theoreticalStationar;
+    friend ostream& operator<< (ostream& stream, const OptStats& optStats)
+        {
+            stream<<"("<<optStats.stationar<<","<<optStats.theoreticalStationar<<") ";
+            return stream;
+        }
+};
 struct RangeArray
 {
     RangeArray(SystemAprioriInfo _baseSai);
     Range<int> ranges[RANGE_INDEXES_LAST];
-    vector<double> arr;
+    vector<OptStats> arr;
     int arrIdx;
 
     int maxIdx[RANGE_INDEXES_LAST];
