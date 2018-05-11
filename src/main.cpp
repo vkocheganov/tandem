@@ -10,6 +10,7 @@
 #include <numeric>
 #include "optimization.h"
 #include <chrono>
+#include <stdlib.h>
 
 using namespace std;
 
@@ -30,14 +31,28 @@ int main(int argc, char * const argv[])
 
     Statistics aggStats(sai);
     Optimization optimize(initialQueueState, initialServerState, sai);
-    optimize.rangeArray.ranges[FIRST_LIGHT_TIME_PRIMARY] = {10, 1, 15};
-    optimize.rangeArray.ranges[FIRST_LIGHT_TIME_SECONDARY] = {10, 1, 15};
-    // optimize.rangeArray.ranges[SECOND_LIGHT_TIME_LOW] = {10, 10, 60};
-    // optimize.rangeArray.ranges[SECOND_LIGHT_TIME_HIGH] = {10, 10, 60};
-    // optimize.rangeArray.ranges[SECOND_LIGHT_TIME_PROLONG] = {5, 5, 20};
-    // optimize.rangeArray.ranges[THRESHOLD] = {0, 5, 30};
+    // optimize.rangeArray.ranges[FIRST_LIGHT_TIME_PRIMARY] = {10, 5, 20};
+    // optimize.rangeArray.ranges[FIRST_LIGHT_TIME_SECONDARY] = {10, 5, 20};
+    // // optimize.rangeArray.ranges[SECOND_LIGHT_TIME_LOW] = {10, 10, 60};
+    // // optimize.rangeArray.ranges[SECOND_LIGHT_TIME_HIGH] = {10, 10, 60};
+    // optimize.rangeArray.ranges[SECOND_LIGHT_TIME_PROLONG] = {5, 5, 15};
+    // optimize.rangeArray.ranges[THRESHOLD] = {0, 5, 10};
     
+    optimize.rangeArray.ranges[FIRST_LIGHT_TIME_PRIMARY] = {10, 5, 10};
+    optimize.rangeArray.ranges[FIRST_LIGHT_TIME_SECONDARY] = {10, 5, 10};
+    optimize.rangeArray.ranges[SECOND_LIGHT_TIME_LOW] = {20, 10, 20};
+    optimize.rangeArray.ranges[SECOND_LIGHT_TIME_HIGH] = {10, 10, 20};
+    optimize.rangeArray.ranges[SECOND_LIGHT_TIME_PROLONG] = {5, 1, 5};
+    optimize.rangeArray.ranges[THRESHOLD] = {100, 1, 100};
+    // optimize.rangeArray.ranges[THRESHOLD] = {-1, 10, -1};
 
+    // optimize.rangeArray.ranges[FIRST_LIGHT_TIME_PRIMARY] = {20, 10, 20};
+    // optimize.rangeArray.ranges[FIRST_LIGHT_TIME_SECONDARY] = {10, 10, 10};
+    // optimize.rangeArray.ranges[SECOND_LIGHT_TIME_LOW] = {20, 5, 35};
+    // optimize.rangeArray.ranges[SECOND_LIGHT_TIME_HIGH] = {10, 5, 25};
+    // optimize.rangeArray.ranges[SECOND_LIGHT_TIME_PROLONG] = {5, 10, 25};
+    // optimize.rangeArray.ranges[THRESHOLD] = {0, 10, 30};
+    
     // do
     // {
     //     optimize.rangeArray.PrintCurrParams(cout);
@@ -90,6 +105,8 @@ int main(int argc, char * const argv[])
 //        aggStats.Print();
     }
   
+    system("rm -rf LOGS/las_log");
+    system(("cp -R "+sai.outFiles.foldName+" LOGS/las_log").c_str());
     return 0;
 }
 
@@ -149,6 +166,6 @@ SystemAprioriInfo CreateSai(int argc, char * const argv[])
     saiFile <<"MaxIterations: "<<sai.numMaxIteration<<endl;
     saiFile <<"Samples: "<<sai.numSamples<<endl;
 
-    // sai.Print(saiFile);
+    sai.Print(saiFile);
     return sai;
 }
