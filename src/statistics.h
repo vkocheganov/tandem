@@ -38,8 +38,12 @@ struct MyMean
     void DumpStdDiffs(ofstream& _stream){ _stream<<diff_std<<" ";}
     void Clear() {values.clear(); mean = mean_sq = num = 0; est_err = est_err_sq = est_num = 0;}
 
-    bool CheckErr(double ratio = 0.2) {return (std::sqrt(double(est_err_sq - est_err*est_err))/mean < ratio ? true : false) ;  }
-    void PrintErr(ostream& outStream) {outStream<<std::sqrt(double(est_err_sq - est_err*est_err))/mean<<" ";}
+    bool CheckErr(double ratio = 0.2) {
+        if (mean < 0.01)
+            return true;
+        else
+            return (std::sqrt(double(est_err_sq - est_err*est_err)) < mean*ratio + 0.00005 ? true : false) ;  }
+    void PrintErr(ostream& outStream) {outStream<<std::sqrt(double(est_err_sq - est_err*est_err))<<"/"<<mean<<" ";}
 };
 
 struct Statistics
@@ -60,10 +64,15 @@ Statistics(SystemAprioriInfo _sai): sai(_sai){};
     const float RATIO_CHANGE = 0.1;
     SystemAprioriInfo sai;
 
+    int timesLocate[3] = {};
+    int timesLocateTimes[3] = {};
+
     MyMean firstTimeUntilServ;
     MyMean firstTimeServ;
     MyMean secondTimeUntilServ;
     MyMean secondTimeServ;
+
+    
   
     MyMean firstPrimary;
     MyMean secondHigh;

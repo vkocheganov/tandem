@@ -116,7 +116,11 @@ void Statistics::ClearStatistics()
     secondHigh.Clear();
     secondLow.Clear();
     middle.Clear();
-}
+
+
+    // timesLocate[0] = timesLocate[1] = timesLocate[2] = 0;
+    // timesLocateTimes[0] = timesLocateTimes[1] = timesLocateTimes[2] = 0;
+    }
 
 void Statistics::DumpStatsMean(ofstream& _stream)
 {
@@ -177,7 +181,6 @@ void MyMean::UpdateMean()
     est_num++;
     est_err = tmp_est/est_num;
     est_err_sq = tmp_est_sq/est_num;
-
 
 }
 

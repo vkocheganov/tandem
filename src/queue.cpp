@@ -71,7 +71,12 @@ void Queue::MakeIteration(ServerState prevServerState, ServerState serverState, 
 {
     // if (!stats.stationaryMode || (iteration % 10) == 0 )
     // if (!stats.stationaryMode || (iteration % 10) == 0 )
-  
+
+    if (prevServerState.state2 != serverState.state2)
+    {
+        stats.timesLocate[serverState.state2]++;
+        stats.timesLocateTimes[serverState.state2] += serverState.timeDuration;
+    }
     if (prevServerState.state2 != LowPriority &&  serverState.state2 == LowPriority)
         stats.secondLow.values.push_back(secondLightLowPriorityQueue.size());
     if (prevServerState.state2 == LowPriority &&  serverState.state2 != LowPriority)
@@ -133,7 +138,9 @@ void Queue::MakeIteration(ServerState prevServerState, ServerState serverState, 
   	}
     }
     if ( (iteration + 1) % stats.GRAN == 0)
+    {
         stats.UpdateStatistics(iteration);
+    }
 }
 
 int Queue::GenerateBatches(float lambda, int timeToService)

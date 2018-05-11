@@ -14,9 +14,12 @@ void SystemAprioriInfo::Print(ofstream& outStream)
         outStream << a<<" ";
     outStream <<"]"<<endl;
 
+    // outStream <<"  --Server: ";
+    // outStream <<"       primaryTime="<<fls.primaryTime<<", primaryIntensity="<<fls.primaryIntensity<<
+    //     ", secondaryTime="<<fls.secondaryTime<<", secondaryIntensity="<<fls.secondaryIntensity<<endl;
     outStream <<"  --Server: ";
-    outStream <<"       primaryTime="<<fls.primaryTime<<", primaryIntensity="<<fls.primaryIntensity<<
-        ", secondaryTime="<<fls.secondaryTime<<", secondaryIntensity="<<fls.secondaryIntensity<<endl;
+    outStream <<"       primaryIntensity="<<fls.primaryIntensity<<
+        ", secondaryIntensity="<<fls.secondaryIntensity<<endl;
 
 
 
@@ -31,7 +34,7 @@ void SystemAprioriInfo::Print(ofstream& outStream)
     outStream <<"]"<<endl;
 
     outStream <<"  --Server: ";
-    outStream <<"       lowPriorityTime="<<sls.lowPriorityTime<<", lowPriorityIntensity="<<sls.lowPriorityIntensity<<", highPriorityTime="<<sls.highPriorityTime<<", highPriorityIntensity="<<sls.highPriorityIntensity<<", prolongationTime="<<sls.prolongationTime<<", prolongationIntensity="<<sls.prolongationIntensity<<endl;
+    outStream <<"       lowPriorityIntensity="<<sls.lowPriorityIntensity<<", highPriorityIntensity="<<sls.highPriorityIntensity<<", prolongationIntensity="<<sls.prolongationIntensity<<endl;
 
     outStream<<"--Midle queue info ";
     outStream<<"  queue success probabity factor: "<<midleSuccProbFactor<<endl;

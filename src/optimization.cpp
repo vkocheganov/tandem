@@ -4,6 +4,22 @@
 #include <sstream>
 #include <time.h>
 
+string RangeIndexesNames[]=
+{
+    "FIRST_LIGHT_TIME_PRIMARY",
+    "FIRST_LIGHT_TIME_SECONDARY",
+    "SECOND_LIGHT_TIME_LOW",
+    "SECOND_LIGHT_TIME_HIGH",
+    "SECOND_LIGHT_TIME_PROLONG",
+    "THRESHOLD"
+};
+
+template <typename T>
+void Range<T>::Print(ostream& outStream)
+{
+    for (T f = first; f <= last; f += step)
+        outStream<<f<<" ";
+}
 
 RangeArray::RangeArray(SystemAprioriInfo _baseSai):
     ranges{
@@ -38,6 +54,7 @@ RangeArray::RangeArray(SystemAprioriInfo _baseSai):
                 count_1++;
             }
             maxIdx[i] = count_1 - 1;
+            cout<<"max idx = "<<maxIdx[i]<<endl;
             count *= count_1;
         }
         arr.resize(count);
@@ -77,19 +94,33 @@ void RangeArray::PrintArr(ostream& outStream)
         newLine = false;
         while (idx >= 0 && idxs[idx] == maxIdx[idx])
         {
-            if (maxIdx[idx] > 1)
+            if (maxIdx[idx] > 0)
                 newLine = true;
             idxs[idx] = 0;
             idx--;
         }
         if (idx < 0)
             break;
-        if (newLine)
-            outStream<<endl;
         idxs[idx]++;
+        if (newLine)
+        {
+            outStream<<endl;
+            
+            outStream<<"(";
+            for (int i = 0; i < RANGE_INDEXES_LAST; i++)
+            {
+                outStream<<(ranges[i].first + idxs[i]*ranges[i].step)<<" ";
+            }
+            outStream<<")"<<endl;
+        }
+        // PrintCurrParams(outStream);
     }
     outStream<<endl;
 }
+
+
+
+
 
 void RangeArray::SetSai(SystemAprioriInfo& sai)
 {
@@ -107,7 +138,17 @@ void RangeArray::PrintCurrParams(ostream& outStream)
         outStream<<currValues[i]<<" ";
     outStream<<endl;
 }
-    
+
+void RangeArray::PrintAllParams(ostream& outStream)
+{
+    for (int i = 0; i < RANGE_INDEXES_LAST; i++)
+    {
+        outStream<<RangeIndexesNames[i]<<": ";
+        ranges[i].Print(outStream);
+        outStream<<endl;
+    }
+}
+
 Optimization::Optimization(QueueState initQueue, ServerState initServer, SystemAprioriInfo _baseSai):
     initialQueueState(initQueue), initialServerState(initServer), baseSai(_baseSai),
     rangeArray(_baseSai)
@@ -117,18 +158,24 @@ Optimization::Optimization(QueueState initQueue, ServerState initServer, SystemA
 
 void Optimization::MakeOptimization()
 {
+    this->DumpParams();
     SystemAprioriInfo sai(baseSai);
     
     this->rangeArray.Start();
     this->rangeArray.PrintArr(cout);
 
+    ofstream saiFile;
     do
     {
-        this->rangeArray.PrintCurrParams(cout);
+        saiFile.open(baseSai.outFiles.saiFile, ofstream::out | ofstream::app);
+        this->rangeArray.PrintCurrParams(saiFile);
+        saiFile.close();
         this->rangeArray.SetSai(sai);
         this->Iterate(sai);
     } while (this->rangeArray.Iterate());
-    this->rangeArray.PrintArr(cout);
+    
+    saiFile.open(baseSai.outFiles.saiFile, ofstream::out | ofstream::app);
+    this->rangeArray.PrintArr(saiFile);
 
     //             time_t rawtime;
     //             struct tm *info;
@@ -163,7 +210,26 @@ void Optimization::Iterate(SystemAprioriInfo sai)
             break;
         }
     }
+    ofstream saiFile;
+    saiFile.open(sai.outFiles.saiFile, ofstream::out | ofstream::app);
     system.sQueue.PrintState(cout);
+    system.sQueue.PrintState(saiFile);
+
+    int totalCount = 0, totalTime = 0;
+    totalCount = system.sQueue.stats.timesLocate[0] +
+        system.sQueue.stats.timesLocate[1] +
+        system.sQueue.stats.timesLocate[2];
+    totalTime = system.sQueue.stats.timesLocateTimes[0] +
+        system.sQueue.stats.timesLocateTimes[1] +
+        system.sQueue.stats.timesLocateTimes[2];
+    cout <<"Locating (low,high,prolong): ("<<double(system.sQueue.stats.timesLocate[0])/totalCount<<","<<
+        double(system.sQueue.stats.timesLocate[1])/totalCount<<","<<
+        double(system.sQueue.stats.timesLocate[2])/totalCount<<")"<<endl;
+    cout <<"Locating times (low,high,prolong): ("<<double(system.sQueue.stats.timesLocateTimes[0])/totalTime<<","<<
+        double(system.sQueue.stats.timesLocateTimes[1])/totalTime<<","<<
+        double(system.sQueue.stats.timesLocateTimes[2])/totalTime<<")"<<endl;
+    saiFile.close();
+
 
     if (statSucc)
     {
@@ -174,8 +240,15 @@ void Optimization::Iterate(SystemAprioriInfo sai)
         system.sQueue.stats.UpdateStatistics(0);
     }
 
+    double firstServiceAvg = system.sQueue.stats.firstTimeUntilServ.mean,
+        secondServiceAvg = system.sQueue.stats.secondTimeUntilServ.mean;
+    
     rangeArray.arr[rangeArray.arrIdx].stationar = statSucc;
     rangeArray.arr[rangeArray.arrIdx].theoreticalStationar = system.IsStationar();
+    rangeArray.arr[rangeArray.arrIdx].time1 = firstServiceAvg;
+    rangeArray.arr[rangeArray.arrIdx].time2 = secondServiceAvg;
+    rangeArray.arr[rangeArray.arrIdx].target = UpdateTarget(firstServiceAvg, secondServiceAvg, sai, currFile);
+    
     // aggStats.AddStatistics(system.sQueue.stats);
     // if (sai.verbose)
     // {
@@ -203,7 +276,7 @@ void Optimization::DumpTarget(double target, SystemAprioriInfo sai, string filen
     file<<target<<endl;
 }
 
-void Optimization::UpdateTarget(double firstTime, double secondTime, SystemAprioriInfo sai, string filename)
+double Optimization::UpdateTarget(double firstTime, double secondTime, SystemAprioriInfo sai, string filename)
 {
     double target = firstTime + secondTime;
     DumpTarget(target, sai, filename);
@@ -214,8 +287,12 @@ void Optimization::UpdateTarget(double firstTime, double secondTime, SystemAprio
         //      DumpTarget(target, sai, filename);
         DumpTarget(bestTarget, sai, sai.outFiles.optFile);
     }
+
+    return target;
 }
 
-
-
-
+void Optimization::DumpParams()
+{
+    ofstream saiFile(baseSai.outFiles.saiFile, ofstream::out | ofstream::app);
+    rangeArray.PrintAllParams(saiFile);
+}

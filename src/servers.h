@@ -27,9 +27,10 @@ struct Cycle
 {
     vector<int> idxs;
 
+    int timeDuration = 0;
     bool isProlongation = false;
-    int firstLightTime = 0;
-    int secondLightTime = 0;
+    // int firstLightTime = 0;
+    // int secondLightTime = 0;
     float firstLightIncome;
     float secondLightIncome;
   

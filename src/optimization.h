@@ -14,6 +14,7 @@ struct Range
     T first = -1;
     T step;
     T last;
+    void Print(ostream&);
 };
 
 enum RangeIndexes
@@ -27,16 +28,23 @@ enum RangeIndexes
     RANGE_INDEXES_LAST
 };
 
+
 struct OptStats
 {
     bool stationar;
     bool theoreticalStationar;
+    double time1;
+    double time2;
+    double target;
     friend ostream& operator<< (ostream& stream, const OptStats& optStats)
         {
-            stream<<"("<<optStats.stationar<<","<<optStats.theoreticalStationar<<") ";
+            stream<<"("<<optStats.theoreticalStationar<<","<<optStats.stationar<<"|"
+                  <<optStats.time1<<","<<optStats.time2<<","<<optStats.target<<") ";
             return stream;
         }
 };
+
+
 struct RangeArray
 {
     RangeArray(SystemAprioriInfo _baseSai);
@@ -52,6 +60,7 @@ struct RangeArray
 
     void PrintArr(ostream&);
     void PrintCurrParams(ostream&);
+    void PrintAllParams(ostream&);
 
     void SetSai(SystemAprioriInfo& sai);
 };
@@ -65,13 +74,14 @@ struct Optimization
 
     RangeArray rangeArray;
     
-    void UpdateTarget(double firstTime, double secondTime, SystemAprioriInfo, string filename="");
+    double UpdateTarget(double firstTime, double secondTime, SystemAprioriInfo, string filename="");
     double bestTarget = std::numeric_limits<double>::max();
     SystemAprioriInfo bestTargetSpec;
 
     void MakeOptimization();
     void Iterate(SystemAprioriInfo sai);
     void DumpTarget(double target, SystemAprioriInfo sai, string filename="");
+    void DumpParams();
 
     string currFile;
 };

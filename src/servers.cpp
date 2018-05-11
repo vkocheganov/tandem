@@ -10,7 +10,7 @@ Server::Server(ServerState initialState, SystemAprioriInfo _sai): sai(_sai)
     state = 0;
     prolongationThreshold = sai.prolongThres;
 
-    if (sai.verbose)
+   if (sai.verbose)
     {
         cout <<"find cycles"<< endl;
         int count = 0;
@@ -29,6 +29,7 @@ int Server::MakeIteration(int lowPriorityQueueSize, int )
     state = ( allStates[state].nextProlongation != -1 && lowPriorityQueueSize <= prolongationThreshold ? allStates[state].nextProlongation :
               (allStates[state].nextRegular == -1 ? allStates[state].nextProlongation : allStates[state].nextRegular)
                   );
+    // cout <<lowPriorityQueueSize<<" > "<<prolongationThreshold<<" ? "<<(state == allStates[state].nextProlongation)<<endl;
     if (state == -1)
     {
         cout<<"Error!!!"<<endl;
@@ -214,8 +215,7 @@ void Cycle::CalcStatistics(vector<ServerState>& vs, SystemAprioriInfo sai)
 {
     for (auto a:idxs)
     {
-        firstLightTime += vs[a].timeDuration;
-        secondLightTime += vs[a].timeDuration;
+        timeDuration += vs[a].timeDuration;
         if (vs[a].state1 == Primary)
 	{
             primaryFlowServed += vs[a].numCustomersFirstLight;
@@ -244,15 +244,17 @@ void Cycle::CalcStatistics(vector<ServerState>& vs, SystemAprioriInfo sai)
         count++;
     }
 
-    firstLightIncome = firstLightTime * sai.firstFlow.lambda * firstSum;
-    secondLightIncome = secondLightTime * sai.secondFlow.lambda * secondSum;
+    firstLightIncome = timeDuration * sai.firstFlow.lambda * firstSum;
+    secondLightIncome = timeDuration * sai.secondFlow.lambda * secondSum;
 }
 
 bool Cycle::IsStationar()
 {
     bool ret;
+    if (timeDuration == 0)
+        return true;
     ret = (firstLightIncome < primaryFlowServed);
-    ret = ret && (primaryFlowServed < highPriorityFlowServed);
+    ret = ret && (std::min(float(primaryFlowServed),firstLightIncome) < highPriorityFlowServed);
 
     if (!this->isProlongation)
     {
@@ -263,13 +265,13 @@ bool Cycle::IsStationar()
 
 void Cycle::Print(ofstream& outStream)
 {
-    outStream<<"States: [ ";
+    outStream<<"Duration: "<<timeDuration<<"; States: [ ";
     for (auto a:idxs)
     {
         outStream<<a<<" ";
     }
     //  outStream <<"]"<<" FirstLightIncome="<<firstLightIncome<<", SecondLightIncome="<<secondLightIncome<<", PrimaryFirstLight_sum{l}="<<primaryFlowServed<<", LowPriority_sum{l}="<<lowPriorityFlowServed<<endl;
-    outStream <<"]"<<endl<<
+    outStream <<"] isStationar"<<this->IsStationar()<<endl<<
         "      FirstLight: primaryIncome="<<firstLightIncome<<", primaryServed="<<primaryFlowServed<<""<<endl<<
         "      SecondLight: lowPriorityIncome="<<secondLightIncome<<", lowPriorityServed="<<lowPriorityFlowServed<<", highPriorityServed"<<highPriorityFlowServed<<")"<<endl;
 }

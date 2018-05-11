@@ -35,7 +35,6 @@ bool System::CheckStationaryMode(System& sys, int iteration)
 
     
 
-    
     if (!this->sQueue.stats.stationaryMode && 
         diff1 < this->sQueue.stats.RATIO_CHANGE &&
         diff2 < this->sQueue.stats.RATIO_CHANGE &&
