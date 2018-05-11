@@ -22,3 +22,6 @@ statistics.o: statistics.cpp
 	g++ $(CFLAGS) -std=c++11 -c statistics.cpp
 system.o: system.cpp
 	g++ $(CFLAGS) -std=c++11 -c system.cpp
+
+clean:
+	rm -rf ./*.o ./a.out
