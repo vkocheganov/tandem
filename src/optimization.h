@@ -33,13 +33,16 @@ struct OptStats
 {
     bool stationar;
     bool theoreticalStationar;
-    double time1;
-    double time2;
+    double timeUntilServiceFirst;
+    double timeUntilServiceSecond;
+    double timeServiceFirst;
+    double timeServiceSecond;
     double target;
     friend ostream& operator<< (ostream& stream, const OptStats& optStats)
         {
             stream<<"("<<optStats.theoreticalStationar<<","<<optStats.stationar<<"|"
-                  <<optStats.time1<<","<<optStats.time2<<","<<optStats.target<<") ";
+                  <<optStats.timeUntilServiceFirst<<","<<optStats.timeUntilServiceSecond<<"|"<<optStats.timeServiceFirst<<","<<
+                  optStats.timeServiceSecond<<"|"<<optStats.target<<") ";
             return stream;
         }
 };

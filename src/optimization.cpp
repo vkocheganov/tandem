@@ -162,7 +162,6 @@ void Optimization::MakeOptimization()
     SystemAprioriInfo sai(baseSai);
     
     this->rangeArray.Start();
-    this->rangeArray.PrintArr(cout);
 
     ofstream saiFile;
     do
@@ -176,6 +175,7 @@ void Optimization::MakeOptimization()
     
     saiFile.open(baseSai.outFiles.saiFile, ofstream::out | ofstream::app);
     this->rangeArray.PrintArr(saiFile);
+    this->rangeArray.PrintArr(cout);
 
     //             time_t rawtime;
     //             struct tm *info;
@@ -240,14 +240,19 @@ void Optimization::Iterate(SystemAprioriInfo sai)
         system.sQueue.stats.UpdateStatistics(0);
     }
 
-    double firstServiceAvg = system.sQueue.stats.firstTimeUntilServ.mean,
-        secondServiceAvg = system.sQueue.stats.secondTimeUntilServ.mean;
+    double firstUntilServiceAvg = system.sQueue.stats.firstTimeUntilServ.mean,
+        secondUntilServiceAvg = system.sQueue.stats.secondTimeUntilServ.mean,
+        firstServiceAvg = system.sQueue.stats.firstTimeServ.mean,
+        secondServiceAvg = system.sQueue.stats.secondTimeServ.mean;
     
     rangeArray.arr[rangeArray.arrIdx].stationar = statSucc;
     rangeArray.arr[rangeArray.arrIdx].theoreticalStationar = system.IsStationar();
-    rangeArray.arr[rangeArray.arrIdx].time1 = firstServiceAvg;
-    rangeArray.arr[rangeArray.arrIdx].time2 = secondServiceAvg;
-    rangeArray.arr[rangeArray.arrIdx].target = UpdateTarget(firstServiceAvg, secondServiceAvg, sai, currFile);
+    rangeArray.arr[rangeArray.arrIdx].timeUntilServiceFirst = firstUntilServiceAvg;
+    rangeArray.arr[rangeArray.arrIdx].timeUntilServiceSecond = secondUntilServiceAvg;
+    rangeArray.arr[rangeArray.arrIdx].timeServiceFirst = firstServiceAvg;
+    rangeArray.arr[rangeArray.arrIdx].timeServiceSecond = secondServiceAvg;
+    
+    rangeArray.arr[rangeArray.arrIdx].target = UpdateTarget(firstUntilServiceAvg + firstServiceAvg, secondServiceAvg + secondUntilServiceAvg, sai, currFile);
     
     // aggStats.AddStatistics(system.sQueue.stats);
     // if (sai.verbose)

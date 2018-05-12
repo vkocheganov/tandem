@@ -38,13 +38,13 @@ int main(int argc, char * const argv[])
     // optimize.rangeArray.ranges[SECOND_LIGHT_TIME_PROLONG] = {5, 5, 15};
     // optimize.rangeArray.ranges[THRESHOLD] = {0, 5, 10};
     
-    optimize.rangeArray.ranges[FIRST_LIGHT_TIME_PRIMARY] = {10, 5, 10};
-    optimize.rangeArray.ranges[FIRST_LIGHT_TIME_SECONDARY] = {10, 5, 10};
+    optimize.rangeArray.ranges[FIRST_LIGHT_TIME_PRIMARY] = {15, 5, 15};
+    optimize.rangeArray.ranges[FIRST_LIGHT_TIME_SECONDARY] = {5, 5, 5};
     optimize.rangeArray.ranges[SECOND_LIGHT_TIME_LOW] = {20, 10, 20};
-    optimize.rangeArray.ranges[SECOND_LIGHT_TIME_HIGH] = {10, 10, 20};
-    optimize.rangeArray.ranges[SECOND_LIGHT_TIME_PROLONG] = {5, 1, 5};
-    optimize.rangeArray.ranges[THRESHOLD] = {100, 1, 100};
-    // optimize.rangeArray.ranges[THRESHOLD] = {-1, 10, -1};
+    optimize.rangeArray.ranges[SECOND_LIGHT_TIME_HIGH] = {14, 1, 14};
+    optimize.rangeArray.ranges[SECOND_LIGHT_TIME_PROLONG] = {10, 10, 10};
+    // optimize.rangeArray.ranges[THRESHOLD] = {10, 1, 10};
+    optimize.rangeArray.ranges[THRESHOLD] = {10, 10, 10};
 
     // optimize.rangeArray.ranges[FIRST_LIGHT_TIME_PRIMARY] = {20, 10, 20};
     // optimize.rangeArray.ranges[FIRST_LIGHT_TIME_SECONDARY] = {10, 10, 10};
@@ -121,8 +121,8 @@ SystemAprioriInfo CreateSai(int argc, char * const argv[])
     struct tm *info;
     char tmp_buf[80];
     int opt;
-    sai.numMaxIteration = 20000;
-    sai.numIterationStationary = 5000;
+    sai.numMaxIteration = 100000;
+    sai.numIterationStationary = 100000;
     sai.numSamples = 1;
     while ((opt = getopt(argc, argv, "v:i:m:s:")) != -1) {
         switch (opt) {
