@@ -10,6 +10,7 @@ struct PrimaryFlowDistribution
     static mt19937 generator;
     float lambda;
     vector<float> probabilities;
+    float totalLambda;
 };
 
 

@@ -229,23 +229,9 @@ void Cycle::CalcStatistics(vector<ServerState>& vs, SystemAprioriInfo sai)
             highPriorityFlowServed += vs[a].numCustomersSecondLight;
 	}
     }
-    float firstSum = 0;
-    int count = 1;
-    for (auto a: sai.firstFlow.probabilities)
-    {
-        firstSum += count * a;
-        count++;
-    }
-    float secondSum = 0;
-    count = 1;
-    for (auto a: sai.secondFlow.probabilities)
-    {
-        secondSum += count * a;
-        count++;
-    }
 
-    firstLightIncome = timeDuration * sai.firstFlow.lambda * firstSum;
-    secondLightIncome = timeDuration * sai.secondFlow.lambda * secondSum;
+    firstLightIncome = timeDuration * sai.firstFlow.totalLambda;
+    secondLightIncome = timeDuration * sai.secondFlow.totalLambda;
 }
 
 bool Cycle::IsStationar()

@@ -29,12 +29,16 @@ SystemAprioriInfo ReadSpecs(string filename)
     ///// First light information
 
     //First light primary flow probabilities
+    float firstSum = 0;
+    int count = 1;
     getline(file,line);
     istringstream iss(line);
     while (!iss.eof())
     {
         iss >> temp;
         sai.firstFlow.probabilities.push_back(temp);
+        firstSum += count * temp;
+        count++;
     }
     float check = accumulate(sai.firstFlow.probabilities.begin(), sai.firstFlow.probabilities.end(), 0);
     if (check - EPS > check || check + EPS < check)
@@ -49,6 +53,7 @@ SystemAprioriInfo ReadSpecs(string filename)
     iss.str(line);
     iss >> temp;
     sai.firstFlow.lambda = temp;
+    sai.firstFlow.totalLambda = sai.firstFlow.lambda * firstSum;
 
     //First light server spec
     getline(file,line);
@@ -67,10 +72,14 @@ SystemAprioriInfo ReadSpecs(string filename)
     getline(file,line);
     iss.clear();
     iss.str(line);
+    firstSum = 0;
+    count = 1;
     while (!iss.eof())
     {
         iss >> temp;
         sai.secondFlow.probabilities.push_back(temp);
+        firstSum += count * temp;
+        count++;
     }
     check = accumulate(sai.secondFlow.probabilities.begin(), sai.secondFlow.probabilities.end(), 0);
     if (check - EPS > check || check + EPS < check)
@@ -85,6 +94,7 @@ SystemAprioriInfo ReadSpecs(string filename)
     iss.str(line);
     iss >> temp;
     sai.secondFlow.lambda = temp;
+    sai.secondFlow.totalLambda = sai.secondFlow.lambda * firstSum;
   
     //Second light server spec
     getline(file,line);
