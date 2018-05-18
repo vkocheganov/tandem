@@ -44,11 +44,11 @@ RangeArray::RangeArray(SystemAprioriInfo _baseSai):
     
     void RangeArray::Start()
     {
-        unsigned count = 1;
+        int count = 1;
         for (int i = 0; i < RANGE_INDEXES_LAST; i++)
         {
             currValues[i] = ranges[i].first;
-            unsigned count_1 = 0;
+            int count_1 = 0;
             for (int i_range = ranges[i].first; i_range <= ranges[i].last; i_range += ranges[i].step)
             {
                 count_1++;
@@ -81,11 +81,14 @@ bool RangeArray::Iterate()
 
 void RangeArray::PrintArr(ostream& outStream)
 {
-    unsigned idxs[RANGE_INDEXES_LAST]{};
+    int idxs[RANGE_INDEXES_LAST]{};
     int idx = RANGE_INDEXES_LAST - 1;
     bool cont = true;
     bool newLine = false;
-    unsigned aIdx = 0;
+    int aIdx = 0;
+
+    double bestTarget = arr[0].target;
+    int bestIdx[RANGE_INDEXES_LAST] = {};
     
 
     while (1){
@@ -113,9 +116,23 @@ void RangeArray::PrintArr(ostream& outStream)
             }
             outStream<<")"<<endl;
         }
+        
+        if (bestTarget > arr[aIdx].target)
+        {
+            bestTarget = arr[aIdx].target;
+            for (int i = 0; i < RANGE_INDEXES_LAST; i++)
+                bestIdx[i] = idxs[i];
+        }
         // PrintCurrParams(outStream);
     }
     outStream<<endl;
+    outStream<<"best time="<<bestTarget<<"; (";
+    for (int i = 0; i < RANGE_INDEXES_LAST; i++)
+    {
+        outStream<<(ranges[i].first + bestIdx[i] * ranges[i].step)<<" ";
+    }
+    outStream<<")"<<endl;
+    
 }
 
 
@@ -283,7 +300,8 @@ void Optimization::DumpTarget(double target, SystemAprioriInfo sai, string filen
 
 double Optimization::UpdateTarget(double firstTime, double secondTime, SystemAprioriInfo sai, string filename)
 {
-    double target = firstTime + secondTime;
+    double allLambdas = sai.firstFlow.totalLambda + sai.secondFlow.totalLambda;
+    double target = (firstTime *sai.firstFlow.totalLambda  + secondTime *sai.secondFlow.totalLambda)/ allLambdas;
     DumpTarget(target, sai, filename);
     if (target <= bestTarget)
     {
