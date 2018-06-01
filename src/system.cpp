@@ -13,6 +13,7 @@ System::System (QueueState initQueueState, ServerState initServerState, SystemAp
 void System::MakeIteration(int iteration)
 {
     int prevTotalTime = sQueue.stats.timeTotal;
+    server.allStates[server.state].realResideCount++;
     sQueue.stats.timeTotal += server.MakeIteration(sQueue.secondLightLowPriorityQueue.size(), iteration);
     sQueue.MakeIteration(server.allStates[server.lastState], server.allStates[server.state], prevTotalTime, iteration);
 }

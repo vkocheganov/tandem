@@ -48,6 +48,9 @@ struct OutFiles
     
     string optFile;
 
+    string stationarReachingT;
+    string stationarReachingF;
+    string stationarTarget;
 };
 
 struct SystemAprioriInfo
@@ -88,6 +91,8 @@ struct ServerState
   
     void Print(ostream&);
     const bool operator == (const ServerState &ss2);
+
+    int realResideCount = 0;
 };
 
 struct QueueState

@@ -75,8 +75,9 @@ void Queue::MakeIteration(ServerState prevServerState, ServerState serverState, 
     if (prevServerState.state2 != serverState.state2)
     {
         stats.timesLocate[serverState.state2]++;
-        stats.timesLocateTimes[serverState.state2] += serverState.timeDuration;
     }
+    stats.timesLocateTimes[serverState.state2] += serverState.timeDuration;
+    
     if (prevServerState.state2 != LowPriority &&  serverState.state2 == LowPriority)
         stats.secondLow.values.push_back(secondLightLowPriorityQueue.size());
     if (prevServerState.state2 == LowPriority &&  serverState.state2 != LowPriority)
@@ -99,6 +100,7 @@ void Queue::MakeIteration(ServerState prevServerState, ServerState serverState, 
     secondLightCustomersToServe *= (serverState.state2 == LowPriority ? sai.sls.lowPriorityIntensity : (serverState.state2 == HighPriority ? sai.sls.highPriorityIntensity : sai.sls.prolongationIntensity) );
 
 
+    uniform_int_distribution<int> distribution(0, timeToService);
     if (serverState.state2 == LowPriority)
     {
         int temp_count = std::min(secondLightCustomersToServe,(int)secondLightLowPriorityQueue.size() );
@@ -106,7 +108,8 @@ void Queue::MakeIteration(ServerState prevServerState, ServerState serverState, 
         for (int i = 0; i < temp_count; i++)
   	{
             Customer customerToRemove = secondLightLowPriorityQueue.front();
-            customerToRemove.serviceTime = std::max(currentTime,customerToRemove.arrivalTime);
+            int localService = distribution(PrimaryFlowDistribution::generator);
+            customerToRemove.serviceTime = std::max(currentTime + localService, customerToRemove.arrivalTime);
             customerToRemove.departureTime = currentTime + timeToService;
 
             stats.AddSecondCustomer(customerToRemove);
@@ -132,8 +135,20 @@ void Queue::MakeIteration(ServerState prevServerState, ServerState serverState, 
         for (int i =0; i < temp_count; i++)
   	{
             Customer customerToMove = firstLightPrimaryQueue.front();
+            int localService;
+
+            if (timeToService - std::max(currentTime, customerToMove.arrivalTime) + currentTime == 0)
+                localService = 0;
+            else
+                localService = distribution(PrimaryFlowDistribution::generator) %
+                    (timeToService - std::max(currentTime, customerToMove.arrivalTime) + currentTime);
+
             firstLightPrimaryQueue.pop();
-            customerToMove.serviceTime = std::max(currentTime, customerToMove.arrivalTime);
+            customerToMove.serviceTime = std::max(currentTime, customerToMove.arrivalTime) + localService;
+            static int count = 0;
+            count++;
+            // if (count %10000 == 0)
+            //     cout <<"first until "<< customerToMove.serviceTime - customerToMove.arrivalTime<<"("<<(timeToService - std::max(currentTime, customerToMove.arrivalTime) + currentTime) <<")"<<endl;
             midleQueue.push_back(customerToMove);
   	}
     }

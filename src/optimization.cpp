@@ -79,7 +79,7 @@ bool RangeArray::Iterate()
     return true;
 }
 
-void RangeArray::PrintArr(ostream& outStream)
+void RangeArray::PrintArr(ostream& outStream, SystemAprioriInfo sai)
 {
     int idxs[RANGE_INDEXES_LAST]{};
     int idx = RANGE_INDEXES_LAST - 1;
@@ -90,8 +90,17 @@ void RangeArray::PrintArr(ostream& outStream)
     double bestTarget = arr[0].target;
     int bestIdx[RANGE_INDEXES_LAST] = {};
     
+    ofstream stationarReachingTheoreticalFile (sai.outFiles.stationarReachingT, ofstream::out | ofstream::app),
+        stationarReachingFactFile (sai.outFiles.stationarReachingF, ofstream::out | ofstream::app),
+        targetFile (sai.outFiles.stationarTarget, ofstream::out | ofstream::app)
+        ;
 
     while (1){
+        {
+            stationarReachingTheoreticalFile << arr[aIdx].theoreticalStationar<<" ";
+            stationarReachingFactFile << arr[aIdx].stationar<<" ";
+            targetFile << arr[aIdx].target<<" ";
+        }
         outStream<< arr[aIdx++]<<" ";
         idx = RANGE_INDEXES_LAST - 1;
         newLine = false;
@@ -107,6 +116,11 @@ void RangeArray::PrintArr(ostream& outStream)
         idxs[idx]++;
         if (newLine)
         {
+            {
+                stationarReachingTheoreticalFile << endl;
+                stationarReachingFactFile << endl;
+                targetFile << endl;
+            }
             outStream<<endl;
             
             outStream<<"(";
@@ -191,8 +205,8 @@ void Optimization::MakeOptimization()
     } while (this->rangeArray.Iterate());
     
     saiFile.open(baseSai.outFiles.saiFile, ofstream::out | ofstream::app);
-    this->rangeArray.PrintArr(saiFile);
-    this->rangeArray.PrintArr(cout);
+    this->rangeArray.PrintArr(saiFile, baseSai);
+//    this->rangeArray.PrintArr(cout,baseSai);
 
     //             time_t rawtime;
     //             struct tm *info;
@@ -270,7 +284,23 @@ void Optimization::Iterate(SystemAprioriInfo sai)
     rangeArray.arr[rangeArray.arrIdx].timeServiceSecond = secondServiceAvg;
     
     rangeArray.arr[rangeArray.arrIdx].target = UpdateTarget(firstUntilServiceAvg + firstServiceAvg, secondServiceAvg + secondUntilServiceAvg, sai, currFile);
+
+
     
+    saiFile.open(sai.outFiles.saiFile, ofstream::out | ofstream::app);
+    int statesTotalDurations = 0;
+    for (auto as:system.server.allStates)
+    {
+        statesTotalDurations += as.realResideCount * as.timeDuration;
+    }
+
+    saiFile<<"states durations:"<<endl;
+    for (auto as:system.server.allStates)
+    {
+        as.Print(saiFile);
+        saiFile << double(as.realResideCount * as.timeDuration) / statesTotalDurations<<endl;
+    }
+    saiFile.close();
     // aggStats.AddStatistics(system.sQueue.stats);
     // if (sai.verbose)
     // {

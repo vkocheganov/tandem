@@ -159,6 +159,12 @@ SystemAprioriInfo CreateSai(int argc, char * const argv[])
     sai.outFiles.saiFile = sai.outFiles.foldName + "/sai";
     sai.outFiles.optFile = sai.outFiles.foldName + "/optimization";
     sai.outFiles.stationaryReaching = sai.outFiles.foldName + "/stationaryReaching";
+
+    
+    sai.outFiles.stationarReachingT = sai.outFiles.foldName + "/stationaryReachingT";
+    sai.outFiles.stationarReachingF = sai.outFiles.foldName + "/stationaryReachingF";
+    sai.outFiles.stationarTarget = sai.outFiles.foldName + "/target";
+    
     sai.verbose = verbose;
     
     ofstream saiFile(sai.outFiles.saiFile, ofstream::out | ofstream::app);

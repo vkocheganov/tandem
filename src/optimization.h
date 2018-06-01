@@ -61,7 +61,7 @@ struct RangeArray
     void Start();
     bool Iterate();
 
-    void PrintArr(ostream&);
+    void PrintArr(ostream&, SystemAprioriInfo);
     void PrintCurrParams(ostream&);
     void PrintAllParams(ostream&);
 
