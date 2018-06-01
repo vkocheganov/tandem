@@ -3,6 +3,13 @@
 #include <fstream>
 using namespace std;
 
+void SystemAprioriInfo::PrintOut(string outFile)
+{
+    ofstream saiFile(outFile, ofstream::out | ofstream::app);
+    saiFile << firstFlow.totalLambda<<" "<<fls.primaryIntensity<<" "
+            <<secondFlow.totalLambda<<" "<<sls.lowPriorityIntensity<<" "<<sls.highPriorityIntensity
+            <<" "<<prolongThres<<endl;
+}
 void SystemAprioriInfo::Print(ofstream& outStream)
 {
     outStream <<"--First light info"<<endl;

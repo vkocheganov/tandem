@@ -61,15 +61,15 @@ bool System::CheckStationaryMode(System& sys, int iteration)
     // if ((iteration+1) % sQueue.stats.GRAN == 0)
     //   cout <<"diff1 = "<<diff1<<"("<<this->sQueue.stats.secondTimeUntilServ.mean <<")"<< "   |  diff2 = " <<diff2<<endl;
 
-    ofstream oFile (this->sQueue.stats.sai.outFiles.stationaryReaching, ofstream::out | ofstream::app);
-    oFile << diff1 <<" "<<diff2<<" "
-          <<inputFirstFlow<<"/"<<1.1*outputFirstFlow<<" "
-          <<inputThirdFlow<<"/"<<1.01*outputThirdFlow<<" ";
-    sQueue.stats.firstPrimary.PrintErr(oFile);
-    sQueue.stats.secondHigh.PrintErr(oFile);
-    sQueue.stats.secondLow.PrintErr(oFile);
-    sQueue.stats.middle.PrintErr(oFile);
-    oFile<<endl;
+    // ofstream oFile (this->sQueue.stats.sai.outFiles.stationaryReaching, ofstream::out | ofstream::app);
+    // oFile << diff1 <<" "<<diff2<<" "
+    //       <<inputFirstFlow<<"/"<<1.1*outputFirstFlow<<" "
+    //       <<inputThirdFlow<<"/"<<1.01*outputThirdFlow<<" ";
+    // sQueue.stats.firstPrimary.PrintErr(oFile);
+    // sQueue.stats.secondHigh.PrintErr(oFile);
+    // sQueue.stats.secondLow.PrintErr(oFile);
+    // sQueue.stats.middle.PrintErr(oFile);
+    // oFile<<endl;
     
     
     return this->sQueue.stats.stationaryMode;

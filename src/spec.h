@@ -51,6 +51,7 @@ struct OutFiles
     string stationarReachingT;
     string stationarReachingF;
     string stationarTarget;
+    string outputSpec;
 };
 
 struct SystemAprioriInfo
@@ -69,6 +70,7 @@ struct SystemAprioriInfo
     //  string filename;
 
     void Print(ofstream&);
+    void PrintOut(string);
     void PrintOpt(ofstream&);
     float GetSuccProb(int timeDur) { return (1 - exp(-timeDur*midleSuccProbFactor));}
     OutFiles outFiles;

@@ -38,20 +38,29 @@ int main(int argc, char * const argv[])
     // optimize.rangeArray.ranges[SECOND_LIGHT_TIME_PROLONG] = {5, 5, 15};
     // optimize.rangeArray.ranges[THRESHOLD] = {0, 5, 10};
     
-    optimize.rangeArray.ranges[FIRST_LIGHT_TIME_PRIMARY] = {15, 5, 15};
-    optimize.rangeArray.ranges[FIRST_LIGHT_TIME_SECONDARY] = {5, 5, 5};
-    optimize.rangeArray.ranges[SECOND_LIGHT_TIME_LOW] = {20, 10, 20};
-    optimize.rangeArray.ranges[SECOND_LIGHT_TIME_HIGH] = {14, 1, 14};
-    optimize.rangeArray.ranges[SECOND_LIGHT_TIME_PROLONG] = {10, 10, 10};
-    // optimize.rangeArray.ranges[THRESHOLD] = {10, 1, 10};
-    optimize.rangeArray.ranges[THRESHOLD] = {10, 10, 10};
+    // optimize.rangeArray.ranges[FIRST_LIGHT_TIME_PRIMARY] = {8, 5, 8};
+    // optimize.rangeArray.ranges[FIRST_LIGHT_TIME_SECONDARY] = {8, 15, 8};
+    // optimize.rangeArray.ranges[SECOND_LIGHT_TIME_LOW] = {8, 5, 8};
+    // optimize.rangeArray.ranges[SECOND_LIGHT_TIME_HIGH] = {8, 8, 8};
+    // optimize.rangeArray.ranges[SECOND_LIGHT_TIME_PROLONG] = {4, 1, 4};
+    // optimize.rangeArray.ranges[THRESHOLD] = {-1, 6, 5};
+    // optimize.rangeArray.ranges[THRESHOLD] = {-1, 6, 5};
+    // optimize.rangeArray.ranges[THRESHOLD] = {5, 6, 5};
+    // optimize.rangeArray.ranges[THRESHOLD] = {-1, 3, -1};
 
+    optimize.rangeArray.ranges[FIRST_LIGHT_TIME_PRIMARY] = {20, 10, 20};
+    optimize.rangeArray.ranges[FIRST_LIGHT_TIME_SECONDARY] = {10, 10, 10};
+    optimize.rangeArray.ranges[SECOND_LIGHT_TIME_LOW] = {1, 1, 40};
+    optimize.rangeArray.ranges[SECOND_LIGHT_TIME_HIGH] = {1, 1, 40};
+    optimize.rangeArray.ranges[SECOND_LIGHT_TIME_PROLONG] = {5, 10, 5};
+    optimize.rangeArray.ranges[THRESHOLD] = {5, 6, 5};
+    
     // optimize.rangeArray.ranges[FIRST_LIGHT_TIME_PRIMARY] = {20, 10, 20};
     // optimize.rangeArray.ranges[FIRST_LIGHT_TIME_SECONDARY] = {10, 10, 10};
-    // optimize.rangeArray.ranges[SECOND_LIGHT_TIME_LOW] = {20, 5, 35};
-    // optimize.rangeArray.ranges[SECOND_LIGHT_TIME_HIGH] = {10, 5, 25};
-    // optimize.rangeArray.ranges[SECOND_LIGHT_TIME_PROLONG] = {5, 10, 25};
-    // optimize.rangeArray.ranges[THRESHOLD] = {0, 10, 30};
+    // optimize.rangeArray.ranges[SECOND_LIGHT_TIME_LOW] = {5, 5, 5};
+    // optimize.rangeArray.ranges[SECOND_LIGHT_TIME_HIGH] = {1, 1, 2};
+    // optimize.rangeArray.ranges[SECOND_LIGHT_TIME_PROLONG] = {5, 10, 5};
+    // optimize.rangeArray.ranges[THRESHOLD] = {-1, 6, 5};
     
     // do
     // {
@@ -164,6 +173,7 @@ SystemAprioriInfo CreateSai(int argc, char * const argv[])
     sai.outFiles.stationarReachingT = sai.outFiles.foldName + "/stationaryReachingT";
     sai.outFiles.stationarReachingF = sai.outFiles.foldName + "/stationaryReachingF";
     sai.outFiles.stationarTarget = sai.outFiles.foldName + "/target";
+    sai.outFiles.outputSpec = sai.outFiles.foldName + "/spec";
     
     sai.verbose = verbose;
     
@@ -173,5 +183,6 @@ SystemAprioriInfo CreateSai(int argc, char * const argv[])
     saiFile <<"Samples: "<<sai.numSamples<<endl;
 
     sai.Print(saiFile);
+    sai.PrintOut(sai.outFiles.outputSpec);
     return sai;
 }
