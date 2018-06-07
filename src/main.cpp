@@ -50,10 +50,10 @@ int main(int argc, char * const argv[])
 
     optimize.rangeArray.ranges[FIRST_LIGHT_TIME_PRIMARY] = {20, 10, 20};
     optimize.rangeArray.ranges[FIRST_LIGHT_TIME_SECONDARY] = {10, 10, 10};
-    optimize.rangeArray.ranges[SECOND_LIGHT_TIME_LOW] = {1, 1, 40};
-    optimize.rangeArray.ranges[SECOND_LIGHT_TIME_HIGH] = {1, 1, 40};
-    optimize.rangeArray.ranges[SECOND_LIGHT_TIME_PROLONG] = {5, 10, 5};
-    optimize.rangeArray.ranges[THRESHOLD] = {5, 6, 5};
+    optimize.rangeArray.ranges[SECOND_LIGHT_TIME_LOW] = {1, 2, 100};
+    optimize.rangeArray.ranges[SECOND_LIGHT_TIME_HIGH] = {1, 2, 100};
+    optimize.rangeArray.ranges[SECOND_LIGHT_TIME_PROLONG] = {5, 1, 5};
+    optimize.rangeArray.ranges[THRESHOLD] = {10, 1, 10};
     
     // optimize.rangeArray.ranges[FIRST_LIGHT_TIME_PRIMARY] = {20, 10, 20};
     // optimize.rangeArray.ranges[FIRST_LIGHT_TIME_SECONDARY] = {10, 10, 10};
@@ -116,6 +116,15 @@ int main(int argc, char * const argv[])
   
     system("rm -rf LOGS/las_log");
     system(("cp -R "+sai.outFiles.foldName+" LOGS/las_log").c_str());
+
+    time_t rawtime;
+    struct tm *info;
+    char tmp_buf[80];
+    time( &rawtime );
+    info = localtime( &rawtime );
+    ofstream saiFile(sai.outFiles.saiFile, ofstream::out | ofstream::app);
+    strftime(tmp_buf,80,"%Y_%m_%d__%H_%M_%S", info);
+    saiFile<<"Finish time "<<tmp_buf<<endl;
     return 0;
 }
 
@@ -126,9 +135,6 @@ SystemAprioriInfo CreateSai(int argc, char * const argv[])
     // PrimaryFlowDistribution::generator.seed(2);  
     bool verbose = false;
     SystemAprioriInfo sai = ReadSpecs("../sample_data/sample_spec");
-    time_t rawtime;
-    struct tm *info;
-    char tmp_buf[80];
     int opt;
     sai.numMaxIteration = 100000;
     sai.numIterationStationary = 100000;
@@ -155,10 +161,12 @@ SystemAprioriInfo CreateSai(int argc, char * const argv[])
         }
     }
 
+    time_t rawtime;
+    struct tm *info;
+    char tmp_buf[80];
     time( &rawtime );
     info = localtime( &rawtime );
     strftime(tmp_buf,80,"LOGS/LOG_%Y_%m_%d__%H_%M_%S", info);
-    cout <<tmp_buf<<endl;
   
     sai.outFiles.foldName = tmp_buf;
     mkdir(sai.outFiles.foldName.c_str(), S_IRWXU | S_IRWXG | S_IROTH | S_IXOTH);
@@ -178,6 +186,8 @@ SystemAprioriInfo CreateSai(int argc, char * const argv[])
     sai.verbose = verbose;
     
     ofstream saiFile(sai.outFiles.saiFile, ofstream::out | ofstream::app);
+    strftime(tmp_buf,80,"%Y_%m_%d__%H_%M_%S", info);
+    saiFile << "Begin Time = "<<tmp_buf<<endl;
     saiFile <<"Iterations stationary: "<<sai.numIterationStationary<<endl;
     saiFile <<"MaxIterations: "<<sai.numMaxIteration<<endl;
     saiFile <<"Samples: "<<sai.numSamples<<endl;

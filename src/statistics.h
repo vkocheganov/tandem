@@ -88,7 +88,16 @@ Statistics(SystemAprioriInfo _sai): sai(_sai){};
     void AddFirstCustomer(Customer);
     void AddSecondCustomer(Customer);
     void AddStatistics(Statistics&);
+
+    LoadStatistics loadStatistics;
 };
   
 
+struct LoadStatistics
+{
+    double inputNumLow = 0;
+    long long theoreticalNumLow = 0;
+    double inputNumHigh = 0;
+    long long theoreticalNumHigh = 0;
+}
 #endif
