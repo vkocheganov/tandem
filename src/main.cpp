@@ -48,19 +48,19 @@ int main(int argc, char * const argv[])
     // optimize.rangeArray.ranges[THRESHOLD] = {5, 6, 5};
     // optimize.rangeArray.ranges[THRESHOLD] = {-1, 3, -1};
 
-    optimize.rangeArray.ranges[FIRST_LIGHT_TIME_PRIMARY] = {20, 10, 20};
-    optimize.rangeArray.ranges[FIRST_LIGHT_TIME_SECONDARY] = {10, 10, 10};
-    optimize.rangeArray.ranges[SECOND_LIGHT_TIME_LOW] = {1, 2, 100};
-    optimize.rangeArray.ranges[SECOND_LIGHT_TIME_HIGH] = {1, 2, 100};
-    optimize.rangeArray.ranges[SECOND_LIGHT_TIME_PROLONG] = {5, 1, 5};
-    optimize.rangeArray.ranges[THRESHOLD] = {10, 1, 10};
-    
     // optimize.rangeArray.ranges[FIRST_LIGHT_TIME_PRIMARY] = {20, 10, 20};
     // optimize.rangeArray.ranges[FIRST_LIGHT_TIME_SECONDARY] = {10, 10, 10};
-    // optimize.rangeArray.ranges[SECOND_LIGHT_TIME_LOW] = {5, 5, 5};
-    // optimize.rangeArray.ranges[SECOND_LIGHT_TIME_HIGH] = {1, 1, 2};
-    // optimize.rangeArray.ranges[SECOND_LIGHT_TIME_PROLONG] = {5, 10, 5};
-    // optimize.rangeArray.ranges[THRESHOLD] = {-1, 6, 5};
+    // optimize.rangeArray.ranges[SECOND_LIGHT_TIME_LOW] = {1, 2, 100};
+    // optimize.rangeArray.ranges[SECOND_LIGHT_TIME_HIGH] = {1, 2, 100};
+    // optimize.rangeArray.ranges[SECOND_LIGHT_TIME_PROLONG] = {5, 1, 5};
+    // optimize.rangeArray.ranges[THRESHOLD] = {10, 1, 10};
+    
+    optimize.rangeArray.ranges[FIRST_LIGHT_TIME_PRIMARY] = {20, 10, 20};
+    optimize.rangeArray.ranges[FIRST_LIGHT_TIME_SECONDARY] = {10, 10, 10};
+    optimize.rangeArray.ranges[SECOND_LIGHT_TIME_LOW] = {5, 5, 5};
+    optimize.rangeArray.ranges[SECOND_LIGHT_TIME_HIGH] = {10, 1, 10};
+    optimize.rangeArray.ranges[SECOND_LIGHT_TIME_PROLONG] = {5, 10, 5};
+    optimize.rangeArray.ranges[THRESHOLD] = {-1, 6, -1};
     
     // do
     // {
@@ -182,7 +182,10 @@ SystemAprioriInfo CreateSai(int argc, char * const argv[])
     sai.outFiles.stationarReachingF = sai.outFiles.foldName + "/stationaryReachingF";
     sai.outFiles.stationarTarget = sai.outFiles.foldName + "/target";
     sai.outFiles.outputSpec = sai.outFiles.foldName + "/spec";
-    
+
+    sai.outFiles.loadLow = sai.outFiles.foldName + "/loadLow";
+    sai.outFiles.loadHigh = sai.outFiles.foldName + "/loadHigh";
+
     sai.verbose = verbose;
     
     ofstream saiFile(sai.outFiles.saiFile, ofstream::out | ofstream::app);

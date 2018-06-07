@@ -117,6 +117,11 @@ void Statistics::ClearStatistics()
     secondLow.Clear();
     middle.Clear();
 
+    loadStatistics.inputNumLow =
+        loadStatistics.theoreticalNumLow =
+        loadStatistics.inputNumHigh =
+        loadStatistics.theoreticalNumHigh = 0;
+
 
     // timesLocate[0] = timesLocate[1] = timesLocate[2] = 0;
     // timesLocateTimes[0] = timesLocateTimes[1] = timesLocateTimes[2] = 0;

@@ -92,7 +92,9 @@ void RangeArray::PrintArr(ostream& outStream, SystemAprioriInfo sai)
     
     ofstream stationarReachingTheoreticalFile (sai.outFiles.stationarReachingT, ofstream::out | ofstream::app),
         stationarReachingFactFile (sai.outFiles.stationarReachingF, ofstream::out | ofstream::app),
-        targetFile (sai.outFiles.stationarTarget, ofstream::out | ofstream::app)
+        targetFile (sai.outFiles.stationarTarget, ofstream::out | ofstream::app),
+        loadLowFile (sai.outFiles.loadLow, ofstream::out | ofstream::app),
+        loadHighFile (sai.outFiles.loadHigh, ofstream::out | ofstream::app)
         ;
 
     while (1){
@@ -100,6 +102,8 @@ void RangeArray::PrintArr(ostream& outStream, SystemAprioriInfo sai)
             stationarReachingTheoreticalFile << arr[aIdx].theoreticalStationar<<" ";
             stationarReachingFactFile << arr[aIdx].stationar<<" ";
             targetFile << arr[aIdx].target<<" ";
+            loadLowFile << arr[aIdx].loadLow<<" ";
+            loadHighFile << arr[aIdx].loadHigh<<" ";
         }
         outStream<< arr[aIdx++]<<" ";
         idx = RANGE_INDEXES_LAST - 1;
@@ -282,6 +286,9 @@ void Optimization::Iterate(SystemAprioriInfo sai)
     rangeArray.arr[rangeArray.arrIdx].timeUntilServiceSecond = secondUntilServiceAvg;
     rangeArray.arr[rangeArray.arrIdx].timeServiceFirst = firstServiceAvg;
     rangeArray.arr[rangeArray.arrIdx].timeServiceSecond = secondServiceAvg;
+    
+    rangeArray.arr[rangeArray.arrIdx].loadLow = system.sQueue.stats.loadStatistics.inputNumLow/system.sQueue.stats.loadStatistics.theoreticalNumLow;
+    rangeArray.arr[rangeArray.arrIdx].loadHigh = system.sQueue.stats.loadStatistics.inputNumHigh/system.sQueue.stats.loadStatistics.theoreticalNumHigh;
     
     rangeArray.arr[rangeArray.arrIdx].target = UpdateTarget(firstUntilServiceAvg + firstServiceAvg, secondServiceAvg + secondUntilServiceAvg, sai, currFile);
 

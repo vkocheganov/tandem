@@ -38,6 +38,9 @@ struct OptStats
     double timeServiceFirst;
     double timeServiceSecond;
     double target;
+
+    double loadLow;
+    double loadHigh;
     friend ostream& operator<< (ostream& stream, const OptStats& optStats)
         {
             stream<<"("<<optStats.theoreticalStationar<<","<<optStats.stationar<<"|"
@@ -45,6 +48,7 @@ struct OptStats
                   optStats.timeServiceSecond<<"|"<<optStats.target<<") ";
             return stream;
         }
+    
 };
 
 

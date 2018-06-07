@@ -101,10 +101,11 @@ void Queue::MakeIteration(ServerState prevServerState, ServerState serverState, 
 
 
     uniform_int_distribution<int> distribution(0, timeToService);
+    stats.loadStatistics.inputNumLow += sai.secondFlow.totalLambda * timeToService;
+    stats.loadStatistics.inputNumHigh += sai.firstFlow.totalLambda * timeToService;
     if (serverState.state2 == LowPriority)
     {
         stats.loadStatistics.theoreticalNumLow += secondLightCustomersToServe;
-        stats.loadStatistics.inputNumLow += sai.secondFlow.totalLambda * timeToService;
         int temp_count = std::min(secondLightCustomersToServe,(int)secondLightLowPriorityQueue.size() );
         stats.outputThirdCust += temp_count;
         for (int i = 0; i < temp_count; i++)
@@ -121,7 +122,6 @@ void Queue::MakeIteration(ServerState prevServerState, ServerState serverState, 
     else
     {
         stats.loadStatistics.theoreticalNumHigh += secondLightCustomersToServe;
-        stats.loadStatistics.inputNumHigh += sai.secondFlow.totalLambda * timeToService;
         int temp_count = std::min(secondLightCustomersToServe,(int)secondLightHighPriorityQueue.size() );
         stats.outputFirstCust += temp_count;
         for (int i = 0; i < temp_count; i++)

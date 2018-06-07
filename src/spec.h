@@ -52,6 +52,9 @@ struct OutFiles
     string stationarReachingF;
     string stationarTarget;
     string outputSpec;
+
+    string loadLow;
+    string loadHigh;
 };
 
 struct SystemAprioriInfo

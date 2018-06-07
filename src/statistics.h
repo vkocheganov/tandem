@@ -46,6 +46,14 @@ struct MyMean
     void PrintErr(ostream& outStream) {outStream<<std::sqrt(double(est_err_sq - est_err*est_err))<<"/"<<mean<<" ";}
 };
 
+struct LoadStatistics
+{
+    double inputNumLow = 0;
+    long long theoreticalNumLow = 0;
+    double inputNumHigh = 0;
+    long long theoreticalNumHigh = 0;
+};
+
 struct Statistics
 {
 Statistics(SystemAprioriInfo _sai): sai(_sai){};
@@ -93,11 +101,4 @@ Statistics(SystemAprioriInfo _sai): sai(_sai){};
 };
   
 
-struct LoadStatistics
-{
-    double inputNumLow = 0;
-    long long theoreticalNumLow = 0;
-    double inputNumHigh = 0;
-    long long theoreticalNumHigh = 0;
-}
 #endif
