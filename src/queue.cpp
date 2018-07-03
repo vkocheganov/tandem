@@ -184,14 +184,40 @@ void Queue::UpdateQueues(ServerState serverState, int currentTime)
         secondLightBatches = GenerateBatches(sai.secondFlow.lambda, timeToService),
         custInBatch,
         realTime;
+    vector<double> tmpAr(firstLightBatches + secondLightBatches);
 
-    uniform_int_distribution<int> distribution(currentTime, currentTime + timeToService);
+    uniform_real_distribution<double> realDistribution(0.0, 1.0);
+    
+    double sum = 0;
+    for (int i = 0; i < firstLightBatches; i++)
+    {
+        tmpAr[i] = sum = sum - log(realDistribution(PrimaryFlowDistribution::generator));
+    }
+    sum = sum - log(realDistribution(PrimaryFlowDistribution::generator));
+    for (int i = 0; i < firstLightBatches; i++)
+    {
+        tmpAr[i] /= sum;
+    }
+
+    sum = 0;
+    for (int i = firstLightBatches; i < firstLightBatches + secondLightBatches; i++)
+    {
+        tmpAr[i] = sum = sum - log(realDistribution(PrimaryFlowDistribution::generator));
+    }
+    sum = sum - log(realDistribution(PrimaryFlowDistribution::generator));
+    for (int i = firstLightBatches; i < firstLightBatches + secondLightBatches; i++)
+    {
+        tmpAr[i] /= sum;
+    }
+
+    // uniform_int_distribution<int> distribution(currentTime, currentTime + timeToService);
     
     for (int i = 0; i < firstLightBatches; i++)
     {
         custInBatch = GenerateCustomersInBatch(sai.firstFlow);
         stats.inputFirstCust += custInBatch;
-        realTime = distribution(PrimaryFlowDistribution::generator);
+        realTime = currentTime + timeToService*tmpAr[i];
+        // realTime = distribution(PrimaryFlowDistribution::generator);
         for (int j = 0; j < custInBatch; j++)
   	{
             firstLightPrimaryQueue.push(Customer(realTime));
@@ -202,7 +228,8 @@ void Queue::UpdateQueues(ServerState serverState, int currentTime)
     {
         custInBatch = GenerateCustomersInBatch(sai.secondFlow);
         stats.inputThirdCust += custInBatch;
-        realTime = distribution(PrimaryFlowDistribution::generator);
+        realTime = currentTime + timeToService*tmpAr[i + firstLightBatches];
+        // realTime = distribution(PrimaryFlowDistribution::generator);
         for (int j = 0; j < custInBatch; j++)
   	{
             secondLightLowPriorityQueue.push(Customer(realTime));

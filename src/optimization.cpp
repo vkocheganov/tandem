@@ -124,6 +124,8 @@ void RangeArray::PrintArr(ostream& outStream, SystemAprioriInfo sai)
                 stationarReachingTheoreticalFile << endl;
                 stationarReachingFactFile << endl;
                 targetFile << endl;
+                loadLowFile << endl;
+                loadHighFile << endl;
             }
             outStream<<endl;
             

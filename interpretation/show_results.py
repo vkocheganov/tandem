@@ -23,19 +23,34 @@ import time,os
 # suffix="l3_0.2_T3_1_100_T4_1_100_thrhld_5_prol_10"
 
 # suffix="l3_0.1_T3_1_100_T4_1_100_thrhld_-1"
-suffix="l3_0.1_T3_1_100_T4_1_100_thrhld_5"
-suffix="l3_0.1_T3_1_100_T4_1_100_thrhld_10"
+# suffix="l3_0.1_T3_1_100_T4_1_100_thrhld_5"
+# suffix="l3_0.1_T3_1_100_T4_1_100_thrhld_10"
 
-suffix_arr=["l3_0.2_T3_1_100_T4_1_100_thrhld_-1",
-            "l3_0.2_T3_1_100_T4_1_100_thrhld_0",
-            "l3_0.2_T3_1_100_T4_1_100_thrhld_5",
-            "l3_0.2_T3_1_100_T4_1_100_thrhld_10",
-            "l3_0.2_T3_1_100_T4_1_100_thrhld_15",
-            "l3_0.2_T3_1_100_T4_1_100_thrhld_5_prol_10",
-            "l3_0.1_T3_1_100_T4_1_100_thrhld_-1",
-            "l3_0.1_T3_1_100_T4_1_100_thrhld_5",
-            "l3_0.1_T3_1_100_T4_1_100_thrhld_10"]
+# suffix_arr=["l3_0.2_T3_1_100_T4_1_100_thrhld_-1",
+#             "l3_0.2_T3_1_100_T4_1_100_thrhld_0",
+#             "l3_0.2_T3_1_100_T4_1_100_thrhld_5",
+#             "l3_0.2_T3_1_100_T4_1_100_thrhld_10",
+#             "l3_0.2_T3_1_100_T4_1_100_thrhld_15",
+#             "l3_0.2_T3_1_100_T4_1_100_thrhld_5_prol_10",
+#             "l3_0.1_T3_1_100_T4_1_100_thrhld_-1",
+#             "l3_0.1_T3_1_100_T4_1_100_thrhld_5",
+#             "l3_0.1_T3_1_100_T4_1_100_thrhld_10",
+#             "new_l3_0.1_T3_1_100_T4_1_100_thrhld_-1",
+#             "new_l3_0.1_T3_1_100_T4_1_100_thrhld_5",
+#             "new_l3_0.1_T3_1_100_T4_1_100_thrhld_10",
+#             "new_l3_0.1_T3_1_100_T4_1_100_thrhld_15"]
 
+suffix_arr=["new_l3_0.2_T3_1_100_T4_1_100_thrhld_-1",
+            "new_l3_0.2_T3_1_100_T4_1_100_thrhld_5",
+            "new_l3_0.2_T3_1_100_T4_1_100_thrhld_10",
+            "new_l3_0.2_T3_1_100_T4_1_100_thrhld_15"]
+
+# suffix_arr=["new_l3_0.1_T3_1_100_T4_1_100_thrhld_-1",
+#             "new_l3_0.1_T3_1_100_T4_1_100_thrhld_5",
+#             "new_l3_0.1_T3_1_100_T4_1_100_thrhld_10",
+#             "new_l3_0.1_T3_1_100_T4_1_100_thrhld_15"]
+
+# suffix_arr=["new_l3_0.1_T3_1_100_T4_1_100_thrhld_5"]
 def ShowStationarBorders():
     T_4=np.linspace(T_4_low, T_4_high,100)
     T_3_1=lambda_3/(mu_3-lambda_3) * T_4
@@ -74,7 +89,20 @@ def ShowLoads():
     T_3_4 = T_3_4[idxs]
     T_4_4 = T_4[idxs]
 
-    plt.plot(T_4_4, T_3_4, color='blue', label='Equal loads line')
+    plt.plot(T_4_4, T_3_4, color='blue', label='Equal loads line (cycle case)')
+    plt.legend()
+    
+
+def ShowSampleLoads():
+    loadsHigh = np.loadtxt(loadsHighName)
+    loadsLow = np.loadtxt(loadsLowName)
+    loadsDiff = np.absolute(loadsHigh - loadsLow)
+
+    (X_2d,Y_2d) = np.meshgrid (axs1,axs2)
+    idxOfInterest = loadsDiff < 0.03
+    X_2d=X_2d[idxOfInterest]
+    Y_2d=Y_2d[idxOfInterest]
+    plt.plot(X_2d, Y_2d, color='lightblue', label='Equal loads line (prolong case)', linestyle=':')
     plt.legend()
 
 def CalcBestEqualCycle():
@@ -89,12 +117,121 @@ def CalcBestEqualCycle():
 
     return (eqArr, eqIdx)
 
+
+def CalcBestEqualCycleShifted():
+    beta=(mu_4 * lambda_3)/(lambda_1 * mu_3 )
+    ArrNum = int(beta*axs1[-1]+axs2[-1]+1)
+    eqArr=np.zeros(ArrNum)
+    eqIdx=np.zeros((ArrNum,2))
+    for i in range (workArray.shape[0]):
+        for j in range (workArray.shape[1]):
+            T_total=int(beta*axs1[i]+axs2[j])
+            if (eqArr[T_total] == 0 or eqArr[T_total] > workArray[i][j]):
+                eqArr[T_total] = workArray[i][j]
+                eqIdx[T_total][:]=(axs1[i],int(axs2[j]))
+
+    return (eqArr, eqIdx)
+
+def CalcBestEqualCycleVertical():
+    ArrNum = int(workArray.shape[1])
+    eqArr=np.zeros(ArrNum)
+    eqIdx=np.zeros((ArrNum,2))
+    for i in range (workArray.shape[0]):
+        for j in range (workArray.shape[1]):
+            T_total=j
+            if (eqArr[T_total] == 0 or eqArr[T_total] > workArray[i][j]):
+                eqArr[T_total] = workArray[i][j]
+                eqIdx[T_total][:]=(axs1[i],int(axs2[j]))
+
+    return (eqArr, eqIdx)
+
+def CalcAlmostBestEqualCycle(eqArr):
+    eqArrNew=np.zeros(axs1[-1]+axs2[-1]+1)
+    eqIdxNew=np.zeros((axs1[-1]+axs2[-1]+1,2))
+
+    for k in range (0,workArray.shape[0] + workArray.shape[1]-1):
+        firstIdx=-1
+        lastIdx=-1
+        T_total=0
+        for j in range (min(k,workArray.shape[0]-1),max(-1,k-workArray.shape[1]),-1):
+            i = k-j
+            T_total=(axs1[i]+axs2[j])
+            if (firstIdx == -1 and abs(workArray[i][j]-eqArr[T_total])/eqArr[T_total]<0.002):
+                firstIdx = i
+            if (abs(workArray[i][j]-eqArr[T_total])/eqArr[T_total]<0.002):
+                lastIdx = i
+            # print "%d %f" % (T_total,abs(workArray[i][j]-eqArr[T_total])/eqArr[T_total])
+            # if (eqArr[T_total] == 0 or eqArr[T_total] > workArray[i][j]):
+            #     eqArr[T_total] = workArray[i][j]
+            #     eqIdx[T_total][:]=(axs1[i],axs2[j])
+        j_mean = int((firstIdx + lastIdx)/2)
+        i_mean = k - j_mean
+        eqArrNew[T_total] = workArray[j_mean][i_mean]
+        eqIdxNew[T_total][:]=(axs1[j_mean],axs2[i_mean])
+
+    return (eqArrNew, eqIdxNew)
+
+
+def CalcAlmostBestEqualCycleVertical(eqArr):
+    ArrNum = int(workArray.shape[1])
+    eqArr=np.zeros(ArrNum)
+    eqIdx=np.zeros((ArrNum,2))
+    for i in range (workArray.shape[0]):
+        for j in range (workArray.shape[1]):
+            T_total=j
+            if (eqArr[T_total] == 0 or eqArr[T_total] > workArray[i][j]):
+                eqArr[T_total] = workArray[i][j]
+                eqIdx[T_total][:]=(axs1[i],int(axs2[j]))
+
+    return (eqArr, eqIdx)
+
+    ArrNum = int(workArray.shape[1])
+    eqArrNew=np.zeros(ArrNum)
+    eqIdxNew=np.zeros((ArrNum,2))
+
+    for i in range (0,workArray.shape[0]):
+        firstIdx=-1
+        lastIdx=-1
+        T_total=0
+        for j in range (0,workArray.shape[1]):
+            T_total=j
+            if (firstIdx == -1 and abs(workArray[i][j]-eqArr[T_total])/eqArr[T_total]<0.002):
+                firstIdx = i
+            if (abs(workArray[i][j]-eqArr[T_total])/eqArr[T_total]<0.002):
+                lastIdx = i
+            # print "%d %f" % (T_total,abs(workArray[i][j]-eqArr[T_total])/eqArr[T_total])
+            # if (eqArr[T_total] == 0 or eqArr[T_total] > workArray[i][j]):
+            #     eqArr[T_total] = workArray[i][j]
+            #     eqIdx[T_total][:]=(axs1[i],axs2[j])
+        j_mean = int((firstIdx + lastIdx)/2)
+        i_mean = k - j_mean
+        eqArrNew[T_total] = workArray[j_mean][i_mean]
+        eqIdxNew[T_total][:]=(axs1[j_mean],axs2[i_mean])
+
+    return (eqArrNew, eqIdxNew)
+
 def ShowBestEqualCycle(eqArr, eqIdx):
     highest_cycle=T_4_high * (1 + lambda_3/(mu_3-lambda_3))
-    print highest_cycle
-    idxs_to_show=((np.arange(eqArr.shape[0])[np.logical_and(eqArr>0,(eqIdx[:,0]+eqIdx[:,1])<highest_cycle)])[::4])
+    idxs_to_show=((np.arange(eqArr.shape[0])[np.logical_and(eqArr>0,(eqIdx[:,0]+eqIdx[:,1])<highest_cycle)])[::1])
     plt.plot([x[1] for x in eqIdx[idxs_to_show]], [x[0] for x in eqIdx[idxs_to_show]], color='darkviolet', label='Best target. Fixed cycle-length')
     plt.legend()
+    
+def ShowBestEqualCycleShifted(eqArr, eqIdx):
+    beta=(mu_4 * lambda_3)/(lambda_1 * mu_3 )
+    highest_cycle=T_4_high * (1 + beta*lambda_3/(mu_3-lambda_3))
+    idxs_to_show=((np.arange(eqArr.shape[0])[np.logical_and(eqArr>0,(beta*eqIdx[:,0]+eqIdx[:,1])<highest_cycle)])[::1])
+    plt.plot([x[1] for x in eqIdx[idxs_to_show]], [x[0] for x in eqIdx[idxs_to_show]], color='darkviolet', label='Best target. Fixed cycle-length')
+    plt.legend()
+    
+def ShowBestEqualCycleVertical(eqArr, eqIdx):
+    highest_cycle=workArray.shape[1]
+    idxs_to_show=((np.arange(eqArr.shape[0])[np.logical_and(eqArr>0,0<highest_cycle)])[::1])
+    plt.plot([x[1] for x in eqIdx[idxs_to_show]], [x[0] for x in eqIdx[idxs_to_show]], color='darkviolet', label='Best target. Vertical')
+    plt.legend()
+
+
+
+    
 
 for suffix in suffix_arr:
     workFolder = "/home/victor/Development/tandem_imitate/interpretation/favorite_logs/" + suffix
@@ -112,6 +249,8 @@ for suffix in suffix_arr:
     stationarFactName = workFolder + "/stationaryReachingF"
     targetName = workFolder + "/target"
     specName = workFolder + "/spec"
+    loadsHighName= workFolder + "/loadHigh"
+    loadsLowName= workFolder + "/loadLow"
 
     points = list(product(axs1,axs2))
 
@@ -126,7 +265,7 @@ for suffix in suffix_arr:
     # thresh=5
 
 
-    BINS=100
+    BINS=13
     # for filename in (targetName, stationarTheoreticalName, stationarFactName):
     for filename in ([targetName]):
         print filename
@@ -134,8 +273,18 @@ for suffix in suffix_arr:
         myPercentiles = np.percentile(workArray, np.linspace(0, 100, BINS))
         print myPercentiles
 
-        (myEqArr, myEqIdx)=CalcBestEqualCycle()
-        ShowBestEqualCycle(myEqArr, myEqIdx)
+        # (myEqArr, myEqIdx)=CalcBestEqualCycle()
+        # # (myEqArr, myEqIdx) = CalcAlmostBestEqualCycle(myEqArr)
+        # ShowBestEqualCycle(myEqArr, myEqIdx)
+
+
+        # (myEqArr, myEqIdx)=CalcBestEqualCycleShifted()
+        # # (myEqArr, myEqIdx) = CalcAlmostBestEqualCycle(myEqArr)
+        # ShowBestEqualCycleShifted(myEqArr, myEqIdx)
+
+        (myEqArr, myEqIdx)=CalcBestEqualCycleVertical()
+        # (myEqArr, myEqIdx) = CalcAlmostBestEqualCycle(myEqArr)
+        ShowBestEqualCycleVertical(myEqArr, myEqIdx)
 
         colors = np.searchsorted(myPercentiles, workArray)
         plt.scatter([x[0] for x in points],[x[1] for x in points], c=colors.ravel(order='F'), cmap='summer')
@@ -147,6 +296,7 @@ for suffix in suffix_arr:
         ShowStationarBorders()
         ShowStationarProlongBorders()
         ShowLoads()
+        ShowSampleLoads()
         # plt.show()
 
         pictureFile = picturesFolder + "/target"
