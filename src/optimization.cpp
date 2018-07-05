@@ -94,7 +94,10 @@ void RangeArray::PrintArr(ostream& outStream, SystemAprioriInfo sai)
         stationarReachingFactFile (sai.outFiles.stationarReachingF, ofstream::out | ofstream::app),
         targetFile (sai.outFiles.stationarTarget, ofstream::out | ofstream::app),
         loadLowFile (sai.outFiles.loadLow, ofstream::out | ofstream::app),
-        loadHighFile (sai.outFiles.loadHigh, ofstream::out | ofstream::app)
+        loadHighFile (sai.outFiles.loadHigh, ofstream::out | ofstream::app),
+        prolTimeFile (sai.outFiles.prolTime, ofstream::out | ofstream::app),
+        timeUntilStatFile (sai.outFiles.timeUntilStat, ofstream::out | ofstream::app),
+        itersUntilStatFile (sai.outFiles.itersUntilStat, ofstream::out | ofstream::app)
         ;
 
     while (1){
@@ -104,7 +107,10 @@ void RangeArray::PrintArr(ostream& outStream, SystemAprioriInfo sai)
             targetFile << arr[aIdx].target<<" ";
             loadLowFile << arr[aIdx].loadLow<<" ";
             loadHighFile << arr[aIdx].loadHigh<<" ";
-        }
+            prolTimeFile << arr[aIdx].avgProl<<" ";
+            timeUntilStatFile <<arr[aIdx].timeUntilStationar<<" ";
+            itersUntilStatFile <<arr[aIdx].itersUntilStationar<<" ";
+    }
         outStream<< arr[aIdx++]<<" ";
         idx = RANGE_INDEXES_LAST - 1;
         newLine = false;
@@ -126,6 +132,9 @@ void RangeArray::PrintArr(ostream& outStream, SystemAprioriInfo sai)
                 targetFile << endl;
                 loadLowFile << endl;
                 loadHighFile << endl;
+                prolTimeFile << endl;
+                timeUntilStatFile <<endl;
+                itersUntilStatFile <<endl;
             }
             outStream<<endl;
             
@@ -237,11 +246,12 @@ void Optimization::Iterate(SystemAprioriInfo sai)
         refSystem(refInitialQueueState, initialServerState, refSai);
     bool statSucc = false;
 
-    for (int i = 0; i < sai.numMaxIteration; i++)
+    int ii = 0;
+    for (ii; ii < sai.numMaxIteration; ii++)
     {
-        refSystem.MakeIteration(i);
-        system.MakeIteration(i);
-        if (system.CheckStationaryMode(refSystem,i) && i >= sai.numMaxIteration * 0.1)
+        refSystem.MakeIteration(ii);
+        system.MakeIteration(ii);
+        if (system.CheckStationaryMode(refSystem,ii) && ii >= sai.numMaxIteration * 0.1)
         {
             statSucc = true;
             break;
@@ -268,6 +278,8 @@ void Optimization::Iterate(SystemAprioriInfo sai)
     saiFile.close();
 
 
+    rangeArray.arr[rangeArray.arrIdx].timeUntilStationar = system.sQueue.stats.timeTotal;
+    rangeArray.arr[rangeArray.arrIdx].itersUntilStationar = ii;
     if (statSucc)
     {
         for (int i = 0; i < sai.numIterationStationary; i++)
@@ -294,7 +306,8 @@ void Optimization::Iterate(SystemAprioriInfo sai)
     
     rangeArray.arr[rangeArray.arrIdx].target = UpdateTarget(firstUntilServiceAvg + firstServiceAvg, secondServiceAvg + secondUntilServiceAvg, sai, currFile);
 
-
+    rangeArray.arr[rangeArray.arrIdx].avgProl = double (system.sQueue.stats.loadStatistics.prolTime) / system.sQueue.stats.loadStatistics.prolNum;
+    
     
     saiFile.open(sai.outFiles.saiFile, ofstream::out | ofstream::app);
     int statesTotalDurations = 0;

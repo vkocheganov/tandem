@@ -41,6 +41,10 @@ struct OptStats
 
     double loadLow;
     double loadHigh;
+
+    double avgProl;
+    long long timeUntilStationar;
+    long long itersUntilStationar;
     friend ostream& operator<< (ostream& stream, const OptStats& optStats)
         {
             stream<<"("<<optStats.theoreticalStationar<<","<<optStats.stationar<<"|"

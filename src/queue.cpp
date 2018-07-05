@@ -75,6 +75,12 @@ void Queue::MakeIteration(ServerState prevServerState, ServerState serverState, 
     if (prevServerState.state2 != serverState.state2)
     {
         stats.timesLocate[serverState.state2]++;
+        if (prevServerState.state2 == HighPriority)
+        {
+            stats.loadStatistics.prolNum++;
+        }
+        if (serverState.state2 == Prolongation)
+            stats.loadStatistics.prolTime += serverState.timeDuration;
     }
     stats.timesLocateTimes[serverState.state2] += serverState.timeDuration;
     

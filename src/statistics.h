@@ -52,6 +52,8 @@ struct LoadStatistics
     long long theoreticalNumLow = 0;
     double inputNumHigh = 0;
     long long theoreticalNumHigh = 0;
+    long long prolTime = 0;
+    long long prolNum = 0;
 };
 
 struct Statistics

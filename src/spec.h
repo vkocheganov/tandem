@@ -55,6 +55,11 @@ struct OutFiles
 
     string loadLow;
     string loadHigh;
+
+    string prolTime;
+
+    string timeUntilStat;
+    string itersUntilStat;
 };
 
 struct SystemAprioriInfo

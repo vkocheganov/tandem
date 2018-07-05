@@ -50,8 +50,10 @@ int main(int argc, char * const argv[])
 
     optimize.rangeArray.ranges[FIRST_LIGHT_TIME_PRIMARY] = {20, 10, 20};
     optimize.rangeArray.ranges[FIRST_LIGHT_TIME_SECONDARY] = {10, 10, 10};
-    optimize.rangeArray.ranges[SECOND_LIGHT_TIME_LOW] = {1, 2, 100};
-    optimize.rangeArray.ranges[SECOND_LIGHT_TIME_HIGH] = {1, 2, 100};
+    optimize.rangeArray.ranges[SECOND_LIGHT_TIME_LOW] = {29, 1, 29};
+    optimize.rangeArray.ranges[SECOND_LIGHT_TIME_HIGH] = {1, 1, 1};
+    // optimize.rangeArray.ranges[SECOND_LIGHT_TIME_LOW] = {1, 4, 100};
+    // optimize.rangeArray.ranges[SECOND_LIGHT_TIME_HIGH] = {1, 4, 100};
     optimize.rangeArray.ranges[SECOND_LIGHT_TIME_PROLONG] = {10, 1, 10};
     optimize.rangeArray.ranges[THRESHOLD] = {10, 1, 10};
     
@@ -186,6 +188,9 @@ SystemAprioriInfo CreateSai(int argc, char * const argv[])
     sai.outFiles.loadLow = sai.outFiles.foldName + "/loadLow";
     sai.outFiles.loadHigh = sai.outFiles.foldName + "/loadHigh";
 
+    sai.outFiles.prolTime = sai.outFiles.foldName + "/prolTimes";
+    sai.outFiles.timeUntilStat = sai.outFiles.foldName + "/timeUntilStationar";
+    sai.outFiles.itersUntilStat = sai.outFiles.foldName + "/itersUntilStationar";
     sai.verbose = verbose;
     
     ofstream saiFile(sai.outFiles.saiFile, ofstream::out | ofstream::app);
