@@ -3,67 +3,19 @@ import numpy as np
 import matplotlib.pyplot as plt
 from itertools import product
 import time,os
-import sys
-reload(sys)
-sys.setdefaultencoding("utf-8")
 
-
-
-
-#suffix="l3_0.1_thrhld_-1"
-# suffix="l3_0.1_thrhld_5"
-# suffix="l3_0.2_thrhld_-1"
-#suffix="l3_0.2_thrhld_5"
-
-# suffix="l3_0.2_T3_1_50_T4_1_50_thrhld_5"
-#suffix="l3_0.2_T3_1_50_T4_1_50_thrhld_-1"
-#suffix="l3_0.2_prol_1_30_thrhld_1_30"
-
-# suffix="l3_0.2_T3_1_100_T4_1_100_thrhld_-1"
-#suffix="l3_0.2_T3_1_100_T4_1_100_thrhld_0"
-# suffix="l3_0.2_T3_1_100_T4_1_100_thrhld_5"
-
-# suffix="l3_0.2_T3_1_100_T4_1_100_thrhld_10"
-# suffix="l3_0.2_T3_1_100_T4_1_100_thrhld_15"
-# suffix="l3_0.2_T3_1_100_T4_1_100_thrhld_5_prol_10"
-
-# suffix="l3_0.1_T3_1_100_T4_1_100_thrhld_-1"
-# suffix="l3_0.1_T3_1_100_T4_1_100_thrhld_5"
-# suffix="l3_0.1_T3_1_100_T4_1_100_thrhld_10"
-
-# suffix_arr=["l3_0.2_T3_1_100_T4_1_100_thrhld_-1",
-#             "l3_0.2_T3_1_100_T4_1_100_thrhld_0",
-#             "l3_0.2_T3_1_100_T4_1_100_thrhld_5",
-#             "l3_0.2_T3_1_100_T4_1_100_thrhld_10",
-#             "l3_0.2_T3_1_100_T4_1_100_thrhld_15",
-#             "l3_0.2_T3_1_100_T4_1_100_thrhld_5_prol_10",
-#             "l3_0.1_T3_1_100_T4_1_100_thrhld_-1",
-#             "l3_0.1_T3_1_100_T4_1_100_thrhld_5",
-#             "l3_0.1_T3_1_100_T4_1_100_thrhld_10",
-#             "new_l3_0.1_T3_1_100_T4_1_100_thrhld_-1",
-#             "new_l3_0.1_T3_1_100_T4_1_100_thrhld_5",
-#             "new_l3_0.1_T3_1_100_T4_1_100_thrhld_10",
-#             "new_l3_0.1_T3_1_100_T4_1_100_thrhld_15"]
-
-# suffix_arr=["new_l3_0.2_T3_1_100_T4_1_100_thrhld_-1",
-#             "new_l3_0.2_T3_1_100_T4_1_100_thrhld_5",
-#             "new_l3_0.2_T3_1_100_T4_1_100_thrhld_10",
-#             "new_l3_0.2_T3_1_100_T4_1_100_thrhld_15"]
-
-# suffix_arr=["new_l3_0.1_T3_1_100_T4_1_100_thrhld_-1",
-#             "new_l3_0.1_T3_1_100_T4_1_100_thrhld_5",
-#             "new_l3_0.1_T3_1_100_T4_1_100_thrhld_10",
-#             "new_l3_0.1_T3_1_100_T4_1_100_thrhld_15"]
-
-# suffix_arr=["new_l3_0.1_T3_1_100_T4_1_100_thrhld_5"]
 
 
 # suffix_arr=["new/l3_0.1_T3_1_100_T4_1_100_thrhld_10_prolong_10__1",
 #             "new/l3_0.1_T3_1_100_T4_1_100_thrhld_10_prolong_10__2",
-# "new/l3_0.1_T3_1_100_T4_1_100_thrhld_10_prolong_10__3"]
-# suffix_arr=["new/l3_0.1_T3_1_100_T4_1_100_thrhld_10_prolong_10__1"]
-# suffix_arr=["new_l3_0.1_T3_1_100_T4_1_100_thrhld_10"]
-suffix_arr=["l3_0.2_T3_1_100_T4_1_100_thrhld_10"]
+#             "new/l3_0.1_T3_1_100_T4_1_100_thrhld_10_prolong_10__3",
+#             "new/l3_0.1_T3_1_100_T4_1_100_thrhld_10_prolong_10__4",
+#             "new/l3_0.1_T3_1_100_T4_1_100_thrhld_10_prolong_10__5",
+#             "new/l3_0.1_T3_1_100_T4_1_100_thrhld_10_prolong_10__6",
+#             "new/l3_0.1_T3_1_100_T4_1_100_thrhld_10_prolong_10__7",
+#             "new/l3_0.1_T3_1_100_T4_1_100_thrhld_10_prolong_10__8",
+#             "new/l3_0.1_T3_1_100_T4_1_100_thrhld_10_prolong_10__9"]
+suffix_arr=["new/l3_0.1_T3_1_100_T4_1_100_thrhld_10_prolong_10__1"]
 
 def ShowStationarBorders():
     T_4=np.linspace(T_4_low, T_4_high,100)
@@ -77,9 +29,7 @@ def ShowStationarBorders():
     T_3_2 = T_3_2[idxs]
     T_4_2 = T_4[idxs]
 
-#    plt.plot(T_4_1, T_3_1, color='black', label='Stationar bounds', linewidth=5)
-    plt.plot(T_4_1, T_3_1, color='black', label='Достаточное условие стационарности', linewidth=5)
-    plt.plot(T_4_1, T_3_1, color='black', linewidth=5)
+    plt.plot(T_4_1, T_3_1, color='black', label='Stationar bounds', linewidth=5)
     plt.plot(T_4_2, T_3_2, color='black', linewidth=5)
     plt.legend()
 
@@ -93,7 +43,7 @@ def ShowStationarProlongBorders():
     T_3_3 = T_3_3[idxs]
     T_4_3 = T_4[idxs]
 
-    plt.plot(T_4_3, T_3_3, color='gray', label='Эмпирическое условие стационарности')
+    plt.plot(T_4_3, T_3_3, color='gray', label='Higher stationar bound (prol case)')
     plt.legend()
 
 
@@ -105,7 +55,7 @@ def ShowLoads():
     T_3_4 = T_3_4[idxs]
     T_4_4 = T_4[idxs]
 
-    plt.plot(T_4_4, T_3_4, color='blue', label='Линия равных загрузок (без продления)')
+    plt.plot(T_4_4, T_3_4, color='blue', label='Equal loads line (cycle case)')
     plt.legend()
     
 
@@ -119,7 +69,7 @@ def ShowSampleLoads():
     idxOfInterest = loadsDiff < 0.05
     X_2d=X_2d[idxOfInterest]
     Y_2d=Y_2d[idxOfInterest]
-    plt.plot(X_2d, Y_2d, color='lightblue', label='Линия равных загрузок (с продлением)', marker='o')
+    plt.plot(X_2d, Y_2d, color='lightblue', label='Equal loads line (prolong case)', marker='o')
     plt.legend()
 
 def CalcBestEqualCycle():
@@ -161,17 +111,6 @@ def CalcBestEqualCycleVertical():
                 eqIdx[T_total][:]=(axs1[i],int(axs2[j]))
 
     return (eqArr, eqIdx)
-
-def CalcBestTime():
-    best = np.zeros(2)
-    best_val = workArray[0][0]
-    for i in range (workArray.shape[0]):
-        for j in range (workArray.shape[1]):
-            if (best_val > workArray[i][j]):
-                best_val = workArray[i][j]
-                best[:] = (axs1[i],int(axs2[j]))
-
-    return (best, best_val)
 
 def CalcAlmostBestEqualCycle(eqArr):
     eqArrNew=np.zeros(axs1[-1]+axs2[-1]+1)
@@ -254,13 +193,14 @@ def ShowBestEqualCycleShifted(eqArr, eqIdx):
 def ShowBestEqualCycleVertical(eqArr, eqIdx):
     highest_cycle=workArray.shape[1]
     idxs_to_show=((np.arange(eqArr.shape[0])[np.logical_and(eqArr>0,0<highest_cycle)])[::1])
-    plt.plot([x[1] for x in eqIdx[idxs_to_show]], [x[0] for x in eqIdx[idxs_to_show]], color='darkviolet', label='Оптимум по вертикали')
+    plt.plot([x[1] for x in eqIdx[idxs_to_show]], [x[0] for x in eqIdx[idxs_to_show]], color='darkviolet', label='Best target. Vertical')
     plt.legend()
 
 
 
     
 
+agg_arr=[]
 for suffix in suffix_arr:
     workFolder = "/home/victor/Development/tandem_imitate/interpretation/favorite_logs/" + suffix
     # axs1 = np.arange(5,31,5)
@@ -268,8 +208,8 @@ for suffix in suffix_arr:
     # (T_3_low, T_3_high, T_4_low, T_4_high) = (1,30,0,30)
     #(T_3_low, T_3_high, T_4_low, T_4_high) = (5,30,5,30)
     # (T_3_low, T_3_high, T_4_low, T_4_high) = (1,50,1,50)
-    (T_3_low, T_3_high, T_3_step, T_4_low, T_4_high, T_4_step) = (1,100,2,1,100,2)
-    # (T_3_low, T_3_high, T_3_step, T_4_low, T_4_high, T_4_step) = (1,100,4,1,100,4)
+    # (T_3_low, T_3_high, T_3_step, T_4_low, T_4_high, T_4_step) = (1,100,2,1,100,2)
+    (T_3_low, T_3_high, T_3_step, T_4_low, T_4_high, T_4_step) = (1,100,4,1,100,4)
 
     axs1 = np.arange(T_3_low,T_3_high + 1,T_3_step)
     axs2 = np.arange(T_4_low,T_4_high + 1,T_4_step)
@@ -296,106 +236,62 @@ for suffix in suffix_arr:
 
     BINS=13
     # for filename in (targetName, stationarTheoreticalName, stationarFactName):
-    # for filename in ([targetName]):
-    for filename in ([]):
-        workArray = np.loadtxt ( filename )
-        
-        myPercentiles = np.percentile(workArray, np.linspace(0, 100, BINS))
-
-        # (myEqArr, myEqIdx)=CalcBestEqualCycle()
-        # # (myEqArr, myEqIdx) = CalcAlmostBestEqualCycle(myEqArr)
-        # ShowBestEqualCycle(myEqArr, myEqIdx)
-
-
-        # (myEqArr, myEqIdx)=CalcBestEqualCycleShifted()
-        # # (myEqArr, myEqIdx) = CalcAlmostBestEqualCycle(myEqArr)
-        # ShowBestEqualCycleShifted(myEqArr, myEqIdx)
-
-        (myEqArr, myEqIdx)=CalcBestEqualCycleVertical()
-        # (myEqArr, myEqIdx) = CalcAlmostBestEqualCycle(myEqArr)
-        ShowBestEqualCycleVertical(myEqArr, myEqIdx)
-
-        # (best, best_val) = CalcBestTime()
-        # plt.plot([best[1]], [best[0]], marker='o', markersize=3, color='red')
-
-        colors = np.searchsorted(myPercentiles, workArray)
-        print colors.shape
-        print workArray.shape
-        plt.scatter([x[0] for x in points],[x[1] for x in points], c=colors.ravel(order='F'), cmap='summer')
-        plt.xlabel(r'$T^{(2,2)}$')
-        plt.ylabel(r'$T^{(2,1)}$')
-        # plt.ylabel("Duration")
-        # plt.xlabel("Threshold")
-        plt.colorbar(boundaries = np.concatenate(([0],myPercentiles)), values = np.arange(0,BINS))
-        ShowStationarBorders()
-        ShowStationarProlongBorders()
-        ShowLoads()
-        ShowSampleLoads()
-        # plt.show()
-
-        plt.legend(loc=1)
-        pictureFile = picturesFolder + "/target_new"
-        plt.savefig(pictureFile)
-        plt.clf()
-
-        # (zlow,zhigh)=(550, 600)
-        # fig = plt.figure()
-        # ax = fig.add_subplot(111, projection='3d')
-        # (X_2d,Y_2d) = np.meshgrid (axs1,axs2)
-        # zToDisplay=np.minimum(workArray,zhigh)
-        # surf = ax.plot_surface(X_2d, Y_2d, zToDisplay)
-        # ax.set_zlim3d(550, 600, emit=False)
-        # ax.set_xlabel("T_4")
-        # ax.set_ylabel("T_3")
-        # ax.set_zlabel("Target")
-        # plt.show()
-
-
-    BINS=2
-    for filename in ([stationarFactName]):
-    # for filename in ([stationarTheoreticalName, stationarFactName]):
+    for filename in ([targetName]):
         print filename
         workArray = np.loadtxt ( filename )
-        myPercentiles = np.percentile(workArray, np.linspace(0, 100, BINS))
-        print myPercentiles
-        colors = np.searchsorted(myPercentiles, workArray)
-        plt.scatter([x[0] for x in points],[x[1] for x in points], c=colors.ravel(order='F'), cmap='summer')
-        # plt.xlabel(r'$T^{(2,2)}$')
-        # plt.ylabel(r'$T^{(2,1)}$')
-        plt.xlabel(r'$T^{(2,2)}$')
-        plt.ylabel(r'$T^{(2,1)}$')
-        # plt.ylabel("Duration")
-        # plt.xlabel("Threshold")
-        plt.colorbar(boundaries = [0, 0.5, 1], values = np.arange(0,BINS))
-        ShowStationarBorders()
-        ShowStationarProlongBorders()
-        # plt.show()
-        plt.legend(loc=1)
-        pictureFile = picturesFolder + "/fact_new"
-        plt.savefig(pictureFile)
-        plt.clf()
+        agg_arr.append(workArray)
+        
+avg_arr = np.mean(agg_arr, axis=0)
+work_array = avg_arr
+
+picturesFolder= "/home/victor/Development/tandem_imitate/interpretation" + "/Pictures/" + "new/averaged"
+
+if not os.path.exists(picturesFolder):
+    os.makedirs(picturesFolder)
+
+BINS=13
+myPercentiles = np.percentile(workArray, np.linspace(0, 100, BINS))
+
+# (myEqArr, myEqIdx)=CalcBestEqualCycle()
+# # (myEqArr, myEqIdx) = CalcAlmostBestEqualCycle(myEqArr)
+# ShowBestEqualCycle(myEqArr, myEqIdx)
 
 
+# (myEqArr, myEqIdx)=CalcBestEqualCycleShifted()
+# # (myEqArr, myEqIdx) = CalcAlmostBestEqualCycle(myEqArr)
+# ShowBestEqualCycleShifted(myEqArr, myEqIdx)
+
+(myEqArr, myEqIdx)=CalcBestEqualCycleVertical()
+# (myEqArr, myEqIdx) = CalcAlmostBestEqualCycle(myEqArr)
+ShowBestEqualCycleVertical(myEqArr, myEqIdx)
+
+colors = np.searchsorted(myPercentiles, workArray)
+plt.scatter([x[0] for x in points],[x[1] for x in points], c=colors.ravel(order='F'), cmap='summer')
+plt.xlabel("T_4")
+plt.ylabel("T_3")
+# plt.ylabel("Duration")
+# plt.xlabel("Threshold")
+plt.colorbar(boundaries = np.concatenate(([0],myPercentiles)), values = np.arange(0,BINS))
+ShowStationarBorders()
+ShowStationarProlongBorders()
+ShowLoads()
+ShowSampleLoads()
+# plt.show()
+
+pictureFile = picturesFolder + "/target"
+plt.savefig(pictureFile)
+plt.clf()
+
+# (zlow,zhigh)=(550, 600)
+# fig = plt.figure()
+# ax = fig.add_subplot(111, projection='3d')
+# (X_2d,Y_2d) = np.meshgrid (axs1,axs2)
+# zToDisplay=np.minimum(workArray,zhigh)
+# surf = ax.plot_surface(X_2d, Y_2d, zToDisplay)
+# ax.set_zlim3d(550, 600, emit=False)
+# ax.set_xlabel("T_4")
+# ax.set_ylabel("T_3")
+# ax.set_zlabel("Target")
+# plt.show()
 
 
-    # BINS=2
-    # for filename in ([stationarTheoreticalName]):
-    # # for filename in ([stationarTheoreticalName, stationarFactName]):
-    #     print filename
-    #     workArray = np.loadtxt ( filename )
-    #     myPercentiles = np.percentile(workArray, np.linspace(0, 100, BINS))
-    #     print myPercentiles
-    #     colors = np.searchsorted(myPercentiles, workArray)
-    #     plt.scatter([x[0] for x in points],[x[1] for x in points], c=colors.ravel(order='F'), cmap='summer')
-    #     plt.xlabel("T_4")
-    #     plt.ylabel("T_3")
-    #     # plt.ylabel("Duration")
-    #     # plt.xlabel("Threshold")
-    #     plt.colorbar(boundaries = [0, 0.5, 1], values = np.arange(0,BINS))
-    #     ShowTheoreticalBorders()
-    #     # plt.show()
-    #     pictureFile = picturesFolder + "/theoretical_"
-    #     plt.savefig(pictureFile)
-
-    #     plt.show()
-    #     # plt.clf()

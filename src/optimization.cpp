@@ -282,7 +282,7 @@ void Optimization::Iterate(SystemAprioriInfo sai)
     rangeArray.arr[rangeArray.arrIdx].itersUntilStationar = ii;
     if (statSucc)
     {
-        for (int i = 0; i < sai.numIterationStationary; i++)
+        for (int i = 0; i < ii; i++)
         {
             system.MakeIteration(i);
         }
